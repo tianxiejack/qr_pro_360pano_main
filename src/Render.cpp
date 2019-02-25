@@ -2715,7 +2715,7 @@ void Render::pano360View(int x,int y,int width,int height)
 			//viewcamera[i].fixrect.x=lx;
 			int textid=viewcamera[i].panotextureindex;
 			viewcamera[i].fixrect.y=  renderheight-(viewcamera[textid].leftdownrect.y+viewcamera[textid].leftdownrect.height);
-			viewcamera[i].fixrect.width=h;
+			viewcamera[i].fixrect.width=w/4;
 			viewcamera[i].fixrect.height=h;
 
 			//y=max(0,y-viewcamera[j].fixrect.height/2);

@@ -1749,7 +1749,7 @@ void Render::Drawosdcamera()
 	int halfwidh=pano360texturew/2;
 	int halfheight=pano360textureh/2;
 
-	for(int c=RENDERCAMERA1;c<=RENDERCAMERA3;c++)
+	for(int c=RENDERCAMERA1;c<=RENDERCAMERA4;c++)
 		{
 	detect.clear();
 	lx=viewcamera[c].leftdownrect.x;
@@ -1912,7 +1912,7 @@ void Render::DrawSelectrect()
 	//Glosdhandle.setcolorline(GLBLUE);
 	//Glosdhandle.drawbegin();
 	if(getmenumode()==PANOMODE)
-		for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+		for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 		{
 			Rect rect;
 			leftdown2leftup(viewcamera[i].leftdownrect,rect);
@@ -1938,7 +1938,7 @@ void Render::DrawSelectrect()
 	Rgba colour=Rgba(255,0,255,255);
 	//Osdcontext *contxt=osdcontex.getOSDcontex();
 	//Drawmenuupdate();
-	for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+	for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 		{
 			if(viewcamera[i].active&&viewcamera[i].multipleshow)
 				{
@@ -2325,7 +2325,7 @@ void Render::Drawfusion()
 	
 	
 	if(getmenumode()==PANOMODE)
-	for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+	for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 		{
 			//Rect rect=viewcamera[i].updownselcectrect;
 			Rect rect=viewcamera[i].fixrect;
@@ -2353,7 +2353,7 @@ void Render::Drawfusion()
 		
 		
 
-		for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+		for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 		{
 			recttartget=viewcamera[i].updownselcectrect;
 
@@ -2390,7 +2390,7 @@ void Render::Drawfusion()
 		}
 		
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+			for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 			{
 				shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeline.GetModelViewProjectionMatrix(), colour[i-RENDERCAMERA1]);
 				radarcamera[i].Draw();
@@ -2642,10 +2642,17 @@ void Render::pano360View(int x,int y,int width,int height)
 	
 	
 	/*************************************************************************/
-	lx=0;
-	ly=height*5/6;
-	w=width;
-	h=height*1/6;
+	if(getmenumode()==SELECTMODE){
+		lx=0;
+		ly=height*5/6;
+		w=width;
+		h=height*1/6;
+	}else{
+		lx=0;
+		ly=height*5/6;
+		w=width*2/3;
+		h=height*1/6;
+	}
 	mov180viewx=lx;
 	mov180viewy=ly;
 	mov180vieww=w;
@@ -2694,11 +2701,17 @@ void Render::pano360View(int x,int y,int width,int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 
-
-	lx=0;
-	ly=height*4/6;
-	w=width;
-	h=height*1/6;
+	if(getmenumode()==SELECTMODE){
+		lx=0;
+		ly=height*4/6;
+		w=width;
+		h=height*1/6;
+	}else{
+		lx=0;
+		ly=height*4/6;
+		w=width*2/3;
+		h=height*1/6;
+	}
 	mov360viewx=lx;
 	mov360viewy=ly;
 	mov360vieww=w;
@@ -2775,9 +2788,11 @@ void Render::pano360View(int x,int y,int width,int height)
 
 	
 	/**************************radar display***********************************************/
+	if(getmenumode()!=SELECTMODE)
+	{
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	lx=width-width/3;
-	ly=0;
+	ly=height*4/6;
 	w=width/3;
 	h=height*2/6;
 	
@@ -2839,7 +2854,7 @@ void Render::pano360View(int x,int y,int width,int height)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+	}
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 /*
@@ -2898,7 +2913,7 @@ void Render::pano360View(int x,int y,int width,int height)
 
 	lx=0;
 	ly=0;
-	w=width-width/3;
+	w=width-width/2;
 	h=height*2/6-extrablackw;
 
 	viewcamera[RENDERCAMERA1].leftdownrect.x=lx;
@@ -2907,7 +2922,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	viewcamera[RENDERCAMERA1].leftdownrect.height=h;
 	
 	glViewport(lx,ly,w,h);
-	
+#if 0
 	if(getmenumode()==PANOMODE)
 		{
 				if(pano360texturenum==1)
@@ -2919,7 +2934,7 @@ void Render::pano360View(int x,int y,int width,int height)
 		}
 	else
 		glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
-	
+#endif
 	m3dLoadIdentity44(identy);
 	//shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
 	
@@ -2984,6 +2999,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	viewcamera[RENDERCAMERA3].leftdownrect.height=h;
 	glViewport(lx,ly,w,h);
 	//glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
+#if 0
 	if(pano360texturenum==1)
 				{
 					       glBindTexture(GL_TEXTURE_2D, textureID[PANOTEXTURE]);
@@ -2991,7 +3007,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	else
 		glBindTexture(GL_TEXTURE_2D, textureID[PANOTEXTURE+viewcamera[RENDERCAMERA3].panotextureindex]);
 
-	
+#endif
 	m3dLoadIdentity44(identy);
 	//shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
 	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
@@ -3035,13 +3051,14 @@ void Render::pano360View(int x,int y,int width,int height)
 	viewcamera[RENDERCAMERA2].leftdownrect.width=w;
 	viewcamera[RENDERCAMERA2].leftdownrect.height=h;
 	glViewport(lx,ly,w,h);
+#if 0
 	if(pano360texturenum==1)
 				{
 					       glBindTexture(GL_TEXTURE_2D, textureID[PANOTEXTURE]);
 				}
 				else
 	glBindTexture(GL_TEXTURE_2D, textureID[PANOTEXTURE+viewcamera[RENDERCAMERA2].panotextureindex]);
-	
+#endif
 	m3dLoadIdentity44(identy);
 	//shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
 	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
@@ -3074,8 +3091,6 @@ void Render::pano360View(int x,int y,int width,int height)
 		}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
-	
 	/*************************************************************************/
 	modelViewMatrix.PopMatrix();
 
@@ -3719,7 +3734,7 @@ void Render::selectupdate()
 		}
 	//setselecttexture(1);
 
-	for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+	for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 		{
 			index=viewcamera[i].panotextureindex;
 			int tempw=viewcamera[index].leftdownrect.width;
@@ -4003,7 +4018,7 @@ void Render::fixrectupdate()
 
 	int x=mousex;
 	int y=mousey;
-	for(int j=RENDERCAMERA1;j<=RENDERCAMERA3;j++)
+	for(int j=RENDERCAMERA1;j<=RENDERCAMERA4;j++)
 		{
 			if(viewcamera[j].active)
 				{
@@ -4122,7 +4137,7 @@ void Render::viewcameraprocess()
 						leftdownrect.y>viewcamera[i].leftdownrect.y&&leftdownrect.y<viewcamera[i].leftdownrect.y+viewcamera[i].leftdownrect.height)
 						{
 							viewcamera[i].active=1;
-							for(int j=RENDERCAMERA1;j<=RENDERCAMERA3;j++)
+							for(int j=RENDERCAMERA1;j<=RENDERCAMERA4;j++)
 							{
 								if(viewcamera[j].active)
 									{
@@ -4153,7 +4168,7 @@ void Render::viewcameraprocess()
 
 
 			//if(cameraselcect)
-			for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+			for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 				{
 					//cout<<leftdownrect<<viewcamera[i].leftdownrect<<endl;
 					if(leftdownrect.x>viewcamera[i].leftdownrect.x&&leftdownrect.x<viewcamera[i].leftdownrect.x+viewcamera[i].leftdownrect.width&&\
@@ -4168,7 +4183,7 @@ void Render::viewcameraprocess()
 				}
 			if(cameraselcect)
 				{
-					for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+					for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 						{
 							if(leftdownrect.x>viewcamera[i].leftdownrect.x&&leftdownrect.x<viewcamera[i].leftdownrect.x+viewcamera[i].leftdownrect.width&&\
 								leftdownrect.y>viewcamera[i].leftdownrect.y&&leftdownrect.y<viewcamera[i].leftdownrect.y+viewcamera[i].leftdownrect.height)
@@ -4744,7 +4759,7 @@ void Render::gltMakeradarpoints(vector<OSDPoint>& osdpoints, GLfloat innerRadius
 void Render::multipleupdate(int status)
 {
 
-		for(int j=RENDERCAMERA1;j<=RENDERCAMERA3;j++)
+		for(int j=RENDERCAMERA1;j<=RENDERCAMERA4;j++)
 		{
 			if(viewcamera[j].active)
 				{
@@ -4775,7 +4790,7 @@ void Render::multipleupdate(int status)
 void Render::displaytimer(void *param)
 {
 	//printf("the time %s\n",__func__);
-	for(int i=RENDERCAMERA1;i<=RENDERCAMERA3;i++)
+	for(int i=RENDERCAMERA1;i<=RENDERCAMERA4;i++)
 		{
 			//printf("the time %s  multiplecount=%d\n",__func__,pthis->viewcamera[i].multiplecount);
 			if(pthis->viewcamera[i].multiplecount==0)

@@ -105,9 +105,9 @@ Render *Render::pthis=NULL;
 
 int window; /* The number of our GLUT window */
 
-
-
-
+float sx =18.0f;
+float sy =4.0f;
+float my= 0;
 static GLfloat vVertsindentify[] = { -1.0f, 1.0f, 0.0f, 
 		                  	    1.0f, 1.0f, 0.0f,
 					    -1.0f, -1.0f, 0.0f,
@@ -208,15 +208,16 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		memset(movarearect,0,sizeof(MovDetectAreaRect)*16);
 		//OSA_mutexCreate
 		//viewcamera[RENDERCAMERA1].updownselcectrect=
-
-		
-		
+		strcpy( ChineseC_TextureFileName[T_180_T], T180_TGA);
+		strcpy( ChineseC_TextureFileName[T_360_T], T360_TGA);
+		strcpy( ChineseC_TextureFileName[RADAR_T], RADAR_TGA);
 	}
 Render::~Render()
 	{
 		OSA_mutexDelete(&renderlock);
 		OSA_mutexDelete(&modelock);
 		OSA_mutexDelete(&mvlock);
+		glDeleteTextures(CCT_COUNT, ChineseC_Textures);
 	}
 
 bool Render::LoadTGATexture(const char *szFileName, GLenum minFilter, GLenum magFilter, GLenum wrapMode)
@@ -249,6 +250,15 @@ bool Render::LoadTGATexture(const char *szFileName, GLenum minFilter, GLenum mag
         glGenerateMipmap(GL_TEXTURE_2D);
     
 	return true;
+}
+
+void Render::initTgaTexture()
+{
+	 glGenTextures(CCT_COUNT, ChineseC_Textures);
+	 for(int i = 0; i < CCT_COUNT; i++){
+	 		   glBindTexture(GL_TEXTURE_2D, ChineseC_Textures[i]);
+	 		  LoadTGATexture(ChineseC_TextureFileName[i], GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE);
+	 	}
 }
 
 void Render::ptzinit()
@@ -330,7 +340,10 @@ void Render::SetupRC(int windowWidth, int windowHeight)
 	panotestViewInit();
 	Pano360init();
 	ptzinit();
+	initTgaTexture();
+	tgaBatchInit();
 	
+
 	//printf("*******************\n");
 	cameraFrame.MoveForward(-7.0f);
 	Menu=MENU::getinstance();
@@ -533,10 +546,12 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 					case SPECIAL_KEY_UP:
 						if(panopositon[Panpicenum].y<PANOEXTRAH)
 							panopositon[Panpicenum].y+=2;
+
 						break;
 					case SPECIAL_KEY_DOWN:
 						if(panopositon[Panpicenum].y>5)
 							panopositon[Panpicenum].y-=2;
+
 						break;
 					case SPECIAL_KEY_LEFT:
 						if(panopositon[Panpicenum].x>1)
@@ -612,8 +627,6 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 						panselecttriangleBatchnew[RENDERCAMERA1][0]->CopyTexCoordData2f(vTexCoordsindentify, 0);
 						panselecttriangleBatchnew[RENDERCAMERA1][0]->CopyVertexData3f(vVertsindentify);
 						break;
-					
-			
 					default:
 						break;
 
@@ -775,7 +788,6 @@ void Render::RenderScene(void)
 		
 		// Perform the buffer swap to display back buffer
 
-		
 		glFinish();
 		OSA_mutexUnlock(&renderlock);
 		glutSwapBuffers();
@@ -1061,13 +1073,43 @@ void Render::singleViewInit(void)
 	triangleBatch.CopyVertexData3f(vVerts);
 	triangleBatch.CopyTexCoordData2f(vTexCoords, 0);
 	triangleBatch.End();
-
-
-
-	
-
 }
 
+void Render::tgaBatchInit()
+{
+	t180Batch.Begin(GL_TRIANGLE_FAN, 4, 1);
+	t180Batch.MultiTexCoord2f(0, 0.0f, 0.0f);
+	t180Batch.Vertex3f(-1.0,1.0/6,0);//(-10,0,0);//
+	t180Batch.MultiTexCoord2f(0, 0.0f, 1.0f);
+	t180Batch.Vertex3f(-1.0,1.0,0);
+	t180Batch.MultiTexCoord2f(0, 1.0f, 1.0f);
+	t180Batch.Vertex3f(1.0,1.0,0.0f);
+	t180Batch.MultiTexCoord2f(0, 1.0f, 0.0f);
+	t180Batch.Vertex3f(1,1.0f/6,0.0f);
+	t180Batch.End();
+
+	t360Batch.Begin(GL_TRIANGLE_FAN, 4, 1);
+	t360Batch.MultiTexCoord2f(0, 0.0f, 0.0f);
+	t360Batch.Vertex3f(-1.0,1.0/6,0);//(-10,0,0);//
+	t360Batch.MultiTexCoord2f(0, 0.0f, 1.0f);
+	t360Batch.Vertex3f(-1.0,1.0,0);
+	t360Batch.MultiTexCoord2f(0, 1.0f, 1.0f);
+	t360Batch.Vertex3f(1.0,1.0,0.0f);
+	t360Batch.MultiTexCoord2f(0, 1.0f, 0.0f);
+	t360Batch.Vertex3f(1,1.0f/6,0.0f);
+	t360Batch.End();
+
+	radarBatch.Begin(GL_TRIANGLE_FAN, 4, 1);
+	radarBatch.MultiTexCoord2f(0, 0.0f, 0.0f);
+	radarBatch.Vertex3f(-1,-1,0);//(-10,0,0);//
+	radarBatch.MultiTexCoord2f(0, 0.0f, 1.0f);
+	radarBatch.Vertex3f(-1,1,0);
+	radarBatch.MultiTexCoord2f(0, 1.0f, 1.0f);
+	radarBatch.Vertex3f(1,1,0.0f);
+	radarBatch.MultiTexCoord2f(0, 1.0f, 0.0f);
+	radarBatch.Vertex3f(1,-1,0.0f);
+	radarBatch.End();
+}
 
 void Render::Panotexture(void)
 {
@@ -2023,6 +2065,50 @@ void Render::Drawmenu()
 	//glUseProgram(0);
 
 }
+void Render::draw180Luler()
+{
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0,6.7,0);
+	modelViewMatrix.Scale(sx,sy,0);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindTexture(GL_TEXTURE_2D, ChineseC_Textures[T_180_T]);
+	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
+	t180Batch.Draw();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	modelViewMatrix.PopMatrix();
+}
+void Render::draw360Luler()
+{
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0,6.7,0);
+	modelViewMatrix.Scale(sx,sy,0);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindTexture(GL_TEXTURE_2D, ChineseC_Textures[T_360_T]);
+	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
+	t360Batch.Draw();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	modelViewMatrix.PopMatrix();
+}
+void Render::drawradar()
+{
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Scale(18,10,0);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindTexture(GL_TEXTURE_2D, ChineseC_Textures[RADAR_T]);
+	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
+	radarBatch.Draw();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	modelViewMatrix.PopMatrix();
+}
 
 void Render::Drawlines()
 {
@@ -2650,8 +2736,9 @@ void Render::pano360View(int x,int y,int width,int height)
 	}else{
 		lx=0;
 		ly=height*5/6;
-		w=width*2/3;
+		w=width-height/3;
 		h=height*1/6;
+
 	}
 	mov180viewx=lx;
 	mov180viewy=ly;
@@ -2696,10 +2783,9 @@ void Render::pano360View(int x,int y,int width,int height)
 			pano360triangleBatchhalfhead(pan360triangleBatch,4);
 			pan360triangleBatch.Draw();
 		}
-		
-
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+	if(getmenumode()!=SELECTMODE)
+			draw180Luler();
 
 	if(getmenumode()==SELECTMODE){
 		lx=0;
@@ -2709,8 +2795,9 @@ void Render::pano360View(int x,int y,int width,int height)
 	}else{
 		lx=0;
 		ly=height*4/6;
-		w=width*2/3;
+		w=width-height/3;
 		h=height*1/6;
+
 	}
 	mov360viewx=lx;
 	mov360viewy=ly;
@@ -2779,7 +2866,10 @@ void Render::pano360View(int x,int y,int width,int height)
 			pano360triangleBatchhalfhead(pan360triangleBatch,4);
 			pan360triangleBatch.Draw();
 		}
+
 	glBindTexture(GL_TEXTURE_2D, 0);
+	if(getmenumode()!=SELECTMODE)
+		draw360Luler();
 	/*************************************************************************/
 	setPano360RenderPos(lx,ly,w,h*2);
 
@@ -2791,18 +2881,21 @@ void Render::pano360View(int x,int y,int width,int height)
 	if(getmenumode()!=SELECTMODE)
 	{
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	lx=width-width/3;
+	lx=width-height/3;
 	ly=height*4/6;
-	w=width/3;
+	w=height/3;
 	h=height*2/6;
-	
+
 	viewcamera[RENDERRADER].leftdownrect.x=lx;
 	viewcamera[RENDERRADER].leftdownrect.y=ly;
 	viewcamera[RENDERRADER].leftdownrect.width=w;
 	viewcamera[RENDERRADER].leftdownrect.height=h;
 	glViewport(lx,ly,w,h);
 	
-	
+	if(getmenumode()!=SELECTMODE)
+		drawradar();
+	}
+#if 0
 	glBindTexture(GL_TEXTURE_2D, textureID[PANOTEXTURE]);
 	m3dLoadIdentity44(identy);
 	//shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
@@ -2855,7 +2948,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
-
+#endif
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 /*
 
@@ -3092,6 +3185,11 @@ void Render::pano360View(int x,int y,int width,int height)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	/*************************************************************************/
+
+
+
+
+
 	modelViewMatrix.PopMatrix();
 
 	

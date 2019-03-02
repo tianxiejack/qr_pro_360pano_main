@@ -35,6 +35,7 @@
 #include <osa_mutex.h>
 #include"Status.hpp"
 #include"configfile.hpp"
+#include "StlGlDefines.h"
 //#include "mvdectInterface.hpp"
 //static const int ALPHA_MASK_HEIGHT= DEFAULT_IMAGE_HEIGHT;
 //static const int ALPHA_MASK_WIDTH = (DEFAULT_IMAGE_WIDTH/16);
@@ -187,6 +188,8 @@ public:
 	void singleView(int x,int y,int width,int height);
 	void singleViewInit(void);
 
+	void tgaBatchInit();
+
 	void panotestView(int x,int y,int width,int height);
 	void panotestViewInit(void);
 	void loadpanopicture();
@@ -287,6 +290,10 @@ public:
 	void Drawzero();
 	void DrawSelectrect();
 	void fixrectupdate();
+	void draw180Luler();
+	void draw360Luler();
+	void drawradar();
+	void initTgaTexture();
 
 	MENU *Menu;
 	int movviewx;
@@ -546,6 +553,10 @@ public:
 	GLBatch	pan360triangleBatch;
 	GLBatch	pansrctriangleBatch;
 	
+	GLBatch t180Batch;
+	GLBatch t360Batch;
+	GLBatch radarBatch;
+
 	GLBatch	panselecttriangleBatch[SELECTMAX];
 	void gltMakeradar(GLTriangleBatch& diskBatch, GLfloat innerRadius, GLfloat outerRadius, GLint nSlices, GLint nStack,double anglestart,double angleend);
 	void gltMakeradar(GLTriangleBatch& diskBatch, GLfloat innerRadius, GLfloat outerRadius, GLint nSlices, GLint nStacks,double anglestart,double angleend,int mod);
@@ -589,6 +600,8 @@ public:
 
 private:
 	int currentnum;
+	GLuint              ChineseC_Textures[CCT_COUNT];
+	char                ChineseC_TextureFileName[CCT_COUNT][64];
 private:
 	static void displaytimer(void *param);
 public:

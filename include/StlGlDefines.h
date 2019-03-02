@@ -42,5 +42,15 @@ enum{
 	HOT_DEV_ID,
 	QUE_CHID_COUNT
 };
+enum CCT_COUNT {
+		T_180_T,
+		T_360_T,
+		RADAR_T,
+		CCT_COUNT
+		};
+#define T180_TGA "180.tga"
+#define T360_TGA			"360.tga"
+#define RADAR_TGA "radar.tga"
+
 
 #endif /* STLGLDEFINES_H_ */

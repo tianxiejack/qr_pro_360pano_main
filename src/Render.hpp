@@ -128,6 +128,8 @@ public:
 		CAPTEXTURE,
 		SELECTTEXTURE,
 		FUSIONTAIL,
+		HOTTEXTURE,
+		RTSPTEXTURE,
 		TEXTUREMAX,
 		} Textureid; 
 
@@ -186,10 +188,11 @@ public:
 	void Selecttexture(void);
 
 	void singleView(int x,int y,int width,int height);
+	void TracksingleView(int x,int y,int width,int height);
 	void singleViewInit(void);
-
+	void SelectFullScreenView(int x,int y,int width,int height,int idx);
+	void	SelectFullScreenTrackView(int x,int y,int width,int height);
 	void tgaBatchInit();
-
 	void panotestView(int x,int y,int width,int height);
 	void panotestViewInit(void);
 	void loadpanopicture();
@@ -547,7 +550,6 @@ public:
 	GLBatch             pyramidBatch;
 
 	GLuint              textureID[TEXTUREMAX];
-
 	GLBatch	triangleBatch;
 
 	GLBatch	pan360triangleBatch;
@@ -595,6 +597,12 @@ public:
 		PREVIEW_MODE,
 		HALF_PANO_MODE,
 		FRONT_AND_BACK_MODE,
+		TRACK_HAND_CONTROL_VIEW_MODE,
+		TRACK_SINGLE_VIEW_MODE,
+		SELECT_FULL_SCREEN_A,
+		SELECT_FULL_SCREEN_B,
+		SELECT_FULL_SCREEN_C,
+		SELECT_FULL_SCREEN_TRACK_D,
 		TOTAL_MODE_COUNT
 		} displayMode; 
 

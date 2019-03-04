@@ -18,7 +18,7 @@ class Queue
 {
 
 	public:
-	#define MAXCHANNEL (1)
+	#define MAXCHANNEL (3)
 	#define PROCESSQUEUENUM (4)
 	enum
 		{

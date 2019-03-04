@@ -161,10 +161,10 @@ void ImageProcess::unInit()
 		image_queue_delete(&mcap_bufQue[chId]);
 }
 
-void ImageProcess::CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo)
+void ImageProcess::CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo,int chid)
 {
 	
-	int queueid=0;
+	int queueid=chid;
 	Plantformpzt::getinstance()->setplantformcalibration(frameinfo->calibration);
 	Status::getinstance()->calibration=frameinfo->calibration;
 #if 0

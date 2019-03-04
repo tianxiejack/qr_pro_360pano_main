@@ -35,11 +35,12 @@
 #include "DxTimer.hpp"
 #include"store.hpp"
 #include"configfile.hpp"
+#include"RTSPCaptureGroup/RTSPCaptureGroup.h"
 static GLMain render;
 
 ImageProcess *Imageprocesspt;
 using namespace cv;
-static OSA_BufHndl *imgQ[QUE_CHID_COUNT];
+ OSA_BufHndl *imgQ[QUE_CHID_COUNT];
 VideoCapture videocapture;
 Mat fileframe;
 
@@ -80,7 +81,7 @@ void processFrame_file(void *data,void *angle)
 	info->timestamp = 0;
 	info->calibration=calibration;
 	info->framegyroyaw=*(double *)angle;
-    	 Imageprocesspt->CaptureThreadProcess(img,info);
+    	 Imageprocesspt->CaptureThreadProcess(img,info,queueid);
 	//cv::imshow(WindowName, img);
 	//waitKey(1);
 	  image_queue_putFull(imgQ[queueid], info);
@@ -136,7 +137,7 @@ void  processFrameRecord_pano(void *data,void *infodata)
 	info->calibration=calibration;
 	info->framegyroyaw=gryodata.gyroz*ANGLESCALE;
 	//OSA_printf("**%s****%d*****\n", __func__,__LINE__);
-    	 Imageprocesspt->CaptureThreadProcess(img,info);
+    	 Imageprocesspt->CaptureThreadProcess(img,info,queueid);
 	///////////////////////////////////////////
 	static Uint32 pretime=0;
 	Uint32 currenttime=OSA_getCurTimeInMsec();
@@ -280,7 +281,7 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 	//info->rotationvalid=fameinfo.validintervalsita;
 	//OSA_printf("%d %s. 1   valid=%d rot=%d\n", OSA_getCurTimeInMsec(), __func__,info->rotationvalid,info->rotaionstamp);
 
-	
+
 	info->channels = img.channels();
 	info->width = img.cols;
 	info->height = img.rows;
@@ -295,7 +296,7 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 	privatedata.gyroz=info->framegyroyaw*1.0/ANGLESCALE;
 	if(info->calibration==1)
 	GstreaemerContrl::getinstance()->gstputmux(img,&privatedata);
-    	 Imageprocesspt->CaptureThreadProcess(img,info);
+    	 Imageprocesspt->CaptureThreadProcess(img,info,queueid);
 	//cv::imshow(WindowName, img);
 	//waitKey(1);
 	image_queue_putFull(imgQ[queueid], info);
@@ -367,20 +368,21 @@ int main_pano(int argc, char **argv)
 	//memcpy(render.IPocess_bufQue,Imageprocesspt->m_bufQue,sizeof(Imageprocesspt->m_bufQue));
 	dsInit.bFullScreen = false;
 	//dsInit.keyboardfunc = keyboard_event;
-	dsInit.nChannels = 1;
-	dsInit.nQueueSize = 3;
+	dsInit.nChannels = QUE_CHID_COUNT;
+	dsInit.nQueueSize = QUE_CHID_COUNT;
 	dsInit.memType = memtype_malloc;
 	dsInit.channelsSize[0].w = config->getcamwidth();
 	dsInit.channelsSize[0].h = config->getcamheight();
 	dsInit.channelsSize[0].c = config->getcamchannel();
 	/*render create*/
 	render.start(argc,  argv,(void *)&dsInit);
-	imgQ[0] = &render.m_bufQue[0];
-	imgQ[1] = &render.m_bufQue[1];
+	imgQ[TV_QUE_ID] = &render.m_bufQue[TV_QUE_ID];
+	imgQ[HOT_QUE_ID] = &render.m_bufQue[HOT_QUE_ID];
+	imgQ[RTSP_QUE_ID] = &render.m_bufQue[RTSP_QUE_ID];
 	ChosenCaptureGroup *grop[2];
 	grop[0] = ChosenCaptureGroup :: GetTVInstance();
 	grop[1] = ChosenCaptureGroup :: GetHOTInstance();
-
+//	RTSPCaptureGroup :: GetRTSPInstance();
 	/*test read file*/
 	FileCapture filecapture;
 	if(Config::getinstance()->getcam_readfromfile())

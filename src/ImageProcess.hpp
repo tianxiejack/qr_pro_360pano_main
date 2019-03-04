@@ -64,7 +64,7 @@ public:
 	void Create();
 	
 	void unInit();
-	void CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo);
+	void CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo,int chid);
 
 
 public:
@@ -90,7 +90,7 @@ public:
 
 		//////////////////ring buffer/////////////////////
 		OSA_BufHndl m_bufQue[IMAGEQUEUE];
-		OSA_BufHndl mcap_bufQue[IMAGEQUEUE];
+		OSA_BufHndl mcap_bufQue[QUEUESUM];
 
 		///////////////////FRAME/////////////////////////
 		double AngleStich;

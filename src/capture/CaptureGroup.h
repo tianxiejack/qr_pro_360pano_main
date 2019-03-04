@@ -48,9 +48,6 @@ public:
 	void saveOverLap();
 	virtual void CreateProducers(){};
 	bool saveSingleCapImg(int cam_num);
-#if USE_12
-	bool saveExposureCompensationCapImg();
-#endif
 protected:
 	void Close();
 	void fillColorBar();

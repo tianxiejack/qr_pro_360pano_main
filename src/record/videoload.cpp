@@ -439,9 +439,9 @@ void VideoLoad::create()
 	MAIN_threadRecvCreate();
 	MAIN_threadRecvCreatedata();
 	OSA_semCreate(&loadsem,1,0);
-	//initgstreamerrtsp();
+//	initgstreamerrtsp();
 	//initgstreamerfile();
-	//initgstreamer();
+//	initgstreamer();
 
 }
 

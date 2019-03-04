@@ -41,7 +41,8 @@
 //#define CAMERAFOCUSLENGTH (4759.721)
 #define CAMERAFOCUSLENGTH (1780)
 
-#define IMAGEQUEUE (1)
+#define IMAGEQUEUE (3)
+#define QUEUESUM 3
 
 #define ANGLESCALE (1000)
 

@@ -186,8 +186,8 @@ int GLMain::start(int argc, char** argv,void *parm)
 	COM_Contrl::getinstance()->registkey(mouseButtonPress);
 	//parseArgs(argc, argv);
 	initGlut(argc, argv);
-		if(m_initPrm->nQueueSize < 2)
-		m_initPrm->nQueueSize = 2;
+		if(m_initPrm->nQueueSize < 3)
+		m_initPrm->nQueueSize =3;
 	queuenum=m_initPrm->nChannels;
 	for(int chId=0; chId<m_initPrm->nChannels; chId++)
 		image_queue_create(&m_bufQue[chId], m_initPrm->nQueueSize,

@@ -38,9 +38,16 @@
 #define GST_ENCBITRATE_8M	(5600000)
 
 enum{
+	TV_QUE_ID=0,
+	HOT_QUE_ID,
+	RTSP_QUE_ID,
+	QUE_CHID_COUNT
+};
+
+enum{
 	TV_DEV_ID=1,
 	HOT_DEV_ID,
-	QUE_CHID_COUNT
+	DEV_ID_COUNT
 };
 enum CCT_COUNT {
 		T_180_T,

@@ -85,7 +85,7 @@ void GLOSD::windowtoglcenter(float point[],int num)
 {
 	Vpoints[num][0]=point[0]*2/windowW-1;
 	Vpoints[num][1]=-point[1]*2/windowH+1;
-	Vpoints[num][2]=0;
+	Vpoints[num][2]=-0.1;
 
 }
 void GLOSD::glcenter(float point[],int num)

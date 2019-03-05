@@ -173,7 +173,7 @@ public:
 	void Mouse2Select();
 	void MouseSelectpos();
 	void Mousezeropos();
-	
+
 
 	int MOUSEx , MOUSEy , BUTTON ,MOUSEST;
 	int mousex,mousey,mouseflag;
@@ -225,7 +225,7 @@ public:
 	OSA_MutexHndl mvlock;
 	Mat viewWarningarea[MAXCAMER];
 	unsigned char *viewWarningdata[MAXCAMER];
-	void viewcameraprocess();
+	void viewcameraprocess(bool click=true);
 	void leftdown2leftup(Rect& down,Rect& up);
 	void leftup2leftdown(Rect& down,Rect& up);
 
@@ -500,7 +500,6 @@ public:
 	
 private:
 	PBOManager PBOcapture;
-	
 public:
 	unsigned int panosrcwidth;
 	unsigned int panosrcheight;

@@ -447,22 +447,26 @@ void Render::ShutdownRC()
     	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
 	
 }
-
  
+void Render::mouseMotionPress(int x, int y)
+{
+	if(getmenumode()==PANOMODE)
+	{
+		setMouseCor(x,y);
+		mousex=MOUSEx;
+		mousey=MOUSEy;
+		viewcameraprocess(false);
+		mousemovrect();
+	}
+}
+
 void Render::mouseButtonPress(int button, int state, int x, int y)
 {
-	
 	OSA_mutexLock(&renderlock);
-	printf(" mouse--> %i %i %i %i\n", button, state, x, y);
+//	printf(" mouse--> %i %i %i %i\n", button, state, x, y);
 	setMouseCor(x,y);
 	setMouseButton(button);
 	setMousestatue(state);
-
-	
-	//if(y>renderheight*4/7)
-	//	return;
-	//if()
-
 	if(getmenumode()!=SELECTZEROMODE)
 		{
 			if(MOUSEST==MOUSEPRESS&&BUTTON==MOUSELEFT)
@@ -471,21 +475,20 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 				mousey=MOUSEy;
 			}
 		}
-		
 	if(getmenumode()==SELECTMODE||getmenumode()==SELECTZEROMODE)
-	if(PoisitionReach()==0)
-		{
-			OSA_mutexUnlock(&renderlock);
-			return ;
-		}
-
+	{
+		if(PoisitionReach()==0)
+			{
+				OSA_mutexUnlock(&renderlock);
+				return ;
+			}
+	}
 	if(getcriticalmode())
 		{
 			OSA_mutexUnlock(&renderlock);
 			return;
 		}
 	poisitionreach=0;
-	
 	if(getmenumode()==SELECTMODE)
 		MouseSelectpos();
 	
@@ -732,8 +735,14 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 				displayMode=SELECT_FULL_SCREEN_TRACK_D;
 						break;
 			case 'Q':
+				pthis->setsingleenable(0);
+				pthis->panomod();
 				displayMode=PANO_360_MODE;
 				setmenumode(PANOMODE);
+				break;
+			case '+':
+				break;
+			case '-':
 				break;
 			default:
 				break;
@@ -1414,7 +1423,7 @@ void Render::Angle2pos()
 		}
 
 	xoffset=PANOSCALE*angle*panowidth/360;
-	printf("!!!!!!!angle = %f,xoffset = %f\n",angle,xoffset);
+//	printf("!!!!!!!angle = %f,xoffset = %f\n",angle,xoffset);
 	if(xoffset>=PANOSHIFT)
 	xoffset=xoffset-PANOSHIFT;
 	//printf("the Angle2pos angle=%f\n",angle);
@@ -2536,6 +2545,7 @@ void Render::Drawfusion()
 		{
 			//Rect rect=viewcamera[i].updownselcectrect;
 			Rect rect=viewcamera[i].fixrect;
+		//	printf("id=%d  x=%d y=%d w=%d h=%d\n",i,rect.x,rect.y,rect.width,rect.height);
 			Glosdhandle.setcolorline(i-RENDERCAMERA1);
 			//Glosdhandle.setcolorlinealpha(0.2);
 			Glosdhandle.drawbegin();
@@ -4337,14 +4347,28 @@ int Render::mousemovrect()
 				ConfigFile::getinstance()->detectsave();
 		}
 }
-void Render::viewcameraprocess()
+void Render::viewcameraprocess(bool click)
 {
 	Rect leftuprect;
 	Rect leftdownrect;
 	leftuprect.x=mousex;
 	leftuprect.y=mousey;
+	printf("mousex=%d mousey=%d\n",mousex,mousey);
 	int cameraselcect=0;
-	if(MOUSEST==MOUSEUP&&BUTTON==MOUSELEFT)
+	bool TOF=false;
+	if(click)
+	{
+		if(MOUSEST==MOUSEUP&&BUTTON==MOUSELEFT)
+		{
+			TOF=true;
+		}
+	}
+	else
+	{
+		TOF=true;
+	}
+	if(TOF)
+		if(MOUSEST==MOUSEUP&&BUTTON==MOUSELEFT)
 		{
 			leftuprect.width=abs(MOUSEx-mousex);
 			
@@ -4358,7 +4382,7 @@ void Render::viewcameraprocess()
 			
 			leftup2leftdown(leftuprect,leftdownrect);
 
-			cout<<"***start*****"<<leftuprect<<endl;
+		//	cout<<"***start*****"<<leftuprect<<endl;
 
 
 			
@@ -4400,7 +4424,7 @@ void Render::viewcameraprocess()
 										viewcamera[j].updownselcectrect=leftuprect;
 										panselecttriangleBatchnewenable[j]=1;
 										
-										cout<<"***end*****"<<leftdownrect<<"*******i="<<j<<"****leftuprect****"<<leftuprect<<endl;
+					//					cout<<"***end*****"<<leftdownrect<<"*******i="<<j<<"****leftuprect****"<<leftuprect<<endl;
 										
 									}
 							}
@@ -4695,6 +4719,8 @@ int Render::selectareaok(Rect &rect)
 	return status;
 
 }
+
+
 
 void Render::Mousezeropos()
 {

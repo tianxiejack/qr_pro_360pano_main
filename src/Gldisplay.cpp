@@ -107,7 +107,7 @@ void GLMain::mouseButtonPress(int button, int state, int x, int y)
 }
 void GLMain::mouseMotionPress(int x, int y)
 {
-	//render.mouseMotionPress(x,y);
+	render.mouseMotionPress(x,y);
 }
 void GLMain::DrawIdle()
 {

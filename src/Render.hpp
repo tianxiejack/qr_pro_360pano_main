@@ -192,6 +192,7 @@ public:
 	void singleViewInit(void);
 	void SelectFullScreenView(int x,int y,int width,int height,int idx);
 	void	SelectFullScreenTrackView(int x,int y,int width,int height);
+	void	RadarFullScreenView(int x,int y,int width,int height);
 	void tgaBatchInit();
 	void panotestView(int x,int y,int width,int height);
 	void panotestViewInit(void);
@@ -295,7 +296,7 @@ public:
 	void fixrectupdate();
 	void draw180Luler();
 	void draw360Luler();
-	void drawradar();
+	void drawradar(int x,int y,int w,int h);
 	void initTgaTexture();
 
 	MENU *Menu;
@@ -344,7 +345,6 @@ public:
 	int  getselecttexture(){return selecttexture;};
 
 	int selectareaok(Rect & rect);
-	
 	unsigned int selectx;
 	unsigned int selecty;
 	unsigned int selectw;
@@ -493,12 +493,13 @@ public:
 	Rect multipletextureupdate(Rect &rect,int cameid);
 
 	void multipleupdate(int status);
-
+	void ResizeRectByRatio(int idx,bool puls=true);
 	
 public:
 	unsigned int Fullscreen;
 	
 private:
+	float mul;
 	PBOManager PBOcapture;
 public:
 	unsigned int panosrcwidth;
@@ -602,6 +603,7 @@ public:
 		SELECT_FULL_SCREEN_B,
 		SELECT_FULL_SCREEN_C,
 		SELECT_FULL_SCREEN_TRACK_D,
+		RADAR_FULL_SCREEN,
 		TOTAL_MODE_COUNT
 		} displayMode; 
 

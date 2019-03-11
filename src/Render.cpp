@@ -29,10 +29,13 @@
 #include"RecordManager.hpp"
 #include"videorecord.hpp"
 #include "DxTimer.hpp"
-
+#include "store.hpp"
 //#include"Gyroprocess.hpp"
 
-
+int RADX=0;
+int RADY=0;
+int RADW=150;
+int RADH=100;
 
 using namespace cv;
 using namespace std;
@@ -95,7 +98,6 @@ using namespace std;
 #define MOUSEUP 0X01
 
 
-
 //#define BRIDGE
 #define PANO360
 Render *Render::pthis=NULL;
@@ -125,7 +127,7 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 	movviewx(0),movviewy(0),movvieww(0),movviewh(0),menumode(0),tailcut(0),radarinner(3.0),radaroutter(10),viewfov(90),viewfocus(10),
 	osdmenushow(0),osdmenushowpre(0),screenpiex(NULL),screenenable(1),recordscreen(0),zeroselect(0),poisitionreach(0),poisitionreachpan(0),
 	poisitionreachtitle(0),criticalmode(0),debuggl(0),recordtimer(60),singleenable(0),singleangle(0),siglecircle(0),timerclock(600),currentnum(0),
-	movareaflag(0),movupdown(0),movconfignum(0),PBOcapture(PBOManager(PBOTEXTMAX,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT))
+	movareaflag(0),movupdown(0),movconfignum(0),mul(1.0),PBOcapture(PBOManager(PBOTEXTMAX,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT))
 	{
 		displayMode=SINGLE_VIDEO_VIEW_MODE;
 		panosrcwidth=0;
@@ -701,17 +703,69 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 			case 't':
 				Plantformpzt::getinstance()->setpanoscanstop();
 				break;
+			case '<':
+				Plantformpzt::getinstance()->SetSpeed(false);
+				break;
+			case '>':
+				Plantformpzt::getinstance()->SetSpeed(true);
+				break;
+			case '?':
+				printf("storesavenum=%d\n",Status::getinstance()->storesavenum);
+				break;
+			case '0':
+				break;
+			case '1':
+				 RADX+=1;
+				printf("RADX=%d\n",RADX);
+	//			Plantformpzt::getinstance()->MoveDown();
+	//			Plantformpzt::getinstance()->MoveLeft();
+				break;
 			case '2':
-				Plantformpzt::getinstance()->setpanopanpos(0);
+				 RADX-=1;
+				printf("RADX=%d\n",RADX);
+					//Plantformpzt::getinstance()->MoveDown();
+		//		Plantformpzt::getinstance()->setpanopanpos(0);
+				break;
+			case '3':
+				 RADY+=1;
+				printf("RADY=%d\n",RADY);
+
+			//	Plantformpzt::getinstance()->MoveRight();
+			//	Plantformpzt::getinstance()->MoveDown();
 				break;
 			case '4':
-				Plantformpzt::getinstance()->setpanopanpos(90);
+				 RADY-=1;
+				printf("RADY=%d\n",RADY);
+				//Plantformpzt::getinstance()->MoveLeft();
+
+		//		Plantformpzt::getinstance()->setpanopanpos(90);
 				break;
+			case '5':
+				 RADW+=1;
+				printf("RADW=%d\n",RADW);
+				//Plantformpzt::getinstance()->Stop();
+						break;
 			case '6':
-				Plantformpzt::getinstance()->setpanopanpos(180);
+				 RADW-=1;
+				printf("RADW=%d\n",RADW);
+				//Plantformpzt::getinstance()->MoveRight();
+		//		Plantformpzt::getinstance()->setpanopanpos(180);
+				break;
+			case '7':
+				 RADH+=1;
+				printf("RADH=%d\n",RADH);
+				//Plantformpzt::getinstance()->MoveLeft();
+			//	Plantformpzt::getinstance()->MoveUp();
 				break;
 			case '8':
-				Plantformpzt::getinstance()->setpanopanpos(270);
+				 RADH-=1;
+				printf("RADH=%d\n",RADH);
+				//Plantformpzt::getinstance()->MoveUp();
+		//		Plantformpzt::getinstance()->setpanopanpos(270);
+				break;
+			case '9':
+				Plantformpzt::getinstance()->MoveUp();
+				Plantformpzt::getinstance()->MoveRight();
 				break;
 			case 'a':
 				screenenable=1;
@@ -734,15 +788,47 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 			case 'D':
 				displayMode=SELECT_FULL_SCREEN_TRACK_D;
 						break;
+			case 'E':
+				displayMode=RADAR_FULL_SCREEN;
+						break;
 			case 'Q':
 				pthis->setsingleenable(0);
 				pthis->panomod();
 				displayMode=PANO_360_MODE;
 				setmenumode(PANOMODE);
 				break;
+			case 'P':
+				pthis->setsingleenable(0);
+				pthis->signalmod();
+				break;
 			case '+':
+				multipleupdate(0);
+
+				for(int i=RENDERCAMERA1;i<RENDERCAMERA3;i++)
+				{
+					if(viewcamera[i].active)
+					{
+						ResizeRectByRatio(i,false);
+					}
+				}
 				break;
 			case '-':
+				multipleupdate(1);
+				for(int i=RENDERCAMERA1;i<RENDERCAMERA3;i++)
+				{
+					if(viewcamera[i].active)
+					{
+						ResizeRectByRatio(i,true);
+					}
+				}
+				break;
+			case '(':
+				Store::getinstance()->addstore();
+				Store::getinstance()->reload();
+			break;
+			case ')':
+				Store::getinstance()->erasestore(3);
+				Store::getinstance()->reload();
 				break;
 			default:
 				break;
@@ -814,6 +900,9 @@ void Render::RenderScene(void)
 			case SELECT_FULL_SCREEN_TRACK_D:
 				SelectFullScreenTrackView(0,0,renderwidth,renderheight);
 				break;
+			case RADAR_FULL_SCREEN:
+				RadarFullScreenView(RADX,RADY,RADW,RADH);
+				break;
 			default:
 				break;
 				
@@ -823,10 +912,18 @@ void Render::RenderScene(void)
 		
 		movMultidetectrect();
 		
-		Drawfusion();
-		
-		Drawosd();
-		
+		if(displayMode==SELECT_FULL_SCREEN_A
+				||displayMode==SELECT_FULL_SCREEN_B
+				||displayMode==SELECT_FULL_SCREEN_C
+				||displayMode==SELECT_FULL_SCREEN_TRACK_D
+				||displayMode==RADAR_FULL_SCREEN)
+		{
+		}
+		else
+		{
+			Drawfusion();
+			Drawosd();
+		}
 		// Perform the buffer swap to display back buffer
 
 		
@@ -1127,6 +1224,28 @@ void Render::SelectFullScreenView(int x,int y,int width,int height,int idx)
 		panselecttriangleBatchnew[idx][i]->Draw();
 	}
 }
+
+
+void Render::RadarFullScreenView(int x,int y,int width,int height)
+{
+	glViewport(x,y,width,height);
+viewFrustum.SetPerspective(90.0f, float(width) / float(height), 1.0f, 4000.0f);
+	projectionMatrix.LoadMatrix(viewFrustum.GetProjectionMatrix());
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.LoadIdentity();
+	modelViewMatrix.Translate(0.0f, 0.0f, -height);
+	modelViewMatrix.Scale(width, height, 1.0f);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindTexture(GL_TEXTURE_2D, ChineseC_Textures[RADAR_T]);
+	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
+	radarBatch.Draw();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	modelViewMatrix.PopMatrix();
+}
+
 
 void Render::SelectFullScreenTrackView(int x,int y,int width,int height)
 {
@@ -2225,10 +2344,12 @@ void Render::draw360Luler()
 	glEnable(GL_DEPTH_TEST);
 	modelViewMatrix.PopMatrix();
 }
-void Render::drawradar()
+void Render::drawradar(int x,int y,int w,int h)
 {
+#if 1
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(18,10,0);
+
 	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2238,6 +2359,7 @@ glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	modelViewMatrix.PopMatrix();
+#endif
 }
 
 void Render::Drawlines()
@@ -2943,12 +3065,17 @@ void Render::pano360View(int x,int y,int width,int height)
 
 	for(int i=RENDERCAMERA1;i<RENDERCAMERA4;i++)
 		{
-			//viewcamera[i].fixrect.x=lx;
-			int textid=viewcamera[i].panotextureindex;
-			viewcamera[i].fixrect.y=  renderheight-(viewcamera[textid].leftdownrect.y+viewcamera[textid].leftdownrect.height);
-			viewcamera[i].fixrect.width=w/4;
-			viewcamera[i].fixrect.height=h;
 
+			int textid=viewcamera[i].panotextureindex;
+					//	viewcamera[i].fixrect.y*=0.75;
+			static bool Once[4]={true,true,true,true};
+			if(Once[i-RENDERCAMERA1])
+			{
+				viewcamera[i].fixrect.y=  renderheight-(viewcamera[textid].leftdownrect.y+viewcamera[textid].leftdownrect.height*0.75);
+				viewcamera[i].fixrect.width=w/3*0.5;//*viewcamera[i].multiples;
+				viewcamera[i].fixrect.height=h*0.5;//*viewcamera[i].multiples;
+				Once[i-RENDERCAMERA1]=false;
+			}
 			//y=max(0,y-viewcamera[j].fixrect.height/2);
 
 		}
@@ -3023,7 +3150,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	glViewport(lx,ly,w,h);
 	
 	if(getmenumode()!=SELECTMODE)
-		drawradar();
+		drawradar(0,0,18,10);
 	}
 #if 0
 	glBindTexture(GL_TEXTURE_2D, textureID[PANOTEXTURE]);
@@ -3899,6 +4026,7 @@ Rect Render::multipletextureupdate(Rect &rect,int cameid)
 	double ratio=min(viewcamera[cameid].multiples,1.0);
 	int w=ratio*viewcamera[cameid].fixrect.width;
 	int h=ratio*viewcamera[cameid].fixrect.height;
+//	printf("ceny=%d\n",ceny);
 	//if(viewcamera[cameid].fi)
 	//if()
 	rectreturn.x=cenx-w/2;
@@ -3964,23 +4092,6 @@ void Render::selectupdate()
 	;
 	
 	#if 0
-	vTexselectCoords[0]=1.0*selectx/w;
-	vTexselectCoords[1]=1.0*(selecty-yshift)/h;
-
-	vTexselectCoords[2]=1.0*(selectx+selectw)/w;
-	vTexselectCoords[3]=1.0*(selecty-yshift)/h;
-
-
-	vTexselectCoords[4]=1.0*selectx/w;
-	vTexselectCoords[5]=1.0*(selecty+selecth-yshift)/h;
-
-	vTexselectCoords[6]=1.0*(selectx+selectw)/w;
-	vTexselectCoords[7]=1.0*(selecty+selecth-yshift)/h;
-
-	
-	cout<<"contect"<<vTexselectCoords[0]<<" "<<vTexselectCoords[1]<<" "<<vTexselectCoords[2]<<" "\
-		<<vTexselectCoords[3]<<" "<<vTexselectCoords[4]<<" "<<vTexselectCoords[5]<<" "<<vTexselectCoords[6]<<" "\
-		<<vTexselectCoords[7]<<endl;
 	#else
 
 	Rect rect;
@@ -4275,7 +4386,6 @@ void Render::Mousemenu()
 
 void Render::fixrectupdate()
 {
-
 	int x=mousex;
 	int y=mousey;
 	for(int j=RENDERCAMERA1;j<=RENDERCAMERA3;j++)
@@ -4283,12 +4393,36 @@ void Render::fixrectupdate()
 			if(viewcamera[j].active)
 				{
 					x=max(0,x-viewcamera[j].fixrect.width/2);
-
 					viewcamera[j].fixrect.x=x;
-					//y=max(0,y-viewcamera[j].fixrect.height/2);
-
-					
-
+					y=max(0,y-viewcamera[j].fixrect.height/2);
+					viewcamera[j].fixrect.y=y;
+				//	printf("viewcamera[j].fixrect.y=%d\n",viewcamera[j].fixrect.y);
+					int limit=135;//by printf ,the fixrect.y is always changing
+				//	printf("mul=%f\n",mul);
+					if(mul==1.0)
+					{
+						limit=135;
+					}
+					else if(mul==0.75)
+					{
+						limit=148;
+					}
+					else if(mul==0.5)
+					{
+						limit=160;
+					}
+					else if(mul==0.25)
+					{
+						limit=170;
+					}
+					 if(viewcamera[j].fixrect.y<=limit&& viewcamera[j].fixrect.y>limit-viewcamera[j].fixrect.height/2 )
+					{
+						viewcamera[j].fixrect.y=limit-viewcamera[j].fixrect.height/2;
+					}
+					 if(viewcamera[j].fixrect.y>limit&& viewcamera[j].fixrect.y<=limit+viewcamera[j].fixrect.height/2 )
+					{
+						viewcamera[j].fixrect.y=limit+viewcamera[j].fixrect.height/2;
+					}
 				}
 
 		}
@@ -4353,7 +4487,7 @@ void Render::viewcameraprocess(bool click)
 	Rect leftdownrect;
 	leftuprect.x=mousex;
 	leftuprect.y=mousey;
-	printf("mousex=%d mousey=%d\n",mousex,mousey);
+	//printf("mousex=%d mousey=%d\n",mousex,mousey);
 	int cameraselcect=0;
 	bool TOF=false;
 	if(click)
@@ -4368,18 +4502,12 @@ void Render::viewcameraprocess(bool click)
 		TOF=true;
 	}
 	if(TOF)
-		if(MOUSEST==MOUSEUP&&BUTTON==MOUSELEFT)
 		{
 			leftuprect.width=abs(MOUSEx-mousex);
 			
 			leftuprect.height=abs(MOUSEy-mousey);
 
-			//if()
-
-			if(!selectareaok(leftuprect))
-				 ;
-			
-			
+			selectareaok(leftuprect);
 			leftup2leftdown(leftuprect,leftdownrect);
 
 		//	cout<<"***start*****"<<leftuprect<<endl;
@@ -4402,23 +4530,25 @@ void Render::viewcameraprocess(bool click)
 			if(mousey>MOUSEy)
 				cameraselcect=0;
 
-			
-			if(cameraselcect)
+					if(cameraselcect)
 			for(int i=RENDER180;i<=RENDER360;i++)
 				{
-					
-					if(leftdownrect.x>viewcamera[i].leftdownrect.x&&leftdownrect.x<viewcamera[i].leftdownrect.x+viewcamera[i].leftdownrect.width&&\
-						leftdownrect.y>viewcamera[i].leftdownrect.y&&leftdownrect.y<viewcamera[i].leftdownrect.y+viewcamera[i].leftdownrect.height)
-						{
-							viewcamera[i].active=1;
 							for(int j=RENDERCAMERA1;j<=RENDERCAMERA3;j++)
 							{
+								if(leftdownrect.x>viewcamera[i].leftdownrect.x&&leftdownrect.x<viewcamera[i].leftdownrect.x+viewcamera[i].leftdownrect.width-viewcamera[j].fixrect.width/2&&\
+								leftdownrect.y>viewcamera[i].leftdownrect.y+viewcamera[j].fixrect.height/2&&leftdownrect.y<viewcamera[i].leftdownrect.y+viewcamera[i].leftdownrect.height)
+								{
+									viewcamera[i].active=1;
 								if(viewcamera[j].active)
 									{
 										if(leftuprect.x+leftuprect.width>=viewcamera[i].leftdownrect.width)
+										{
 											leftuprect.width=viewcamera[i].leftdownrect.width-leftuprect.x;
+										}
 										if(leftuprect.y+leftuprect.height>=renderheight-viewcamera[i].leftdownrect.y)
+										{
 											leftuprect.height=renderheight-viewcamera[i].leftdownrect.y-leftuprect.y;
+										}
 										fixrectupdate();
 										viewcamera[j].panotextureindex=i;	
 										viewcamera[j].updownselcectrect=leftuprect;
@@ -4427,15 +4557,16 @@ void Render::viewcameraprocess(bool click)
 					//					cout<<"***end*****"<<leftdownrect<<"*******i="<<j<<"****leftuprect****"<<leftuprect<<endl;
 										
 									}
+								}
+							else
+								{
+									viewcamera[i].active=0;
+
+								}
 							}
 							panselecttriangleBatchnewenable[RENDERCAMERA4]=1;
 
-						}
-					else
-						{
-							viewcamera[i].active=0;
 
-						}
 				}
 
 
@@ -4685,21 +4816,33 @@ int Render::getpointarea(Point p)
 	return status;
 }
 
+#define RADARW 360
+#define RADARH	360
+#define RENDER180H 180
+
+
+
 int Render::selectareaok(Rect &rect)
 {
 	int status=0;
 
 	Rect camrect;
+
+
 	for(int i=RENDER180;i<=RENDER360;i++)
 		{	
+		//	if(rect.x<1)
+			//	rect.x=1；
+	//		if
 
+#if 1
 			camrect.x=viewcamera[i].leftdownrect.x;
 			camrect.width=viewcamera[i].leftdownrect.width;
 			camrect.height=viewcamera[i].leftdownrect.height;
 			camrect.y=renderheight-(viewcamera[i].leftdownrect.y+viewcamera[i].leftdownrect.height);
-			
 
-			
+
+
 			if(rect.x>camrect.x&&rect.x<camrect.x+camrect.width&&\
 				rect.x+rect.width<camrect.x+camrect.width&&\
 				rect.y>camrect.y+PANOEXTRAH/2*viewcamera[i].leftdownrect.height/renderheight&&rect.y<camrect.y+camrect.height-PANOEXTRAH/2*viewcamera[i].leftdownrect.height/renderheight
@@ -4714,6 +4857,7 @@ int Render::selectareaok(Rect &rect)
 				}
 			else
 				status=0;
+#endif
 		}
 	
 	return status;
@@ -5032,9 +5176,73 @@ void Render::gltMakeradarpoints(vector<OSDPoint>& osdpoints, GLfloat innerRadius
 	}
 
 #define ratiosetp (0.02)
+
+
+
+void Render::ResizeRectByRatio(int idx,bool plus)
+{
+	int width=renderwidth,height=renderheight;
+	unsigned int lx,ly,w,h;
+	lx=0;
+	ly=height*4/6;
+	w=width-height/3;
+	h=height*1/6;
+	float step=0;
+	static float lastmul=1.0;
+	if(plus)
+	{
+		step=0.25;
+	}
+	else
+	{
+		step=-0.25;
+	}
+	mul+=step;
+	if(mul>=1.0)
+		mul=1.0;
+	else if(mul<=0.25)
+		mul=0.25;
+	if(lastmul==mul)
+	{
+		return;
+	}
+	lastmul=mul;
+	int i=idx;
+	//for(int i=RENDERCAMERA1;i<RENDERCAMERA4;i++)
+	{
+		int textid=viewcamera[i].panotextureindex;
+		int midX=viewcamera[i].fixrect.x+viewcamera[i].fixrect.width/2.0;
+		int midY=viewcamera[i].fixrect.y+viewcamera[i].fixrect.height/2.0;
+		int oriW=w/3*0.5;
+		int oriH=h*0.5;
+		int xoffsetStep=33;//13;//0.1/2.0*oriW;
+		int yoffsetStep=11;////4;//0.1/2.0*oriH;
+	//	printf("midx=%d midy=%d\n",viewcamera[i].fixrect.x+viewcamera[i].fixrect.width/2,viewcamera[i].fixrect.y+viewcamera[i].fixrect.height/2);
+		viewcamera[i].fixrect.width=w/3*0.5*mul;
+		viewcamera[i].fixrect.height=h*0.5*mul;
+
+	//	printf("fixrect.width=%d,fixrect.height=%d\n",viewcamera[i].fixrect.width,viewcamera[i].fixrect.height);
+		{
+#if 1
+		//printf("viewcamera[i].fixrect.x=%d viewcamera[i].fixrect.y=%d\n",viewcamera[i].fixrect.x,viewcamera[i].fixrect.y);
+//	printf("viewcamera[i].fixrect.width/2=%d\n",viewcamera[i].fixrect.width/2);
+		if(plus)
+		{
+			viewcamera[i].fixrect.x-=xoffsetStep;
+			viewcamera[i].fixrect.y-=yoffsetStep;
+		}
+		else
+		{
+			viewcamera[i].fixrect.x+=xoffsetStep;
+			viewcamera[i].fixrect.y+=yoffsetStep;
+		}
+#endif
+		}
+	}
+}
+
 void Render::multipleupdate(int status)
 {
-
 		for(int j=RENDERCAMERA1;j<=RENDERCAMERA3;j++)
 		{
 			if(viewcamera[j].active)
@@ -5042,21 +5250,16 @@ void Render::multipleupdate(int status)
 					if(status==0)
 					{
 						double ratio=viewcamera[j].multiples-ratiosetp;
-						viewcamera[j].multiples=max(0.1,ratio);
+						viewcamera[j].multiples=1;//max(0.25,ratio);
 					}
 					else
 					{
 						double ratio=viewcamera[j].multiples+ratiosetp;
-						viewcamera[j].multiples=min(1.0,ratio);
+						viewcamera[j].multiples=1;//min(1.0,ratio);
 					}
 					viewcamera[j].multiplecount=4;
 					//x=max(0,x-viewcamera[j].fixrect.width/2);
-
 					//viewcamera[j].fixrect.x=x;
-			
-
-					
-
 				}
 
 		}

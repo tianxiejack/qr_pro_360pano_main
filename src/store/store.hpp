@@ -22,7 +22,10 @@ typedef struct
 using namespace std;
 #define MAXSTORE_LINE (100)
 class Store{
-	
+public :
+	 void reload();
+		 void addstore();
+		 void erasestore(int id);
 	private:
 		Store();
 		
@@ -32,15 +35,12 @@ class Store{
 
 		list<storepam> store;
 
-		void addstore();
-		
-		void erasestore(int id);
+
 
 		void update();
 
 		void load();
-		void save();
-		void reload();
+		 void save();
 
 		void erase();
 

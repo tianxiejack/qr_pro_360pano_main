@@ -114,12 +114,18 @@ class Plantformpzt
 
 		static void plantfromcontrl(long lParam);
 
-
+		static void MoveLeft();
+		static void MoveRight();
+		static void MoveUp();
+		static void MoveDown();
+		static void Stop();
+		static void SetSpeed(bool plus);
 	public:
 		void setspeed(int speed)
 			{
 				speedpan=speedtitle=speed;
 			}
+		int Getaddress(){return  address;};
 
 	private:
 		CUartBase Uart;

@@ -1218,6 +1218,56 @@ void Plantformpzt::registorfun()
 	
 }
 
+void Plantformpzt::MoveLeft()
+{
+    PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Left,Status::getinstance()->ptzpanspeed,true, instance->address);
+	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+}
+void Plantformpzt::MoveRight()
+{
+	  PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,Status::getinstance()->ptzpanspeed,true, instance->address);
+		instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+}
+void Plantformpzt::MoveUp()
+{
+    PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Up,Status::getinstance()->ptztitlespeed,true, instance->address);
+	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+}
+void Plantformpzt::MoveDown()
+{
+    PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Down,Status::getinstance()->ptztitlespeed,true, instance->address);
+	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+}
+void Plantformpzt::Stop()
+{
+	PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptzpanspeed,true, instance->address);
+	PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptztitlespeed,true, instance->address);
+	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+}
+void Plantformpzt::SetSpeed(bool plus)
+{
+	if(plus)
+	{
+		Status::getinstance()->ptzpanspeed+=1;
+		Status::getinstance()->ptztitlespeed+=1;
+		if(Status::getinstance()->ptzpanspeed>100)
+			Status::getinstance()->ptzpanspeed=100;
+		if(Status::getinstance()->ptztitlespeed>100)
+			Status::getinstance()->ptztitlespeed=100;
+	}
+	else
+	{
+		Status::getinstance()->ptzpanspeed-=1;
+		Status::getinstance()->ptztitlespeed-=1;
+		if(Status::getinstance()->ptzpanspeed<1)
+			Status::getinstance()->ptzpanspeed=1;
+		if(Status::getinstance()->ptztitlespeed<1)
+			Status::getinstance()->ptztitlespeed=1;
+	}
+	printf("ptzpanspeed=%d ptztitlespeed=%d\n \n",Status::getinstance()->ptzpanspeed,Status::getinstance()->ptztitlespeed);
+	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+}
+
 void Plantformpzt::ptzcontrl(long lParam)
 {
 /*

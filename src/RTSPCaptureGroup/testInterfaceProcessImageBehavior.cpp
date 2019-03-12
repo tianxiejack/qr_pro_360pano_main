@@ -122,7 +122,7 @@ void ProcessQueueBehavior::doProcessImage(cv::Mat & rgb) {
 			info->channels = rgb.channels();
 			info->width = rgb.cols;
 			info->height = rgb.rows;
-
+			info->virtAddr=rgb.data;
 		//	info->timestamp = (uint64)capInfo.timestamp.tv_sec*1000*1000*1000
 		//			+ (uint64)capInfo.timestamp.tv_usec*1000;
 		//	info->calibration=calibration;
@@ -133,7 +133,7 @@ void ProcessQueueBehavior::doProcessImage(cv::Mat & rgb) {
 			privatedata.gyroz=info->framegyroyaw*1.0/ANGLESCALE;
 //			if(info->calibration==1)
 //			GstreaemerContrl::getinstance()->gstputmux(rgb,&privatedata);
-		    	 Imageprocesspt->CaptureThreadProcess(rgb,info,queueid);
+							//___Imageprocesspt->CaptureThreadProcess(rgb,info,queueid);
 			//cv::imshow(WindowName, rgb);
 			//waitKey(1);
 			image_queue_putFull(imgQ[queueid], info);

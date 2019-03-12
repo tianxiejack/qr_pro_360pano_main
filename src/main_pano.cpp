@@ -342,7 +342,7 @@ int main_pano(int argc, char **argv)
 	/*record video*/
 	VideoRecord::getinstance()->create();
 	/*callback*/
-	//GstreaemerContrl::getinstance()->registrecordfun(VideoRecord::recordvideo);
+	GstreaemerContrl::getinstance()->registrecordfun(VideoRecord::recordvideo);
 	/*playbackl video*/
 	VideoLoad::getinstance()->create();
 	VideoLoad::getinstance()->registerfun(processFrameRecord_pano);
@@ -382,7 +382,7 @@ int main_pano(int argc, char **argv)
 	ChosenCaptureGroup *grop[2];
 	grop[0] = ChosenCaptureGroup :: GetTVInstance();
 	grop[1] = ChosenCaptureGroup :: GetHOTInstance();
-//	RTSPCaptureGroup :: GetRTSPInstance();
+	RTSPCaptureGroup :: GetRTSPInstance();
 	/*test read file*/
 	FileCapture filecapture;
 	if(Config::getinstance()->getcam_readfromfile())

@@ -29,7 +29,7 @@ void GLMain::DrawGLScene()
 	for(int chId=0; chId<gThis->queuenum; chId++)
 		gThis->queueinfo[chId]=image_queue_getFull(&gThis->m_bufQue[chId]);
 
-
+/*
 if(gThis->queueinfo[RTSP_QUE_ID]!=NULL)
 {
 	 static int a=0;
@@ -49,7 +49,7 @@ if(gThis->queueinfo[RTSP_QUE_ID]!=NULL)
 				imwrite(fname, localbgrImg);
 			}
 }
-
+*/
 	for(int chId=0; chId<gThis->queuenum; chId++)
 		{
 			if(gThis->queueinfo[chId]!=NULL)

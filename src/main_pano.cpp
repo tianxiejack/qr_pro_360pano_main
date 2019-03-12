@@ -342,7 +342,7 @@ int main_pano(int argc, char **argv)
 	/*record video*/
 	VideoRecord::getinstance()->create();
 	/*callback*/
-	GstreaemerContrl::getinstance()->registrecordfun(VideoRecord::recordvideo);
+	//GstreaemerContrl::getinstance()->registrecordfun(VideoRecord::recordvideo);
 	/*playbackl video*/
 	VideoLoad::getinstance()->create();
 	VideoLoad::getinstance()->registerfun(processFrameRecord_pano);

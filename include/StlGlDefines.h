@@ -37,6 +37,15 @@
 #define GST_ENCBITRATE_4M	(2800000)
 #define GST_ENCBITRATE_8M	(5600000)
 
+typedef enum{
+	PANO_PIC,
+	ROI_A,
+	ROI_B,
+	ROI_C,
+	ROI_IP,
+	PIC_COUNT
+}SavePic;
+
 enum{
 	TV_QUE_ID=0,
 	HOT_QUE_ID,

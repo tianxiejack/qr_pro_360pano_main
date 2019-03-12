@@ -51,13 +51,12 @@ void ProcessYUVBehavior::processImage(unsigned char * data,
 	Mat localyuvImg(rows, cols,CV_8UC1,data);
 	Mat localbgrImg;
 	cv::cvtColor(localyuvImg, localbgrImg, CV_YUV2RGB_I420);
-	static int a=0;
+/*	static int a=0;
 	if (a < 300 &&(a++%10 == 1)) {
 		char fname[50];
 		sprintf(fname, "rgb_%d.bmp", a);
 		imwrite(fname, localbgrImg);
-
-	}
+	}*/
 	doProcessImage(localbgrImg);
 }
 
@@ -99,7 +98,7 @@ void ProcessQueueBehavior::doProcessImage(cv::Mat & rgb) {
 	unsigned char ** transformed_src = &test_rtsp_image;
 	int queueid=RTSP_QUE_ID;
 	OSA_BufInfo* info=NULL;
-	memcpy(test_rtsp_image, rgb.data, rgb.total()*rgb.channels());
+	//memcpy(test_rtsp_image, rgb.data, rgb.total()*rgb.channels());
 	int chId = 0;
 	/*
 	switch (dev_id) {
@@ -110,13 +109,7 @@ void ProcessQueueBehavior::doProcessImage(cv::Mat & rgb) {
 		break;
 	}
 */
-	 static int a=0;
-	 Mat localbgrImg(1080,1920,CV_8UC3,test_rtsp_image);
-		if (a < 300 &&(a++%10 == 1)) {
-			char fname[50];
-			sprintf(fname, "van_%d.bmp", a);
-			imwrite(fname, rgb);
-		}
+
 
 		info = image_queue_getEmpty(imgQ[queueid]);
 		if(info == NULL){
@@ -144,6 +137,7 @@ void ProcessQueueBehavior::doProcessImage(cv::Mat & rgb) {
 			//cv::imshow(WindowName, rgb);
 			//waitKey(1);
 			image_queue_putFull(imgQ[queueid], info);
+
 
 /*	if (Data2Queue(*transformed_src, rgb.cols, rgb.rows, queueid)) {
 		//printf("rgba.cols=%d, rgba.rows=%d, chId=%d, dev_id=%d\n",rgba.cols, rgba.rows, chId, dev_id);

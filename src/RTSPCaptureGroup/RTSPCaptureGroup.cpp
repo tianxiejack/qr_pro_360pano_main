@@ -25,7 +25,7 @@ RTSPCaptureGroup::RTSPCaptureGroup(unsigned int w,unsigned int h,int NCHAN,unsig
 	 	 int dev_id=RTSP_DEVICE_ID_0;
 	 	 if(pIP_cam[dev_id]==NULL)
 	 	 {
-	 		 pIP_cam[dev_id] = new IP_cam(dev_id, "rtsp://admin:abc12345@192.168.1.26:554/h264/ch0/main/av_stream latency=0 ");//:8554/stream1
+	 		 pIP_cam[dev_id] = new IP_cam(dev_id, "rtsp://admin:abc12345@192.168.1.26");
 	 	 }
  }
 

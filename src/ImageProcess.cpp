@@ -163,6 +163,14 @@ void ImageProcess::unInit()
 
 void ImageProcess::CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo,int chid)
 {
+/*	 static int a=0;
+	 //Mat localbgrImg(1080,1920,CV_8UC3,test_rtsp_image);
+		if (a < 300 &&(a++%10 == 1)) {
+			char fname[50];
+			sprintf(fname, "van_%d.bmp", a);
+			imwrite(fname, src);
+		}
+*/
 	
 	int queueid=chid;
 	Plantformpzt::getinstance()->setplantformcalibration(frameinfo->calibration);

@@ -243,7 +243,7 @@ int GstRTSPClient::InitMain()
 
 	/* set video source. */
 	//这里location的值需要与live555提供的rtsp对应上。这里只是默认值，具体在RTSPCaptureGroup::CreateProducers()中设置
-	const char * source_location="rtsp://192.168.1.84:8554/stream1";
+	const char * source_location="rtsp://admin:abc12345@192.168.1.26";
 	g_object_set (G_OBJECT(p_customData->source), "location", source_location , NULL);
 	//启动链路的时候，服务端必须得先启动，客户端不会等服务端数据进来，将会直接结束线程；设置一下参数，可以延时请求rtsp连接，但时间不是很长
 	//g_object_set (G_OBJECT(p_customData->source), "tcp-timeout",1000000000000 0 , NULL);

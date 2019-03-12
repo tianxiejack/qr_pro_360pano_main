@@ -494,11 +494,15 @@ public:
 
 	void multipleupdate(int status);
 	void ResizeRectByRatio(int idx,bool puls=true);
-	
+
+	void SaveAllPic();
+	bool IstoSavePic(SavePic idx){return CapOnce[idx];};
+	void ResetSaveState(SavePic idx){CapOnce[idx]=false;};
 public:
 	unsigned int Fullscreen;
 	
 private:
+	bool CapOnce[PIC_COUNT];
 	float mul;
 	PBOManager PBOcapture;
 public:
@@ -641,7 +645,6 @@ public:
 	void mousemotion(int button, int x, int y);
 	void mousedbclick(int button, int x, int y);
 	void mousebutton(int button, int state, int x, int y);
-	
 };
 
 

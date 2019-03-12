@@ -5343,10 +5343,10 @@ void Render::registorfun()
 }
 void Render::displaymod(long lParam)
 {
-	printf("__func__=%s lParam=%d\n",__func__,lParam);
-	//if(CGlobalDate::Instance()->dismod==0)
+	int dispmode = Status::getinstance()->getdisplaymod();
+	int dispsensor = Status::getinstance()->getdisplaysensor();
 	
-	if(lParam==Status::LIVEMOD)
+	if(dispmode==Status::LIVEMOD)
 		{
 			Config::getinstance()->setcamsource(0);
 			RecordManager::getinstance()->enableplayer(0);
@@ -5354,7 +5354,7 @@ void Render::displaymod(long lParam)
 			VideoRecord::getinstance()->setforceclose(0);
 		
 		}
-	else if(lParam==Status::PLAYCALLBACK)
+	else if(dispmode==Status::PLAYCALLBACK)
 		{
 			Config::getinstance()->setcamsource(1);
 			//RecordManager::getinstance()->enableplayer(1);

@@ -85,9 +85,14 @@ void CPortBase::mouseevent(int event)
 void CPortBase::displaymod()
 {
 	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->getdisplaymod())
+	{
 		Status::getinstance()->setdisplaymod(_globalDate->rcvBufQue.at(5));
-	else
-		return;
+	}
+	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->getdisplaysensor())
+	{
+		Status::getinstance()->setdisplaysensor(_globalDate->rcvBufQue.at(6));
+	}
+		
 
 	if(Status::getinstance()->getdisplaymod()==Status::LIVEMOD)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_DISMOD, (void *)(Status::LIVEMOD));
@@ -824,7 +829,9 @@ void CPortBase::workMode()
 	else
 		return;
 	if(Status::getinstance()->getworkmod()==0)
+	{
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOAUTO));
+	}
 	else if(Status::getinstance()->getworkmod()==1)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOPTZ));
 	else if(Status::getinstance()->getworkmod()==2)

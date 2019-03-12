@@ -270,6 +270,9 @@ public:
 	int getdisplaymod(){return displaymod;};
 	void setdisplaymod(int dis){displaymod=dis;};
 
+	int getdisplaysensor(){return displaysensor;};
+	void setdisplaysensor(int dis){displaysensor=dis;};
+
 	int getworkmod(){return workmode;};
 	void setworkmod(int dis){workmode=dis;};
 
@@ -279,6 +282,7 @@ public:
 	
 private:
 	int displaymod;
+	int displaysensor;
 	int workmode;
 private:
 	Status();

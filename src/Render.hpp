@@ -494,11 +494,15 @@ public:
 
 	void multipleupdate(int status);
 	void ResizeRectByRatio(int idx,bool puls=true);
-	
+
+	void SaveAllPic();
+	bool IstoSavePic(SavePic idx){return CapOnce[idx];};
+	void ResetSaveState(SavePic idx){CapOnce[idx]=false;};
 public:
 	unsigned int Fullscreen;
 	
 private:
+	bool CapOnce[PIC_COUNT];
 	float mul;
 	PBOManager PBOcapture;
 public:
@@ -638,7 +642,7 @@ public:
 	static void nvconfigenable(long lparam);
 
 	void configloadtoglobal();
-	
+
 };
 
 

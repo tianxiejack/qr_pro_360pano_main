@@ -390,7 +390,7 @@ void VideoLoad::initgstreamerrtsp()
     launch_stream
 	//<< "nvcamerasrc ! "
 	//<< "video/x-raw(memory:NVMM), width="<< w <<", height="<< h <<", framerate=30/1 ! " 
-    <<"rtspsrc location=rtsp://admin:abc12345@192.168.1.26:554/h264/ch0/main/av_stream latency=0 !"
+    <<"rtspsrc location=rtsp://admin:abc12345@192.168.1.26"
    // << "rtspsrc location=rtsp://192.168.1.188:8554/test.264 latency=0 ! "
     //<< "filesrc 1.avi ! decodebin ! "
     << "decodebin ! "

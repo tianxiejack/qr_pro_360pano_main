@@ -30,6 +30,26 @@ void GLMain::DrawGLScene()
 		gThis->queueinfo[chId]=image_queue_getFull(&gThis->m_bufQue[chId]);
 
 
+if(gThis->queueinfo[RTSP_QUE_ID]!=NULL)
+{
+	 static int a=0;
+	static bool once=true;
+	static unsigned char * ptr=NULL;
+
+		if(once)
+		{
+			once =false;
+			ptr=(unsigned char *)malloc(1920*1080*4);
+		}
+		memcpy(ptr,gThis->queueinfo[RTSP_QUE_ID]->virtAddr,1920*1080*3);
+		 Mat localbgrImg(1080,1920,CV_8UC3,ptr);
+			if (a < 300 &&(a++%10 == 1)) {
+				char fname[50];
+				sprintf(fname, "van_%d.bmp", a);
+				imwrite(fname, localbgrImg);
+			}
+}
+
 	for(int chId=0; chId<gThis->queuenum; chId++)
 		{
 			if(gThis->queueinfo[chId]!=NULL)
@@ -186,8 +206,8 @@ int GLMain::start(int argc, char** argv,void *parm)
 	COM_Contrl::getinstance()->registkey(mouseButtonPress);
 	//parseArgs(argc, argv);
 	initGlut(argc, argv);
-		if(m_initPrm->nQueueSize < 3)
-		m_initPrm->nQueueSize =3;
+		if(m_initPrm->nQueueSize < 4)
+		m_initPrm->nQueueSize =4;
 	queuenum=m_initPrm->nChannels;
 	for(int chId=0; chId<m_initPrm->nChannels; chId++)
 		image_queue_create(&m_bufQue[chId], m_initPrm->nQueueSize,

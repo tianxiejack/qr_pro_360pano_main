@@ -34,8 +34,8 @@
 
 int RADX=0;
 int RADY=0;
-int RADW=150;
-int RADH=100;
+int RADW=1920;
+int RADH=1080;
 
 using namespace cv;
 using namespace std;
@@ -153,6 +153,10 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		positionchanged=0;
 		panoposx=0;
 		memset(panopositon,0,BRIDGENUM*sizeof(Rect));
+		for(int i=0;i<PIC_COUNT;i++)
+		{
+			CapOnce[i]=false;;
+		}
 		for(int i=0;i<BRIDGENUM;i++)
 			{
 				panopositon[i].y=PANOEXTRAH/2;
@@ -715,53 +719,53 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 			case '0':
 				break;
 			case '1':
-				 RADX+=1;
-				printf("RADX=%d\n",RADX);
-	//			Plantformpzt::getinstance()->MoveDown();
-	//			Plantformpzt::getinstance()->MoveLeft();
+			//	 RADX+=1;
+			//	printf("RADX=%d\n",RADX);
+				Plantformpzt::getinstance()->MoveDown();
+				Plantformpzt::getinstance()->MoveLeft();
 				break;
 			case '2':
-				 RADX-=1;
-				printf("RADX=%d\n",RADX);
-					//Plantformpzt::getinstance()->MoveDown();
+		//		 RADX-=1;
+		//		printf("RADX=%d\n",RADX);
+					Plantformpzt::getinstance()->MoveDown();
 		//		Plantformpzt::getinstance()->setpanopanpos(0);
 				break;
 			case '3':
-				 RADY+=1;
-				printf("RADY=%d\n",RADY);
+		//		 RADY+=1;
+		//		printf("RADY=%d\n",RADY);
 
-			//	Plantformpzt::getinstance()->MoveRight();
-			//	Plantformpzt::getinstance()->MoveDown();
+				Plantformpzt::getinstance()->MoveRight();
+				Plantformpzt::getinstance()->MoveDown();
 				break;
 			case '4':
-				 RADY-=1;
-				printf("RADY=%d\n",RADY);
-				//Plantformpzt::getinstance()->MoveLeft();
+		//		 RADY-=1;
+		//		printf("RADY=%d\n",RADY);
+				Plantformpzt::getinstance()->MoveLeft();
 
-		//		Plantformpzt::getinstance()->setpanopanpos(90);
+			//	Plantformpzt::getinstance()->setpanopanpos(90);
 				break;
 			case '5':
-				 RADW+=1;
-				printf("RADW=%d\n",RADW);
-				//Plantformpzt::getinstance()->Stop();
+			//	 RADW+=1;
+			//	printf("RADW=%d\n",RADW);
+				Plantformpzt::getinstance()->Stop();
 						break;
 			case '6':
-				 RADW-=1;
-				printf("RADW=%d\n",RADW);
-				//Plantformpzt::getinstance()->MoveRight();
-		//		Plantformpzt::getinstance()->setpanopanpos(180);
+			//	 RADW-=1;
+			//	printf("RADW=%d\n",RADW);
+				Plantformpzt::getinstance()->MoveRight();
+			//	Plantformpzt::getinstance()->setpanopanpos(180);
 				break;
 			case '7':
-				 RADH+=1;
-				printf("RADH=%d\n",RADH);
-				//Plantformpzt::getinstance()->MoveLeft();
-			//	Plantformpzt::getinstance()->MoveUp();
+			//	 RADH+=1;
+			//	printf("RADH=%d\n",RADH);
+				Plantformpzt::getinstance()->MoveLeft();
+				Plantformpzt::getinstance()->MoveUp();
 				break;
 			case '8':
-				 RADH-=1;
-				printf("RADH=%d\n",RADH);
-				//Plantformpzt::getinstance()->MoveUp();
-		//		Plantformpzt::getinstance()->setpanopanpos(270);
+			//	 RADH-=1;
+			//	printf("RADH=%d\n",RADH);
+				Plantformpzt::getinstance()->MoveUp();
+			//	Plantformpzt::getinstance()->setpanopanpos(270);
 				break;
 			case '9':
 				Plantformpzt::getinstance()->MoveUp();
@@ -804,7 +808,7 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 			case '+':
 				multipleupdate(0);
 
-				for(int i=RENDERCAMERA1;i<RENDERCAMERA3;i++)
+				for(int i=RENDERCAMERA1;i<RENDERCAMERA4;i++)
 				{
 					if(viewcamera[i].active)
 					{
@@ -814,7 +818,7 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 				break;
 			case '-':
 				multipleupdate(1);
-				for(int i=RENDERCAMERA1;i<RENDERCAMERA3;i++)
+				for(int i=RENDERCAMERA1;i<RENDERCAMERA4;i++)
 				{
 					if(viewcamera[i].active)
 					{
@@ -829,6 +833,9 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 			case ')':
 				Store::getinstance()->erasestore(3);
 				Store::getinstance()->reload();
+				break;
+			case 'c':
+				SaveAllPic();
 				break;
 			default:
 				break;
@@ -1228,22 +1235,24 @@ void Render::SelectFullScreenView(int x,int y,int width,int height,int idx)
 
 void Render::RadarFullScreenView(int x,int y,int width,int height)
 {
-	glViewport(x,y,width,height);
-viewFrustum.SetPerspective(90.0f, float(width) / float(height), 1.0f, 4000.0f);
-	projectionMatrix.LoadMatrix(viewFrustum.GetProjectionMatrix());
-	modelViewMatrix.PushMatrix();
-	modelViewMatrix.LoadIdentity();
-	modelViewMatrix.Translate(0.0f, 0.0f, -height);
-	modelViewMatrix.Scale(width, height, 1.0f);
+
+	M3DMatrix44f identy;
+	glUseProgram(0);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glViewport(x,y,width,height);
+		//glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
+		m3dLoadIdentity44(identy);
+		shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
+
 	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture(GL_TEXTURE_2D, ChineseC_Textures[RADAR_T]);
-	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
 	radarBatch.Draw();
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	modelViewMatrix.PopMatrix();
+	//modelViewMatrix.PopMatrix();
 }
 
 
@@ -3873,6 +3882,8 @@ void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned cha
 	}
 	else if(chid==RTSP_QUE_ID)
 	{
+		widht=1920;
+		height=1080;
 		glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
   		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, widht, height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -5177,7 +5188,13 @@ void Render::gltMakeradarpoints(vector<OSDPoint>& osdpoints, GLfloat innerRadius
 
 #define ratiosetp (0.02)
 
-
+void Render::SaveAllPic()
+{
+	for(int i=0;i<PIC_COUNT;i++)
+	{
+		CapOnce[i]=true;;
+	}
+}
 
 void Render::ResizeRectByRatio(int idx,bool plus)
 {

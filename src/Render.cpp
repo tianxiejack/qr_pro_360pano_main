@@ -96,6 +96,8 @@ using namespace std;
 #define MOUSERIGHT 0x02
 #define MOUSEPRESS 0X00
 #define MOUSEUP 0X01
+#define MOUSEDBCLICK 0X02
+#define MOUSEMOTION 0X03
 
 
 //#define BRIDGE
@@ -5391,31 +5393,38 @@ void Render::mouseevent(long lParam)
 {
 	int button=0; int state=0; int x=0; int y=0;
 	Status::getinstance()->getmouseparam( button,  state,  x,  y);
+	
 	if(button==0)
 		button=MOUSELEFT;
 	else if(button==1)
 		button=MOUSERIGHT;
+	
 	if(state==0)
 		state=MOUSEPRESS;
 	else if(state==1)
 		state=MOUSEUP;
+	else if(state==2)
+		state=MOUSEDBCLICK;
+	else if(state==3)
+		state=MOUSEMOTION;
 
 	OSA_printf("%s the x=%d y=%d \n",__func__,x,y);
 		
 	if(lParam==Status::MOUSEBUTTON)
 		{
-			pthis->mouseButtonPress(button,  state,  x,  y);
-			;
+			if(MOUSEMOTION==state)
+			{
+				pthis->mousemotion(button, x, y);
+			}
+			else if(MOUSEDBCLICK ==state)
+			{
+				pthis->mousedbclick(button, x, y);
+			}
+			else
+			{
+				pthis->mousebutton(button, state, x, y);
+			}
 		}
-	else if(lParam==Status::MOUSEROLLER)
-		{	
-			
-			pthis->multipleupdate(Status::getinstance()->rollerstatus);
-			
-		}
-	
-
-
 }
 
 
@@ -5742,3 +5751,17 @@ void Render::nvconfigenable(long lparam)
 	pthis->movareaflag=enable;
 }
 
+void Render::mousemotion(int button, int x, int y)
+{
+
+}
+
+void Render::mousedbclick(int button, int x, int y)
+{
+
+}
+
+void Render::mousebutton(int button, int state, int x, int y)
+{
+
+}

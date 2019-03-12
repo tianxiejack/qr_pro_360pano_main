@@ -1430,8 +1430,8 @@ void Render::Panotexture(void)
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-					glTexImage2D(GL_TEXTURE_2D, 0, nComponents, 1920, 1080, 0,
-								 eFormat, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, nComponents,1920,1080, 0,
+							GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 
 	for(int i=0;i<PANODETECTNUM;i++)
@@ -3454,7 +3454,7 @@ void Render::pano360View(int x,int y,int width,int height)
 
 	//draw trackVideo**
 	{
-		glUseProgram(0);
+		//glUseProgram(0);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -3463,10 +3463,10 @@ void Render::pano360View(int x,int y,int width,int height)
 			w=width/2-extrablackw/2;
 			h=height*2/6-extrablackw;
 
-			viewcamera[RENDERCAMERA4].leftdownrect.x=lx;
-			viewcamera[RENDERCAMERA4].leftdownrect.y=ly;
-			viewcamera[RENDERCAMERA4].leftdownrect.width=w;
-			viewcamera[RENDERCAMERA4].leftdownrect.height=h;
+		//	viewcamera[RENDERCAMERA4].leftdownrect.x=lx;
+		//	viewcamera[RENDERCAMERA4].leftdownrect.y=ly;
+		//	viewcamera[RENDERCAMERA4].leftdownrect.width=w;
+		//	viewcamera[RENDERCAMERA4].leftdownrect.height=h;
 			glViewport(lx,ly,w,h);
 			glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
 			m3dLoadIdentity44(identy);
@@ -3584,9 +3584,9 @@ void Render::panotestViewInit(void)
 						      1.0,1.0};
 
       GLfloat vTexselectCoords [] = { 0.0f, 0.0f,
-		                      	      0.1f, 0.0f, 
+		                      	      1.0f, 0.0f,
 						      0.0f, 1.0f ,
-						      0.1,1.0};
+						      1.0,1.0};
 
 	pan360triangleBatch.Begin(GL_TRIANGLE_STRIP, 4, 1);
 	pan360triangleBatch.CopyVertexData3f(vVerts);
@@ -3850,6 +3850,7 @@ void Render::CaptureProcessFrame(int chid,int widht,int height,int channel,unsig
 	//waitKey(1);
 
 }
+
 void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned char *data)
 {
 	//Mat cap;
@@ -3862,9 +3863,16 @@ void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned cha
 		Capture = Mat(height,widht,CV_8UC3,data);
 
 	if(getmenumode()==PANOMODE)
-		return ;
-	
+	{
+		 if(chid==RTSP_QUE_ID)
+			{
+				glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, widht, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 
+		  		glBindTexture(GL_TEXTURE_2D, 0);
+			}
+		return ;
+	}
 	if(shotcut==1)
 		{
 			shotcut=0;
@@ -3882,17 +3890,6 @@ void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned cha
 	{
 //todo
 	}
-	else if(chid==RTSP_QUE_ID)
-	{
-		widht=1920;
-		height=1080;
-		glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
-  		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, widht, height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	//imshow("test",cap);
-	//waitKey(1);
-
 }
 
 void Render::testcylinder()
@@ -5410,12 +5407,10 @@ void Render::mouseevent(long lParam)
 {
 	int button=0; int state=0; int x=0; int y=0;
 	Status::getinstance()->getmouseparam( button,  state,  x,  y);
-	
 	if(button==0)
 		button=MOUSELEFT;
 	else if(button==1)
 		button=MOUSERIGHT;
-	
 	if(state==0)
 		state=MOUSEPRESS;
 	else if(state==1)

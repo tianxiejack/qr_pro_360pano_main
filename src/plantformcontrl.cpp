@@ -1270,32 +1270,34 @@ void Plantformpzt::SetSpeed(bool plus)
 
 void Plantformpzt::ptzcontrl(long lParam)
 {
-/*
-	printf("*******%s*****lParam=%d**ptzpanspeed=%d  ptzpanodirection=%d ptztitledirection=%d ptztitlespeed=%d\n",__func__,lParam,Status::getinstance()->ptzpanspeed,Status::getinstance()->ptzpanodirection,
-		Status::getinstance()->ptztitledirection,Status::getinstance()->ptztitlespeed);
-		*/
-	if(lParam==Status::PTZPANOMOV||lParam==Status::PTZTWOMOV)
+	int mode = lParam;
+	int panodir = Status::getinstance()->ptzpanodirection;
+	int titledir = Status::getinstance()->ptztitledirection;
+	int panspeed = Status::getinstance()->ptzpanspeed;
+	int titlepeed = Status::getinstance()->ptztitlespeed;
+	
+	if(mode==Status::PTZPANOMOV||mode==Status::PTZTWOMOV)
 		{
-			if(Status::getinstance()->ptzpanodirection==0)
-					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptzpanspeed,true, instance->address);
-			else if(Status::getinstance()->ptzpanodirection==1)
-				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Left,Status::getinstance()->ptzpanspeed,true, instance->address);
-			else if(Status::getinstance()->ptzpanodirection==2)
-				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,Status::getinstance()->ptzpanspeed,true, instance->address);
+			if(panodir==0)
+					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,panspeed,true, instance->address);
+			else if(panodir==1)
+				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Left,panspeed,true, instance->address);
+			else if(panodir==2)
+				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,panspeed,true, instance->address);
 			
 			OSA_mutexLock(&instance->lock);
 			instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
 			OSA_mutexUnlock(&instance->lock);
 			OSA_waitMsecs(50);
 		}
-	if(lParam==Status::PTZTITLEMOV||lParam==Status::PTZTWOMOV)
+	if(mode==Status::PTZTITLEMOV||mode==Status::PTZTWOMOV)
 		{
-			if(Status::getinstance()->ptztitledirection==0)
-					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptztitlespeed,true, instance->address);
-			else if(Status::getinstance()->ptztitledirection==1)
-				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Up,Status::getinstance()->ptztitlespeed,true, instance->address);
-			else if(Status::getinstance()->ptztitledirection==2)
-				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Down,Status::getinstance()->ptztitlespeed,true, instance->address);
+			if(titledir==0)
+					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,titlepeed,true, instance->address);
+			else if(titledir==1)
+				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Up,titlepeed,true, instance->address);
+			else if(titledir==2)
+				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Down,titlepeed,true, instance->address);
 			OSA_mutexLock(&instance->lock);
 			instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
 			OSA_mutexUnlock(&instance->lock);

@@ -112,6 +112,7 @@ class Plantformpzt
 		static void focuscontrl(long lParam);
 		static void iriscontrl(long lParam);
 		static void focallencontrl(long lParam);
+		static void chooseptz(long lParam);
 
 		static void plantfromcontrl(long lParam);
 

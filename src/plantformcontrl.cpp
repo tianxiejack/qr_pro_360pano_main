@@ -1218,6 +1218,7 @@ void Plantformpzt::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCALLENGTHCTRL,focallencontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_IRISCTRL,iriscontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCUSCTRL,focuscontrl,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_CHOOSEPTZ,chooseptz,0);
 
 }
 
@@ -1346,6 +1347,15 @@ void Plantformpzt::focallencontrl(long lParam)
 	else if(lParam==Status::PTZFOCUSLENGTHOWN)
 		;
 	else if(lParam==Status::PTZFOCUSLENGTHUP)
+		;
+}
+
+void Plantformpzt::chooseptz(long lParam)
+{
+	printf("%s,%d, ptzid=%d!!!\n",__FILE__,__LINE__, lParam);
+	if(lParam==Status::PTZ_SCAN)
+		;
+	else if(lParam==Status::PTZ_TRK)
 		;
 }
 

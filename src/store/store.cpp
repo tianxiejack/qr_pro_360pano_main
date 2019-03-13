@@ -190,44 +190,34 @@ void Store::registorfun()
 
 void Store::Storemodevent(long lParam)
 {
-	if(lParam==Status::STOREGO)
+	int mode = lParam;
+	int storegonum = Status::getinstance()->storegonum;
+	int storesavemod = Status::getinstance()->storesavemod;
+	int storesavenum = Status::getinstance()->storesavenum;
+	
+	if(mode==Status::STOREGO)
+	{
+		instance->gostore(storegonum);
+	}
+	else if(mode==Status::STORESAVE)
+	{
+		if(storesavemod==Status::STORESAVENUM)
 		{
-			int num=Status::getinstance()->storegonum;
-			instance->gostore(num);
-			
-
+			instance->addstore();
+			instance->save();
 		}
-	else if(lParam==Status::STORESAVE)
+		else if(storesavemod==Status::STOREERASENUM)
 		{
-			int num=Status::getinstance()->storesavenum;
-			int mod=Status::getinstance()->storesavemod;
-			if(mod==Status::STORESAVENUM)
-				{
-					instance->addstore();
-					instance->save();
-					printf("++++++++++++++++++%s+++++++++++++++++++\n",__func__);
-
-				}
-			else if(mod==Status::STOREERASENUM)
-				{
-				
-					instance->erasestore(num);
-					instance->save();
-						
-
-				}
-			else if(mod==Status::STOREDEFAULT)
-				{
-					instance->erase();
-
-				}
-			
-			//instance->gostore(num);
-
-			
-			
-
+			instance->erasestore(storesavenum);
+			instance->save();
 		}
+		else if(storesavemod==Status::STOREDEFAULT)
+		{
+			instance->erase();
+		}
+		
+		//instance->gostore(num);
+	}
 
 }
 

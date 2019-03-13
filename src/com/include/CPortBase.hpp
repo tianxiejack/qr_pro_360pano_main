@@ -126,6 +126,7 @@ public:
     void querryconfig();
     void  rebootconfig();
     void choosedev();
+    void chooseptz();
 
 protected:
     int prcRcvFrameBufQue(int method);

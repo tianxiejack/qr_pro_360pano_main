@@ -855,7 +855,6 @@ void CPortBase::targetCaptureMode()
 
 void CPortBase::choosedev()
 {
-
 	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->getdevid())
 		Status::getinstance()->setdevid(_globalDate->rcvBufQue.at(5));
 	else
@@ -868,6 +867,16 @@ void CPortBase::choosedev()
 	else if(3==Status::getinstance()->getdevid())
 		pM->MSGDRIV_send(MSGID_EXT_CHOOSEDEV, (void *)(Status::DEV3));
 
+}
+
+void CPortBase::chooseptz()
+{
+	int ptzid = _globalDate->rcvBufQue.at(5);
+
+	if(1 == ptzid)
+		pM->MSGDRIV_send(MSGID_EXT_CHOOSEPTZ, (void *)(Status::PTZ_SCAN));
+	else if(2 == ptzid)
+		pM->MSGDRIV_send(MSGID_EXT_CHOOSEPTZ, (void *)(Status::PTZ_TRK));
 }
 
 int CPortBase::prcRcvFrameBufQue(int method)
@@ -996,6 +1005,9 @@ int CPortBase::prcRcvFrameBufQue(int method)
             		break;
 		case 0x45:
 			choosedev();
+			break;
+		case 0x46:
+			chooseptz();
 			break;
 		case 0x60:
 			playercontrl();

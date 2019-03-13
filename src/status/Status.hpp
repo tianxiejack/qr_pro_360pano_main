@@ -111,6 +111,11 @@ public:
 		DEVMAX
 	}DevId;
 
+	typedef enum {
+		PTZ_SCAN = 1,
+		PTZ_TRK,
+	}PtzId;
+
 	const int mvconfignum=16;
 
 	

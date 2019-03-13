@@ -104,6 +104,7 @@ typedef enum _sys_msg_id_ {
     MSGID_EXT_INPUT_fontsize,
     MSGID_IPC_INPUT_reset_swtarget_timer,
     MSGID_EXT_CHOOSEDEV,
+    MSGID_EXT_CHOOSEPTZ,
     MAX_MSG_NUM
 }eSysMsgId, MSG_PROC_ID;
 

@@ -104,6 +104,13 @@ public:
 		
 	}MOVSPEED;
 
+	typedef enum {
+		DEV1 = 1,
+		DEV2,
+		DEV3,
+		DEVMAX
+	}DevId;
+
 
 	const int mvconfignum=16;
 
@@ -276,14 +283,17 @@ public:
 	int getworkmod(){return workmode;};
 	void setworkmod(int dis){workmode=dis;};
 
-
 	int getstoremod(){return storemod;};
 	void setstoremod(int mod){storemod=mod;};
+
+	int getdevid(){return devid;};
+	void setdevid(int id){devid=id;};
 	
 private:
 	int displaymod;
 	int displaysensor;
 	int workmode;
+	int devid;
 private:
 	Status();
 	~Status();

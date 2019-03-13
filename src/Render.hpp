@@ -645,6 +645,7 @@ public:
 	void mousemotion(int button, int x, int y);
 	void mousedbclick(int button, int x, int y);
 	void mousebutton(int button, int state, int x, int y);
+	static void choosedev(long lparam);
 };
 
 

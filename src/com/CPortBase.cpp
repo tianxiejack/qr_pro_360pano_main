@@ -845,6 +845,23 @@ void CPortBase::targetCaptureMode()
 	
 }
 
+void CPortBase::choosedev()
+{
+
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->getdevid())
+		Status::getinstance()->setdevid(_globalDate->rcvBufQue.at(5));
+	else
+		return;
+
+	if(1==Status::getinstance()->getdevid())
+		pM->MSGDRIV_send(MSGID_EXT_CHOOSEDEV, (void *)(Status::DEV1));
+	else if(2==Status::getinstance()->getdevid())
+		pM->MSGDRIV_send(MSGID_EXT_CHOOSEDEV, (void *)(Status::DEV2));
+	else if(3==Status::getinstance()->getdevid())
+		pM->MSGDRIV_send(MSGID_EXT_CHOOSEDEV, (void *)(Status::DEV3));
+
+}
+
 int CPortBase::prcRcvFrameBufQue(int method)
 {
     int ret =  -1;
@@ -972,6 +989,9 @@ int CPortBase::prcRcvFrameBufQue(int method)
             case 0x43:
             		targetCaptureMode();
             		break;
+		case 0x45:
+			choosedev();
+			break;
 		case 0x60:
 			playercontrl();
 			break;

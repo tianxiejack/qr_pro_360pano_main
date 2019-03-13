@@ -128,6 +128,7 @@ public:
     void panoconfig();
     void querryconfig();
     void  rebootconfig();
+    void choosedev();
 
 protected:
     int prcRcvFrameBufQue(int method);

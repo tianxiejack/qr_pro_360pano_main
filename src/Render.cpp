@@ -5329,6 +5329,7 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_CorrectTimeConfig,correcttimeconfig,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PanoConfig,panoconfig,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MVCONFIGENABLE,nvconfigenable,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_CHOOSEDEV,choosedev,0);
 	
 	
 	
@@ -5774,6 +5775,11 @@ void Render::mousedbclick(int button, int x, int y)
 }
 
 void Render::mousebutton(int button, int state, int x, int y)
+{
+
+}
+
+void Render::choosedev(long lparam)
 {
 
 }

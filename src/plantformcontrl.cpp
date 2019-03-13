@@ -1215,7 +1215,10 @@ void Plantformpzt::registorfun()
 {
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PLATCTRL,ptzcontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcontrl,0);
-	
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCALLENGTHCTRL,focallencontrl,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_IRISCTRL,iriscontrl,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCUSCTRL,focuscontrl,0);
+
 }
 
 void Plantformpzt::MoveLeft()
@@ -1334,6 +1337,16 @@ void Plantformpzt::iriscontrl(long lParam)
 		;//	PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
 
 
+}
+
+void Plantformpzt::focallencontrl(long lParam)
+{
+	if(lParam==Status::PTZFOCUSLENGTHSTOP)
+		;
+	else if(lParam==Status::PTZFOCUSLENGTHOWN)
+		;
+	else if(lParam==Status::PTZFOCUSLENGTHUP)
+		;
 }
 
 void Plantformpzt::plantfromcontrl(long lParam)

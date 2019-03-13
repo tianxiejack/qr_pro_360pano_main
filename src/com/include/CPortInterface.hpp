@@ -30,12 +30,9 @@ public:
     virtual void EnableTrkSearch(){};
     virtual void Enablealgosdrect(){};
     virtual void ZoomSpeedCtrl(){};
-    virtual int ZoomShortCtrl(){return 0;};
-    virtual int ZoomLongCtrl(){return 0;};
-    virtual void IrisDown(){};
-    virtual void IrisUp(){};
-    virtual void FocusDown(){};
-    virtual void FocusUp(){};
+    virtual int ZoomCtrl(){return 0;};
+    virtual void IrisCtrl(){};
+    virtual void FocusCtrl(){};
     virtual void AvtAxisCtrl(){};
     virtual void EnableOsdbuffer(){};
     virtual void EnablewordType(){};

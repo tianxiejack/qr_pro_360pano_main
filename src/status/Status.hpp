@@ -26,18 +26,18 @@ public:
 	}Plantctl;
 
 	typedef enum {
-		PTZFOCUSSTOP,
+		PTZFOCUSSTOP = 0,
 		PTZFOCUSSNEAR,
 		PTZFOCUSSFAR,
 	}Focusctl;
 	typedef enum {
-		PTZFOCUSONSTOP,
-		PTZFOCUSSONDOWN,
-		PTZFOCUSSONUP,
+		PTZFOCUSLENGTHSTOP = 0,
+		PTZFOCUSLENGTHOWN,
+		PTZFOCUSLENGTHUP,
 	}Focusonctl;
 
 	typedef enum {
-		PTZIRISSTOP,
+		PTZIRISSTOP = 0,
 		PTZIRISDOWN,
 		PTZIRISUP,
 	}Irisctl;

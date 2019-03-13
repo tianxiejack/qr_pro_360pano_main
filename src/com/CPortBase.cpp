@@ -634,35 +634,43 @@ void CPortBase::ZoomSpeedCtrl()
 
 }
 
-int CPortBase::ZoomShortCtrl()
+int CPortBase::ZoomCtrl()
 {
+	int focallength = _globalDate->rcvBufQue.at(5);
 
+	if(0 == focallength)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCALLENGTHCTRL, (void *)(Status::PTZFOCUSLENGTHSTOP));
+	else if(1 == focallength)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCALLENGTHCTRL, (void *)(Status::PTZFOCUSLENGTHOWN));
+	else if(2 == focallength)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCALLENGTHCTRL, (void *)(Status::PTZFOCUSLENGTHUP));
+	
     return 0;
 }
 
-int CPortBase::ZoomLongCtrl()
+void CPortBase::IrisCtrl()
 {
+	int iris = _globalDate->rcvBufQue.at(5);
 
-    return 0;
+	if(0 == iris)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_IRISCTRL, (void *)(Status::PTZIRISSTOP));
+	else if(1 == iris)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_IRISCTRL, (void *)(Status::PTZIRISDOWN));
+	else if(2 == iris)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_IRISCTRL, (void *)(Status::PTZIRISUP));
+	
 }
 
-void CPortBase::IrisDown()
+void CPortBase::FocusCtrl()
 {
+	int focus = _globalDate->rcvBufQue.at(5);
 
-}
-
-void CPortBase::IrisUp()
-{
-
-}
-
-void CPortBase::FocusDown()
-{
-
-}
-
-void CPortBase::FocusUp()
-{
+	if(0 == focus)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCUSCTRL, (void *)(Status::PTZFOCUSSTOP));
+	else if(1 == focus)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCUSCTRL, (void *)(Status::PTZFOCUSSNEAR));
+	else if(2 == focus)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCUSCTRL, (void *)(Status::PTZFOCUSSFAR));
 
 }
 
@@ -927,16 +935,13 @@ int CPortBase::prcRcvFrameBufQue(int method)
                 ZoomSpeedCtrl();
                 break;
             case 0x12:
-                ZoomShortCtrl();
-                ZoomLongCtrl();
+                ZoomCtrl();
                 break;
             case 0x13:
-                IrisDown();
-                IrisUp();
+                IrisCtrl();
                 break;
             case 0x14:
-                FocusDown();
-                FocusUp();
+                FocusCtrl();
                 break;
             case 0x15:
                 plantctl();

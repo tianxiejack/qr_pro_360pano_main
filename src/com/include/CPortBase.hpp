@@ -45,12 +45,9 @@ public:
     void EnableTrkSearch();
     void Enablealgosdrect();
     void ZoomSpeedCtrl();
-    int  ZoomShortCtrl();
-    int  ZoomLongCtrl();
-    void IrisDown();
-    void IrisUp();
-    void FocusDown();
-    void FocusUp();
+    int  ZoomCtrl();
+    void IrisCtrl();
+    void FocusCtrl();
     void AvtAxisCtrl();
     void EnableOsdbuffer();
     void EnablewordType();

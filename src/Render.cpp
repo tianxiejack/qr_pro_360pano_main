@@ -5407,6 +5407,7 @@ void Render::updatepano(long lParam)
 void Render::mouseevent(long lParam)
 {
 	int button=0; int state=0; int x=0; int y=0;
+	int rigion,zoomstat;
 	Status::getinstance()->getmouseparam( button,  state,  x,  y);
 	if(button==0)
 		button=MOUSELEFT;
@@ -5424,20 +5425,26 @@ void Render::mouseevent(long lParam)
 	OSA_printf("%s the x=%d y=%d \n",__func__,x,y);
 		
 	if(lParam==Status::MOUSEBUTTON)
+	{
+		if(MOUSEMOTION==state)
 		{
-			if(MOUSEMOTION==state)
-			{
-				pthis->mousemotion(button, x, y);
-			}
-			else if(MOUSEDBCLICK ==state)
-			{
-				pthis->mousedbclick(button, x, y);
-			}
-			else
-			{
-				pthis->mousebutton(button, state, x, y);
-			}
+			pthis->mousemotion(button, x, y);
 		}
+		else if(MOUSEDBCLICK ==state)
+		{
+			pthis->mousedbclick(button, x, y);
+		}
+		else
+		{
+			pthis->mousebutton(button, state, x, y);
+		}
+	}
+	else if(lParam==Status::MOUSEROLLER)
+	{
+		rigion = Status::getinstance()->getrigion();
+		zoomstat = Status::getinstance()->getzoomstat();
+		pthis->changezoom(rigion, zoomstat);
+	}
 }
 
 
@@ -5780,6 +5787,11 @@ void Render::mousebutton(int button, int state, int x, int y)
 }
 
 void Render::choosedev(long lparam)
+{
+
+}
+
+void Render::changezoom(int rigion, int zoomstat)
 {
 
 }

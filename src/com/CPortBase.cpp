@@ -70,8 +70,8 @@ void CPortBase::mouseevent(int event)
 		}
 	else if(event==Status::MOUSEROLLER)
 		{
-			
-			Status::getinstance()->rollerstatus=_globalDate->rcvBufQue.at(6);
+			Status::getinstance()->setrigion(_globalDate->rcvBufQue.at(5));
+			Status::getinstance()->setzoomstat(_globalDate->rcvBufQue.at(6));
 			pM->MSGDRIV_send(MSGID_EXT_INPUT_MouseEvent, (void *)(Status::MOUSEROLLER));
 		}
 

@@ -111,7 +111,6 @@ public:
 		DEVMAX
 	}DevId;
 
-
 	const int mvconfignum=16;
 
 	
@@ -127,7 +126,8 @@ public:
 	int mouseleftright;
 	int mousex;
 	int mousey;
-	int rollerstatus;
+	int zoom_rigion;
+	int zoom_state;
 
 
 	int storemod;
@@ -288,6 +288,12 @@ public:
 
 	int getdevid(){return devid;};
 	void setdevid(int id){devid=id;};
+
+	int getrigion(){return zoom_rigion;};
+	void setrigion(int rigion){zoom_rigion=rigion;};
+
+	int getzoomstat(){return zoom_state;};
+	void setzoomstat(int stat){zoom_state=stat;};
 	
 private:
 	int displaymod;

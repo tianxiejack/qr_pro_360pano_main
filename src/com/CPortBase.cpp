@@ -1075,67 +1075,67 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 			break;
 		case ACK_wordColor:
 			break;
-		case   ACK_wordType:
+		case ACK_wordType:
 			break;
-		case  ACK_wordSize:
+		case ACK_wordSize:
 			break;
-		case  NAK_wordColor:
+		case NAK_wordColor:
 			break;
-		case   NAK_wordType:
+		case NAK_wordType:
 			break;
-		case  NAK_wordSize:
+		case NAK_wordSize:
 			break;
 		case ACK_softVersion:
 			softVersion(psendBuf);
 			break;
-		case   ACK_mainVideoStatus:
+		case ACK_mainVideoStatus:
 			mainVedioChannel(psendBuf);
 			break;
-		case   ACK_Channel_bindingStatus:
-			bindVedioChannel(psendBuf);
+		case ACK_updatepano:
+			ack_updatepano(psendBuf);
 			break;
-		case  ACK_avtTrkStatus:
-			trackStatus(psendBuf);
+		case ACK_fullscreenmode:
+			ack_fullscreenmode(psendBuf);
 			break;
-		case  	ACK_avtTrkType:
+		case ACK_avtTrkType:
 			trackTypes(psendBuf);
 			break;
-		case   ACK_avtErrorOutput:
+		case ACK_avtErrorOutput:
 			trackErrOutput(psendBuf);
 			break;
-		case  ACK_mmtStatus:
+		case ACK_mmtStatus:
 			mutilTargetNoticeStatus(psendBuf);
 			break;
-		case   ACK_mmtSelectStatus:
+		case ACK_mmtSelectStatus:
 			multilTargetNumSelectStatus(psendBuf);
 			break;
-		case   ACK_EnhStatus:
+		case ACK_EnhStatus:
 			imageEnhanceStatus(psendBuf);
 			break;
-		case   ACK_MtdStatus:
+		case ACK_MtdStatus:
 			moveTargetDetectedStat(psendBuf);
 			break;
-		case   ACK_TrkSearchStatus:
+		case ACK_TrkSearchStatus:
 			trackSearchStat(psendBuf);
 			break;
-		case   ACK_posMoveStatus:
+		case ACK_posMoveStatus:
 			trackFinetuningStat(psendBuf);
 			break;
-		case   ACK_moveAxisStatus:
+		case ACK_moveAxisStatus:
 			confirmAxisStat(psendBuf);
 			break;
-		case   ACK_ElectronicZoomStatus:
+		case ACK_ElectronicZoomStatus:
 			ElectronicZoomStat(psendBuf);
 			break;
-		case  ACK_picpStatus:
+		case ACK_picpStatus:
 			pictureInPictureStat(psendBuf);
 			break;
-		case  ACK_VideoChannelStatus:
+		case ACK_VideoChannelStatus:
 			vedioTransChannelStat(psendBuf);
 			break;
-		case  ACK_frameCtrlStatus:
+		case ACK_frameCtrlStatus:
 			break;
-		case  ACK_compression_quality:
+		case ACK_compression_quality:
 			break;
 		case ACK_config_Write:
 			settingCmdRespon(psendBuf);
@@ -1314,28 +1314,24 @@ void  CPortBase:: softVersion(sendInfo * spBuf)
 	
 }
 
-void  CPortBase:: bindVedioChannel(sendInfo * spBuf)
+void  CPortBase:: ack_updatepano(sendInfo * spBuf)
 {
 	int msg_length = 2;
 	u_int8_t  restartCheckAnswer[msg_length+5];
-	restartCheckAnswer[4] = 0x05;
-	restartCheckAnswer[5]=0x07;
+	restartCheckAnswer[4] = 0x09;
+	restartCheckAnswer[5]=Status::getinstance()->ack_updatepano;
 	package_frame(msg_length, restartCheckAnswer);
 	spBuf->byteSizeSend=msg_length+5;
 	memcpy(spBuf->sendBuff,restartCheckAnswer,msg_length+5);
 }
 
-void  CPortBase:: trackStatus(sendInfo * spBuf)
+void  CPortBase:: ack_fullscreenmode(sendInfo * spBuf)
 {
 	int msg_length = 2;
 	u_int8_t  retrackStatus[msg_length+5];
-	unsigned int trkstat = 0;//_globalDate->avt_status.AvtTrkStat;
-	if(trkstat == 0)
-		trkstat = 1;
-	else
-		trkstat = 2;
-	retrackStatus[4] = 0x06;
-	retrackStatus[5]=trkstat;
+
+	retrackStatus[4] = 0x0a;
+	retrackStatus[5]=Status::getinstance()->ack_fullscreenmode;
 	package_frame(msg_length, retrackStatus);
 	spBuf->byteSizeSend=msg_length+5;
 	memcpy(spBuf->sendBuff,retrackStatus,msg_length+5);

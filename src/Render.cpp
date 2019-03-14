@@ -5401,7 +5401,7 @@ void Render::updatepano(long lParam)
 	
 	pthis->signalpanomod();
 
-
+	
 }
 
 void Render::mouseevent(long lParam)
@@ -5794,4 +5794,19 @@ void Render::choosedev(long lparam)
 void Render::changezoom(int rigion, int zoomstat)
 {
 
+}
+
+void Render::ACK_response(int cmdid, int param)
+{
+	if(ACK_updatepano == cmdid)
+	{
+		Status::getinstance()->ack_updatepano = param;// 1:success   2:fail
+	}
+	else if(ACK_fullscreenmode == cmdid)
+	{
+		Status::getinstance()->ack_fullscreenmode = param;// 1:enter fullscreen   2:exit fullscreen
+	}
+
+	CGlobalDate::Instance()->feedback=cmdid;
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
 }

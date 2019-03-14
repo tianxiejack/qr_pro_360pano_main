@@ -68,8 +68,8 @@ public:
 //
     int  getSendInfo(int  respondId, sendInfo * psendBuf);
     void mainVedioChannel(sendInfo * spBuf);
-    void bindVedioChannel(sendInfo * spBuf);
-    void trackStatus(sendInfo * spBuf);
+    void ack_updatepano(sendInfo * spBuf);
+    void ack_fullscreenmode(sendInfo * spBuf);
     void trackTypes(sendInfo * spBuf);
     void trackErrOutput(sendInfo * spBuf);
     void mutilTargetNoticeStatus(sendInfo * spBuf);

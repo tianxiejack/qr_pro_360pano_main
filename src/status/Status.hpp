@@ -254,6 +254,10 @@ public:
 
 	int usestepdetect;
 
+	/***feedback***/
+	int ack_updatepano;
+	int ack_fullscreenmode;
+
 	//int getcurrentid(int id){int cid=0;cid=id;cid=cid%;};
 	
 	double getmvreachangle(){return researchangle;};

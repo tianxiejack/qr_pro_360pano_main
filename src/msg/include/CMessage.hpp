@@ -293,8 +293,8 @@ typedef enum{
 	NAK_wordSize,
 	ACK_mainVideoStatus,
 	ACK_softVersion,
-	ACK_Channel_bindingStatus,  //
-	ACK_avtTrkStatus,
+	ACK_updatepano,  //
+	ACK_fullscreenmode,
 	ACK_avtTrkType,
 	ACK_avtErrorOutput,
 	ACK_mmtStatus,

@@ -647,6 +647,7 @@ public:
 	void mousedbclick(int button, int x, int y);
 	void mousebutton(int button, int state, int x, int y);
 	void changezoom(int rigion, int zoomstat);
+	void ACK_response(int cmdid, int param);
 };
 
 

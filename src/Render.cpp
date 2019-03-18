@@ -1260,28 +1260,14 @@ void Render::RadarFullScreenView(int x,int y,int width,int height)
 
 void Render::SelectFullScreenTrackView(int x,int y,int width,int height)
 {
-	int id=0;
 	unsigned int lx,ly,w,h;
 	M3DMatrix44f identy;
 	glUseProgram(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	lx=0;
-	ly=0;
-	w=width;
-	h=height;
-	viewcamera[RENDERCAMERA4].leftdownrect.x=lx;
-	viewcamera[RENDERCAMERA4].leftdownrect.y=ly;
-	viewcamera[RENDERCAMERA4].leftdownrect.width=w;
-	viewcamera[RENDERCAMERA4].leftdownrect.height=h;
 	glViewport(lx,ly,w,h);
+	glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
 	m3dLoadIdentity44(identy);
 	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
-	for(int i=0;i<viewcamera[RENDERCAMERA4].blindtextnum;i++)
-	{
-		id=viewcamera[RENDERCAMERA4].blindtextid[i];
-		glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
-		panselecttriangleBatchnew[RENDERCAMERA4][i]->Draw();
-	}
+	panselecttriangleBatchnew[RENDERCAMERA4][0]->Draw();
 }
 
 
@@ -1431,7 +1417,7 @@ void Render::Panotexture(void)
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 					glTexImage2D(GL_TEXTURE_2D, 0, nComponents,1920,1080, 0,
-							GL_RGB, GL_UNSIGNED_BYTE, NULL);
+							GL_BGR, GL_UNSIGNED_BYTE, NULL);
 
 
 	for(int i=0;i<PANODETECTNUM;i++)
@@ -3867,7 +3853,7 @@ void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned cha
 		 if(chid==RTSP_QUE_ID)
 			{
 				glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
-				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, widht, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, widht, height, GL_BGR, GL_UNSIGNED_BYTE, data);
 
 		  		glBindTexture(GL_TEXTURE_2D, 0);
 			}
@@ -4779,7 +4765,7 @@ void Render::MouseSelectpos()
 
 
 			
-			mousetitleangle=mousetitleangle;
+	//		mousetitleangle=mousetitleangle;
 				if(mousetitleangle>360)
 				mousetitleangle=mousetitleangle-360;
 			else if(mousetitleangle<0)
@@ -5401,7 +5387,7 @@ void Render::updatepano(long lParam)
 	
 	pthis->signalpanomod();
 
-	
+
 }
 
 void Render::mouseevent(long lParam)
@@ -5773,28 +5759,71 @@ void Render::nvconfigenable(long lparam)
 
 void Render::mousemotion(int button, int x, int y)
 {
-
+	mouseMotionPress(x,y);
 }
 
 void Render::mousedbclick(int button, int x, int y)
 {
-
+	CheckArea( x, y);
 }
 
 void Render::mousebutton(int button, int state, int x, int y)
 {
-
+	mouseButtonPress(button,state,x,y);
 }
+
 
 void Render::choosedev(long lparam)
 {
 
 }
 
+void Render::CheckArea(int x,int y)
+{
+	if(displayMode==SELECT_FULL_SCREEN_A
+			||displayMode==SELECT_FULL_SCREEN_B
+			||displayMode==SELECT_FULL_SCREEN_C
+			||displayMode==SELECT_FULL_SCREEN_TRACK_D)
+	{
+		ProcessOitKeys('Q',0,0);
+	}
+	else
+	{
+		if(x>=0 &&x<=955 &&y>=720 &&y<=960) //zuoxia
+		{
+			if(displayMode==PANO_360_MODE)
+			{
+				ProcessOitKeys('A',0,0);
+			}
+		}
+		else if(x>=0 &&x<=958 &&y>=370&&y<720) //zuoshang
+		{
+		 if(displayMode==PANO_360_MODE)
+			{
+				ProcessOitKeys('B',0,0);
+			}
+		}
+		else if(x>=962 &&x<=1920 &&y>=370 &&y<720) //youshang
+		{
+			if(displayMode==PANO_360_MODE)
+			{
+				ProcessOitKeys('C',0,0);
+			}
+		}
+		else if(x>=962 &&x<=1920 &&y>=720 &&y<960) //youxia
+		{
+			if(displayMode==PANO_360_MODE)
+			{
+				ProcessOitKeys('D',0,0);
+			}
+		}
+	}
+}
 void Render::changezoom(int rigion, int zoomstat)
 {
 
 }
+
 
 void Render::ACK_response(int cmdid, int param)
 {

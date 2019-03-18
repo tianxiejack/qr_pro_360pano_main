@@ -36,6 +36,7 @@
 #include"store.hpp"
 #include"configfile.hpp"
 #include"RTSPCaptureGroup/RTSPCaptureGroup.h"
+#include "opencvCapIP.h"
 static GLMain render;
 
 ImageProcess *Imageprocesspt;
@@ -308,9 +309,11 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 	//OSA_printf("%d %s. 1w=%d h=%d\n", OSA_getCurTimeInMsec(), __func__,info->width,info->height);
 
 }
-
+extern opencvCapIP cvCapIp;
 int main_pano(int argc, char **argv)
 {
+	cvCapIp.Open();
+#if 1
 	/* Initialize GStreamer */
 	gst_init (NULL, NULL);
 	#if CONFIGINIT
@@ -382,7 +385,7 @@ int main_pano(int argc, char **argv)
 	ChosenCaptureGroup *grop[2];
 	grop[0] = ChosenCaptureGroup :: GetTVInstance();
 	grop[1] = ChosenCaptureGroup :: GetHOTInstance();
-	RTSPCaptureGroup :: GetRTSPInstance();
+//	RTSPCaptureGroup :: GetRTSPInstance();
 	/*test read file*/
 	FileCapture filecapture;
 	if(Config::getinstance()->getcam_readfromfile())
@@ -402,6 +405,7 @@ int main_pano(int argc, char **argv)
 	  
 	/*main loop*/
 	render.mainloop();
+#endif
 	return 0;
 }
 

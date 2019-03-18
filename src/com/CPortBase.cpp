@@ -722,57 +722,13 @@ void CPortBase::plantctl()
 	int mod=0;
 	int mod1=0;
 	int change=0;
+
+	Status::getinstance()->ptzpanodirection=_globalDate->rcvBufQue.at(5);
+	Status::getinstance()->ptztitledirection=_globalDate->rcvBufQue.at(7);
+	Status::getinstance()->ptzpanspeed=_globalDate->rcvBufQue.at(6);
+	Status::getinstance()->ptztitlespeed=_globalDate->rcvBufQue.at(8);
 	
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->ptzpanodirection)
-		{
-			Status::getinstance()->ptzpanodirection=_globalDate->rcvBufQue.at(5);
-			if(Status::getinstance()->ptzpanodirection==0)
-				mod=0;
-			else 
-				mod++;
-			change=1;
-		}
-
-	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->ptztitledirection)
-		{
-			Status::getinstance()->ptztitledirection=_globalDate->rcvBufQue.at(7);
-			if(Status::getinstance()->ptztitledirection==0)
-				mod1=0;
-			else 
-				mod1++;
-			change=1;
-		}
-
-	
-
-	
-
-	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->ptzpanspeed)
-		{
-			Status::getinstance()->ptzpanspeed=_globalDate->rcvBufQue.at(6);
-			change=1;
-		}
-	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->ptztitlespeed)
-		{
-			Status::getinstance()->ptztitlespeed=_globalDate->rcvBufQue.at(8);
-			change=1;
-		}
-	/*
-	OSA_printf("pandirction=%d  titledirection=%d panspeed=%d titlespeed=%d\n",Status::getinstance()->ptzpanodirection,Status::getinstance()->ptztitledirection,Status::getinstance()->ptzpanspeed,
-		Status::getinstance()->ptztitlespeed);
-		*/
-	if(change)
-		{
-			if(mod==0&&mod1==0)
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_PLATCTRL, (void *)(Status::PTZTWOMOV));
-			else if(mod==1&&mod1==0)
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_PLATCTRL, (void *)(Status::PTZPANOMOV));
-			else if(mod==0&&mod1==1)
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_PLATCTRL, (void *)(Status::PTZTITLEMOV));
-			else if(mod==1&&mod1==1)
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_PLATCTRL, (void *)(Status::PTZTWOMOV));
-		}
-
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_PLATCTRL, 0);
 	
 }
 

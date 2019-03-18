@@ -20,12 +20,6 @@ public:
 	}Dismod;
 
 	typedef enum {
-		PTZPANOMOV,
-		PTZTITLEMOV,
-		PTZTWOMOV,
-	}Plantctl;
-
-	typedef enum {
 		PTZFOCUSSTOP = 0,
 		PTZFOCUSSNEAR,
 		PTZFOCUSSFAR,

@@ -1274,13 +1274,12 @@ void Plantformpzt::SetSpeed(bool plus)
 
 void Plantformpzt::ptzcontrl(long lParam)
 {
-	int mode = lParam;
 	int panodir = Status::getinstance()->ptzpanodirection;
 	int titledir = Status::getinstance()->ptztitledirection;
 	int panspeed = Status::getinstance()->ptzpanspeed;
 	int titlepeed = Status::getinstance()->ptztitlespeed;
-	
-	if(mode==Status::PTZPANOMOV||mode==Status::PTZTWOMOV)
+
+	//if(mode==Status::PTZPANOMOV||mode==Status::PTZTWOMOV)
 		{
 			if(panodir==0)
 					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,panspeed,true, instance->address);
@@ -1294,7 +1293,7 @@ void Plantformpzt::ptzcontrl(long lParam)
 			OSA_mutexUnlock(&instance->lock);
 			OSA_waitMsecs(50);
 		}
-	if(mode==Status::PTZTITLEMOV||mode==Status::PTZTWOMOV)
+	//if(mode==Status::PTZTITLEMOV||mode==Status::PTZTWOMOV)
 		{
 			if(titledir==0)
 					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,titlepeed,true, instance->address);
@@ -1307,10 +1306,6 @@ void Plantformpzt::ptzcontrl(long lParam)
 			OSA_mutexUnlock(&instance->lock);
 			OSA_waitMsecs(10);
 		}
-
-	
-
-
 
 }
 void Plantformpzt::focuscontrl(long lParam)

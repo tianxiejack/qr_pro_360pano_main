@@ -63,6 +63,8 @@ public:
 		PANOAUTO,
 		PANOPTZ,
 		PANOSELECT,
+		TRACKPTZ,
+		TRACKSELECT
 	}Workmod;
 
 	typedef enum {

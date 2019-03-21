@@ -5,6 +5,8 @@
 #include"demo_global_def.h"
 #include"Status.hpp"
 #include "CMessage.hpp"
+#include "ptzProxyMsg.h"
+extern ptzProxyMsg ptzmsg;
 #define MAX_RECV_BUF_LEN 256
 Plantformpzt *Plantformpzt::instance=NULL;
 
@@ -22,7 +24,8 @@ static IPelcoBaseFormat *PlantformContrl;
 #define UART485RECV 0
 #define SENDDELAY (0)
 Plantformpzt::Plantformpzt():fd(0),mainloop(1),address(1),ptzpd(0),panangle(0),titleangle(0),calibration(0),plantformpan(720),plantformtitle(720),
-plantinitflag(0),speedpan(30),speedtitle(30),titlpanangle(-7.3),plantformpanforever(0),plantformtitleforever(0),scanflag(0)
+plantinitflag(0),speedpan(30),speedtitle(30),titlpanangle(-7.3),plantformpanforever(0),plantformtitleforever(0),scanflag(0),
+curPtzId(0)
 {
 	
 	memset(&platformcom,0,sizeof(platformcom));
@@ -1214,7 +1217,6 @@ void Plantformpzt::getpanotitlepos()
 void Plantformpzt::registorfun()
 {
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PLATCTRL,ptzcontrl,0);
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_ScanPlantfromConfig,scanplantformcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCALLENGTHCTRL,focallencontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_IRISCTRL,iriscontrl,0);
@@ -1249,6 +1251,11 @@ void Plantformpzt::Stop()
 	PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptztitlespeed,true, instance->address);
 	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
 }
+void Plantformpzt::SetcurPtzId(int idx)
+{
+	curPtzId=idx;
+}
+
 void Plantformpzt::SetSpeed(bool plus)
 {
 	if(plus)
@@ -1280,11 +1287,15 @@ void Plantformpzt::ptzcontrl(long lParam)
 	int panspeed = Status::getinstance()->ptzpanspeed;
 	int titlepeed = Status::getinstance()->ptztitlespeed;
 
+
+	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
+	{
 	//if(mode==Status::PTZPANOMOV||mode==Status::PTZTWOMOV)
 		{
-			if(panodir==0)
-					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,panspeed,true, instance->address);
-			else if(panodir==1)
+		//	printf("panodir=%d  panspeed=%d\n",panodir,panspeed);
+			//if(panodir==0)
+			//		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,panspeed,true, instance->address);
+			 if(panodir==1)
 				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Left,panspeed,true, instance->address);
 			else if(panodir==2)
 				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,panspeed,true, instance->address);
@@ -1296,7 +1307,8 @@ void Plantformpzt::ptzcontrl(long lParam)
 		}
 	//if(mode==Status::PTZTITLEMOV||mode==Status::PTZTWOMOV)
 		{
-			if(titledir==0)
+		//	printf("titledir=%d  titlepeed=%d\n",titledir,titlepeed);
+			if(titledir==0 && panodir==0)
 					PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,titlepeed,true, instance->address);
 			else if(titledir==1)
 				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Up,titlepeed,true, instance->address);
@@ -1307,10 +1319,52 @@ void Plantformpzt::ptzcontrl(long lParam)
 			OSA_mutexUnlock(&instance->lock);
 			OSA_waitMsecs(10);
 		}
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+		if(panodir==0 &&titledir==0)
+		{
+			ptzmsg.Stop();
+		}
+		else if(panodir==1 &&titledir==0)
+		{
+			ptzmsg.moveLeft();
+		}
+		else if(panodir==2 &&titledir==0)
+		{
+			ptzmsg.moveRight();
+		}
+		else if(panodir==0 &&titledir==1)
+		{
+			ptzmsg.moveUp();
+		}
+		else if(panodir==0 &&titledir==2)
+		{
+			ptzmsg.moveDown();
+		}
+		else if(panodir==1 &&titledir==1)
+		{
+			ptzmsg.moveUpLeft();
+		}
+		else if(panodir==1 &&titledir==2)
+		{
+			ptzmsg.moveDownLeft();
+		}
+		else if(panodir==2 &&titledir==1)
+		{
+			ptzmsg.moveUpRight();
+		}
+		else if(panodir==2 &&titledir==2)
+		{
+			ptzmsg.moveDownRight();
+		}
+	}
 
 }
 void Plantformpzt::focuscontrl(long lParam)
 {
+	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
+	{
 	if(lParam==Status::PTZFOCUSSTOP)
 			;
 		//PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
@@ -1320,41 +1374,84 @@ void Plantformpzt::focuscontrl(long lParam)
 	else if(lParam==Status::PTZFOCUSSFAR)
 			;
 		//PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+		if(lParam==Status::PTZFOCUSSTOP)
+		{
+			ptzmsg.Stop();
+		}
 
+		else if(lParam==Status::PTZFOCUSSNEAR)
+		{
+			ptzmsg.focusNear();
+		}
+
+		else if(lParam==Status::PTZFOCUSSFAR)
+		{
+			ptzmsg.focusFar();
+		}
+
+	}
 
 }
 void Plantformpzt::iriscontrl(long lParam)
 {
-	if(lParam==Status::PTZIRISSTOP)
-		;
-		//	PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
-	else if(lParam==Status::PTZIRISDOWN)
-		;//	PlantformContrl->MakeFocusNear(&instance->PELCO_D, instance->address);
-	else if(lParam==Status::PTZIRISUP)
-		;//	PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
-
-
+	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
+		{
+		if(lParam==Status::PTZIRISSTOP)
+			;
+			//	PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
+		else if(lParam==Status::PTZIRISDOWN)
+			;//	PlantformContrl->MakeFocusNear(&instance->PELCO_D, instance->address);
+		else if(lParam==Status::PTZIRISUP)
+			;//	PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
+		}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+		if(lParam==Status::PTZIRISSTOP)
+			ptzmsg.Stop();
+			else if(lParam==Status::PTZIRISDOWN)
+				ptzmsg.irisClose();
+			else if(lParam==Status::PTZIRISUP)
+				ptzmsg.irisOpen();
+	}
 }
 
 void Plantformpzt::focallencontrl(long lParam)
 {
-	if(lParam==Status::PTZFOCUSLENGTHSTOP)
-		;
-	else if(lParam==Status::PTZFOCUSLENGTHOWN)
-		;
-	else if(lParam==Status::PTZFOCUSLENGTHUP)
-		;
+	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
+		{
+		if(lParam==Status::PTZFOCUSLENGTHSTOP)
+			;
+		else if(lParam==Status::PTZFOCUSLENGTHOWN)
+			;
+		else if(lParam==Status::PTZFOCUSLENGTHUP)
+			;
+		}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+		if(lParam==Status::PTZFOCUSLENGTHSTOP)
+			ptzmsg.Stop();
+			else if(lParam==Status::PTZFOCUSLENGTHOWN)
+				ptzmsg.zoomOut();
+			else if(lParam==Status::PTZFOCUSLENGTHUP)
+				ptzmsg.zoomIn();
+	}
 }
 
 void Plantformpzt::chooseptz(long lParam)
 {
 	printf("%s,%d, ptzid=%d!!!\n",__FILE__,__LINE__, lParam);
 	if(lParam==Status::PTZ_SCAN)
-		;
+	{
+		Plantformpzt::getinstance()->SetcurPtzId(MPTZ_SCAN);
+	}
 	else if(lParam==Status::PTZ_TRK)
-		;
+	{
+		Plantformpzt::getinstance()->SetcurPtzId(MPTZ_TRACK);
+	}
 }
-
 void Plantformpzt::scanplantformcfg(long lParam)
 {
 	scan_platformcfg_t scan_platformcfg_temp = Status::getinstance()->scan_platformcfg;

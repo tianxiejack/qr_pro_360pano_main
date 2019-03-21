@@ -30,9 +30,11 @@ src/stich \
 src/status \
 src/rtsp \
 src/record \
+src/ptzProxy \
 src \
 src/pelco \
 src/pbo \
+src/opencvCapIP \
 src/mv \
 src/mv/lb \
 src/msg/src \
@@ -54,8 +56,10 @@ src/compress \
 src/com \
 src/capture \
 src/buffer \
+src/RTSPCaptureGroup \
 src/Osd \
 src/OSA_CAP/src \
+src/NetCameraCtl \
 src/GST \
 src/GLTools/src \
 src/DxTimer/src \

@@ -69,6 +69,8 @@ opencvIPCamCaptureGroup * opencvIPCamCaptureGroup::GetCVIPCAMInstance()
 opencvCapIP::opencvCapIP(int devid):mdevid(devid)
 {
 	mstrURL="rtsp://admin:abc12345@192.168.1.26:554";
+	caplastframe.create(1080,1920,CV_8UC3);
+	capframe.create(1080,1920,CV_8UC3);
 }
 
 bool opencvCapIP::Open()
@@ -76,7 +78,11 @@ bool opencvCapIP::Open()
 	  bool ret=m_cap.open(mstrURL);
 	  if(!ret)
 	  {
-		  printf("open %s  failed !\n",mstrURL);
+		  printf("open IPCAM  failed !\n");
+	  }
+	  else
+	  {
+		  printf("!!!!!!!!!!open IPCAM  OK !\n");
 	  }
 	  start_capturing();
 	  return ret;
@@ -105,34 +111,56 @@ void opencvCapIP::processImg()
 			privatedata.gyrox= info->framegyroroll*1.0/ANGLESCALE ;
 			privatedata.gyroy=info->framegyropitch*1.0/ANGLESCALE;
 			privatedata.gyroz=info->framegyroyaw*1.0/ANGLESCALE;
+
+		//	if(info->calibration==1)
+			//	GstreaemerContrl::getinstance()->gstputmux(img,&privatedata);
+			// Imageprocesspt->CaptureThreadProcess(capframe,info,queueid);
+
 			image_queue_putFull(imgQ[queueid], info);
 }
 
 void opencvCapIP::Capture(char *ptr)
 {
-
+	int delay=40;
 	if(m_cap.isOpened())
 	{
-		m_cap >> capframe;
-		imshow("a",capframe);
-		//waitKey(1);
-		processImg();
+		int fps=m_cap.get(CV_CAP_PROP_FPS);
+
+		delay=1000/fps;
+		printf("************~~~~~~~~~~~delay=%d\n",delay);
 	}
-	else
+	while(1)
 	{
-		m_cap.open(mstrURL);
-		sleep(10);
+		if(m_cap.isOpened())
+		{
+			m_cap >> capframe;
+		//	if(capframe.rows>0)
+			{
+		//		caplastframe=capframe;
+			}
+	//		else
+			{
+	//			capframe=caplastframe;
+			}
+			imshow("a",capframe);
+	//		processImg();
+			waitKey(delay);
+		//	usleep(20000);
+		}
+		else
+		{
+			printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!not opened!\n");
+			m_cap.open(mstrURL);
+			sleep(3);
+		}
 	}
 }
 
 
 void *startcap(void *arg)
 {
-	while(1)
-	{
 		cvCapIp.Capture(NULL);
-	//	opencvCapIP::startcap();
-	}
+		return 0;
 }
 
 void opencvCapIP::start_capturing(void)

@@ -271,7 +271,7 @@ public:
 	void zeromod();
 
 	void signalmod();
-
+	void Tracksignlemode();
 	void pano(int num);
 
 	/******************osd menu ***********************/
@@ -598,10 +598,10 @@ public:
 		SINGLE_VIDEO_VIEW_MODE,
 		MY_TEST_PANO_MODE,
 		PANO_360_MODE,
+		TRACK_360_MODE,
 		PREVIEW_MODE,
 		HALF_PANO_MODE,
 		FRONT_AND_BACK_MODE,
-		TRACK_HAND_CONTROL_VIEW_MODE,
 		TRACK_SINGLE_VIEW_MODE,
 		SELECT_FULL_SCREEN_A,
 		SELECT_FULL_SCREEN_B,

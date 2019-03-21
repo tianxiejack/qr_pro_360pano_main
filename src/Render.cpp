@@ -892,10 +892,10 @@ void Render::RenderScene(void)
 			case PANO_360_MODE:
 				pano360View(0,0,renderwidth,renderheight); 
 				break;
-			case TRACK_HAND_CONTROL_VIEW_MODE:
-				break;
 			case TRACK_SINGLE_VIEW_MODE:
 				TracksingleView(0,0,renderwidth,renderheight);
+				break;
+			case TRACK_360_MODE:
 				break;
 			case 	SELECT_FULL_SCREEN_A:
 				SelectFullScreenView(0,0,renderwidth,renderheight,RENDERCAMERA1);
@@ -997,6 +997,10 @@ void Render::singleinterupt()
 		setscanpanflag(0);
 		setsingleenable(0);
 
+		if(Status::getinstance()->getworkmod()==2)
+		{
+			ACK_response(ACK_updatepano, 1);
+		}
 }
 void Render::callbacksignalpanomod(void *contex)
 {
@@ -1055,6 +1059,10 @@ void Render::selectmod()
 	setscanpanflag(0);
 
 	OSA_mutexUnlock(&modelock);
+}
+void Render::Tracksignlemode()
+{
+	displayMode=TRACK_SINGLE_VIEW_MODE;
 }
 void Render::signalmod()
 {
@@ -1858,21 +1866,14 @@ void Render::Pano360init()
 
 void Render::TracksingleView(int x,int y,int width,int height)
 {
-	char numflame[100];
-	 glViewport(0,0,width,height);
-	 modelViewMatrix.PushMatrix();
-        modelViewMatrix.Translate(0.0f, 0.0f, -10);
-        glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
+	unsigned int lx,ly,w,h;
 	M3DMatrix44f identy;
+	glUseProgram(0);
+	glViewport(lx,ly,w,h);
+	glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
 	m3dLoadIdentity44(identy);
 	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
-    	triangleBatch.Draw();
-	modelViewMatrix.PopMatrix();
-	glUseProgram(0);
-	glColor3f(0.0, 0.0, 1.0);
-    	glRasterPos2f(0.5, -0.9);
-	sprintf(numflame,"image cutnum :%d\n",shotcutnum);
-      glutBitmapString(GLUT_BITMAP_HELVETICA_18, (unsigned char *)numflame);
+	panselecttriangleBatchnew[RENDERCAMERA4][0]->Draw();
 }
 
 
@@ -3238,7 +3239,12 @@ void Render::pano360View(int x,int y,int width,int height)
 			viewcamera[RENDERCAMERASELECT].leftdownrect.width=w;
 			viewcamera[RENDERCAMERASELECT].leftdownrect.height=h;
 			glViewport(lx,ly,w,h);
-			glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
+			if(displayMode==TRACK_360_MODE)
+			{
+				textureID[RTSPTEXTURE];
+			}
+			else
+				glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
 			m3dLoadIdentity44(identy);
 			shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
 			pansrctriangleBatch.Draw();
@@ -3449,10 +3455,6 @@ void Render::pano360View(int x,int y,int width,int height)
 			w=width/2-extrablackw/2;
 			h=height*2/6-extrablackw;
 
-		//	viewcamera[RENDERCAMERA4].leftdownrect.x=lx;
-		//	viewcamera[RENDERCAMERA4].leftdownrect.y=ly;
-		//	viewcamera[RENDERCAMERA4].leftdownrect.width=w;
-		//	viewcamera[RENDERCAMERA4].leftdownrect.height=h;
 			glViewport(lx,ly,w,h);
 			glBindTexture(GL_TEXTURE_2D, textureID[RTSPTEXTURE]);
 			m3dLoadIdentity44(identy);
@@ -3848,7 +3850,9 @@ void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned cha
 	if(channel==3)
 		Capture = Mat(height,widht,CV_8UC3,data);
 
-	if(getmenumode()==PANOMODE)
+	if(getmenumode()==PANOMODE
+			||displayMode==TRACK_SINGLE_VIEW_MODE
+			)
 	{
 		 if(chid==RTSP_QUE_ID)
 			{
@@ -5345,9 +5349,7 @@ void Render::displaymod(long lParam)
 			VideoRecord::getinstance()->seteventrecordenable(0);
 			VideoRecord::getinstance()->settimerecordenable(0);
 			VideoRecord::getinstance()->setforceclose(1);
-			
 		}
-
 }
 
 
@@ -5355,7 +5357,6 @@ void Render::displaymod(long lParam)
 
 void Render::workmod(long lParam)
 {
-	
 	if(lParam==Status::PANOAUTO)
 		{
 			pthis->setsingleenable(0);
@@ -5363,12 +5364,27 @@ void Render::workmod(long lParam)
 		}
 	else if(lParam==Status::PANOPTZ)
 		{
+			if(Plantformpzt::getinstance()->GetcurPtzId()==	0)
+			{
 			pthis->setsingleenable(0);
 			pthis->signalmod();
+			}
+			else	if(Plantformpzt::getinstance()->GetcurPtzId()==	1)
+			{
+				pthis->setsingleenable(0);
+				pthis->Tracksignlemode();
+			}
 		}	
 	else if(lParam==Status::PANOSELECT)
 		{
-			pthis->selectmod();
+			if(Plantformpzt::getinstance()->GetcurPtzId()==	0)//scan
+			{
+				pthis->selectmod();
+			}
+			else if(Plantformpzt::getinstance()->GetcurPtzId()==	1)//track
+			{
+//todo
+			}
 		}
 
 }
@@ -5786,6 +5802,7 @@ void Render::CheckArea(int x,int y)
 			||displayMode==SELECT_FULL_SCREEN_TRACK_D)
 	{
 		ProcessOitKeys('Q',0,0);
+		ACK_response(ACK_fullscreenmode,2);
 	}
 	else
 	{
@@ -5794,6 +5811,7 @@ void Render::CheckArea(int x,int y)
 			if(displayMode==PANO_360_MODE)
 			{
 				ProcessOitKeys('A',0,0);
+				ACK_response(ACK_fullscreenmode,1);
 			}
 		}
 		else if(x>=0 &&x<=958 &&y>=370&&y<720) //zuoshang
@@ -5801,6 +5819,7 @@ void Render::CheckArea(int x,int y)
 		 if(displayMode==PANO_360_MODE)
 			{
 				ProcessOitKeys('B',0,0);
+				ACK_response(ACK_fullscreenmode,1);
 			}
 		}
 		else if(x>=962 &&x<=1920 &&y>=370 &&y<720) //youshang
@@ -5808,6 +5827,7 @@ void Render::CheckArea(int x,int y)
 			if(displayMode==PANO_360_MODE)
 			{
 				ProcessOitKeys('C',0,0);
+				ACK_response(ACK_fullscreenmode,1);
 			}
 		}
 		else if(x>=962 &&x<=1920 &&y>=720 &&y<960) //youxia
@@ -5815,13 +5835,31 @@ void Render::CheckArea(int x,int y)
 			if(displayMode==PANO_360_MODE)
 			{
 				ProcessOitKeys('D',0,0);
+				ACK_response(ACK_fullscreenmode,1);
 			}
 		}
 	}
 }
 void Render::changezoom(int rigion, int zoomstat)
 {
-
+	bool bstat=true;
+	if(zoomstat)
+		bstat=false;
+	int chosenIdx=-1;
+	if(rigion==0)
+	{
+		chosenIdx=RENDERCAMERA2;
+	}
+	else if(rigion==1)
+	{
+		chosenIdx=RENDERCAMERA3;
+	}
+	else if(rigion==2)
+	{
+		chosenIdx=RENDERCAMERA1;
+	}
+	viewcamera[chosenIdx].active=1;
+	ResizeRectByRatio(chosenIdx,bstat);
 }
 
 

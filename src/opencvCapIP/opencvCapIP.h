@@ -43,7 +43,7 @@ public:
 	bool Open();
 	void Close();
 	void mainloop(int now_pic_format){ };
-	void start_capturing(void);
+	void start_capturing();
 	void stop_capturing(void){};
 	/* the producer no need to implement there function. */
 	void Capture(char*p);
@@ -57,6 +57,7 @@ private:
     VideoCapture m_cap;
     string mstrURL;
 	Mat capframe;
+	Mat caplastframe;
 	int mdevid;
 };
 

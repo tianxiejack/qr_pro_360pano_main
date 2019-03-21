@@ -14,7 +14,7 @@
 #include"osa_sem.h"
 #include"osa_mutex.h"
 #include"config.hpp"
-
+#include "Status.hpp"
 typedef struct {
 	bool bTrack;
 	bool bMtd;
@@ -73,7 +73,11 @@ class Plantformpzt
 
 		};
 
-
+enum{
+	MPTZ_SCAN,
+	MPTZ_TRACK,
+	CUR_PTZ_COUNT
+};
 	
 	#define SENDLEN (7)
 	public:
@@ -122,6 +126,8 @@ class Plantformpzt
 		static void MoveDown();
 		static void Stop();
 		static void SetSpeed(bool plus);
+		 void SetcurPtzId(int idx);
+		 int GetcurPtzId(){return curPtzId;};
 	public:
 		void setspeed(int speed)
 			{
@@ -130,6 +136,7 @@ class Plantformpzt
 		int Getaddress(){return  address;};
 
 	private:
+		int curPtzId;
 		CUartBase Uart;
 		int speedpan;
 		int speedtitle;

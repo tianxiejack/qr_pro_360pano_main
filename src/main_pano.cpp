@@ -37,6 +37,8 @@
 #include"configfile.hpp"
 #include"RTSPCaptureGroup/RTSPCaptureGroup.h"
 #include "opencvCapIP.h"
+#include "ptzProxyMsg.h"
+extern ptzProxyMsg ptzmsg;
 static GLMain render;
 
 ImageProcess *Imageprocesspt;
@@ -312,7 +314,12 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 extern opencvCapIP cvCapIp;
 int main_pano(int argc, char **argv)
 {
+	//ptzmsg.initUDP();
 	cvCapIp.Open();
+	while(0)
+	{
+		sleep(20);
+	}
 #if 1
 	/* Initialize GStreamer */
 	gst_init (NULL, NULL);

@@ -12,6 +12,15 @@
 #define HELDNUM  2
 #define HELDWEEK  7
 #define HELDHOUR  24
+
+typedef struct{
+	int address;
+	int protocol;
+	int baudrate;
+	int start_signal;
+	int pt_check;
+}scan_platformcfg_t;
+
 class Status{
 public:
 	typedef enum {
@@ -110,6 +119,25 @@ public:
 		PTZ_TRK,
 	}PtzId;
 
+	typedef enum {
+		CFG_TRKPLARFORM = 0,
+		CFG_SENSORFR = 1,
+		CFG_ZERO = 2,
+		CFG_PLAYBACK = 3,
+		CFG_MTD = 4,
+		CFG_OUTPUTRESOL = 5,
+		CFG_CALIBTIME = 6,
+		CFG_MONTAGE = 7,
+		CFG_ROADSAVE = 9,
+		CFG_VIDEO = 10,
+		CFG_SCANPLATFORM = 11,
+		CFG_SENSORTV = 12,
+		CFG_SENSORTRK = 13,
+		CFG_SENSORRADAR = 14,
+		CFG_TRK = 15,
+		CFG_DEV = 16,
+	}Cfgid;
+
 	const int mvconfignum=16;
 
 	
@@ -162,6 +190,8 @@ public:
 	int ptzprotocal;
 	int ptzbaudrate;
 	int ptzspeed;
+
+	scan_platformcfg_t scan_platformcfg;
 
 	/******sensor config*******/
 	unsigned char brightness;
@@ -307,6 +337,7 @@ private:
 	Status();
 	~Status();
 	static Status*instance;
+	void init_scan_platformcfg();
 
 public:
 	static Status* getinstance();

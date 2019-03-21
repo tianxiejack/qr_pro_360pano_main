@@ -8,7 +8,7 @@ Status::Status():devid(0),displaymod(0),displaysensor(0),ptzpanspeed(0),ptztitle
 	correctsec(-1),panoptzspeed(-1),panopiexfocus(-1),panopicturerate(-1),detectareanum(-1),detectareaenable(-1),movdetectenable(1),panodetectenable(1),researchangle(0),
 	mvdetectresearch(0),usestepdetect(0),mvconfigenable(0),zeromod(0),calibration(0)
 {
-
+	init_scan_platformcfg();
 
 }
 Status::~Status()
@@ -22,4 +22,13 @@ Status* Status::getinstance()
 		instance=new Status();
 	return instance;
 
+}
+
+void Status::init_scan_platformcfg()
+{
+	scan_platformcfg.address = -1;
+	scan_platformcfg.protocol = -1;
+	scan_platformcfg.baudrate = -1;
+	scan_platformcfg.start_signal = -1;
+	scan_platformcfg.pt_check = -1;
 }

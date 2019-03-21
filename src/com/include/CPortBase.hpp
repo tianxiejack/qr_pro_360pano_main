@@ -91,6 +91,7 @@ public:
     void paramtodef(sendInfo * spBuf);
 	void  recordquerry(sendInfo * spBuf);
 	int upgradefw(unsigned char *swap_data_buf, unsigned int swap_data_len);
+	void  ackscanplantformconfig(sendInfo * spBuf);
 	void  ackplantformconfig(sendInfo * spBuf);
 	void  ackrecordconfig(sendInfo * spBuf);
 	void  ackmvconfig(sendInfo * spBuf);
@@ -112,9 +113,9 @@ public:
     void playercontrl();
     void playerquery();
     void playerselect();
-	void panoenable();
-
-   void plantformconfig();
+    void panoenable();
+    void scan_plantformconfig();
+    void plantformconfig();
     void sensorconfig();
     void zeroconfig();
     void recordconfig();

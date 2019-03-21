@@ -1214,6 +1214,7 @@ void Plantformpzt::getpanotitlepos()
 void Plantformpzt::registorfun()
 {
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PLATCTRL,ptzcontrl,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_ScanPlantfromConfig,scanplantformcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCALLENGTHCTRL,focallencontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_IRISCTRL,iriscontrl,0);
@@ -1352,6 +1353,11 @@ void Plantformpzt::chooseptz(long lParam)
 		;
 	else if(lParam==Status::PTZ_TRK)
 		;
+}
+
+void Plantformpzt::scanplantformcfg(long lParam)
+{
+	scan_platformcfg_t scan_platformcfg_temp = Status::getinstance()->scan_platformcfg;
 }
 
 void Plantformpzt::plantfromcontrl(long lParam)

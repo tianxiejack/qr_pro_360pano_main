@@ -188,6 +188,40 @@ void CPortBase::panoenable()
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_MVCONFIGENABLE, 0);
 }
 
+void CPortBase::scan_plantformconfig()
+{
+	int configchange=0;
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->scan_platformcfg.address)
+	{
+		Status::getinstance()->scan_platformcfg.address=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->scan_platformcfg.protocol)
+	{
+		Status::getinstance()->scan_platformcfg.protocol=_globalDate->rcvBufQue.at(6);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->scan_platformcfg.baudrate)
+	{
+		Status::getinstance()->scan_platformcfg.baudrate=_globalDate->rcvBufQue.at(7);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->scan_platformcfg.start_signal)
+	{
+		Status::getinstance()->scan_platformcfg.start_signal=_globalDate->rcvBufQue.at(8);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->scan_platformcfg.pt_check)
+	{
+		Status::getinstance()->scan_platformcfg.pt_check=_globalDate->rcvBufQue.at(9);
+		configchange=1;
+	}
+	
+	
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_ScanPlantfromConfig, 0);
+}
+
 void CPortBase::plantformconfig()
 {
 	int configchange=0;
@@ -556,29 +590,33 @@ void CPortBase::recordconfig()
 		
 		switch(Status::getinstance()->querryconfig)
 			{
-				case 0:
+				case Status::CFG_TRKPLARFORM:
 					CGlobalDate::Instance()->feedback=ACK_plantformconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
 
-				case 1:
+				case Status::CFG_SENSORFR:
 					CGlobalDate::Instance()->feedback=ACK_sensorconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
-				case 3:
+				case Status::CFG_PLAYBACK:
 					CGlobalDate::Instance()->feedback=ACK_recordconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
-				case 4:
+				case Status::CFG_MTD:
 					CGlobalDate::Instance()->feedback=ACK_mvconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
-				case 10:
+				case Status::CFG_VIDEO:
 					CGlobalDate::Instance()->feedback=ACK_recordconfigmv;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
-				case 7:
+				case Status::CFG_MONTAGE:
 					CGlobalDate::Instance()->feedback=ACK_panoconfig;
+					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
+					break;
+				case Status::CFG_SCANPLATFORM:
+					CGlobalDate::Instance()->feedback=ACK_scanplantformconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
 				default:
@@ -977,6 +1015,8 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		case 0x65:
 			panoenable();
 			break;
+		case 0x79:
+			scan_plantformconfig();
 		case 0x80:
 			plantformconfig();
 			break;
@@ -1142,6 +1182,9 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 		case ACK_panoconfig:
 			ackpanoconfig(psendBuf);
 			//recordquerry(psendBuf);
+			break;
+		case ACK_scanplantformconfig:
+			ackscanplantformconfig(psendBuf);
 			break;
 		default:
 			break;
@@ -1602,7 +1645,28 @@ void  CPortBase:: recordquerry(sendInfo * spBuf)
 }
 
 
-void  CPortBase:: ackplantformconfig(sendInfo * spBuf)
+void  CPortBase::ackscanplantformconfig(sendInfo * spBuf)
+{
+	u_int8_t sumCheck;
+	int infosize=6;
+	spBuf->sendBuff[0]=0xEB;
+	spBuf->sendBuff[1]=0x51;
+	spBuf->sendBuff[2]=infosize&0xff;
+	spBuf->sendBuff[3]=(infosize>>8)&0xff;
+	spBuf->sendBuff[4]=ACK_scanplantformconfig;
+	spBuf->sendBuff[5]=Status::getinstance()->scan_platformcfg.address&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->scan_platformcfg.protocol&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->scan_platformcfg.baudrate&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->scan_platformcfg.start_signal&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->scan_platformcfg.pt_check&0xff;
+	
+	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
+	
+	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);
+	spBuf->byteSizeSend=infosize+5;
+}
+
+void  CPortBase::ackplantformconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
 	int infosize=5;

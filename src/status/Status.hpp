@@ -21,6 +21,20 @@ typedef struct{
 	int pt_check;
 }scan_platformcfg_t;
 
+typedef struct{
+	int outputresol;
+	int brightness;
+	int contract;
+	int autobright;
+	int backlight;
+	int whitebalance;
+	int gain;
+	int daynight;
+	int stronglightsup;
+	int exposuremode;
+	int elecshutter_time;
+}sensortvcfg_t;
+
 class Status{
 public:
 	typedef enum {
@@ -184,16 +198,22 @@ public:
 	int playerquerymon;
 	int playerqueryday;
 
-	/******plantform config*******/
-
+	/******trk plantform config*******/
 	int ptzaddress;
 	int ptzprotocal;
 	int ptzbaudrate;
 	int ptzspeed;
 
+	/******scan plantform config*******/
 	scan_platformcfg_t scan_platformcfg;
 
-	/******sensor config*******/
+	/******sensor TV config*******/
+	sensortvcfg_t sensortvcfg;
+
+	/******sensor TRK config*******/
+	sensortvcfg_t sensortrkcfg;
+	
+	/******sensor FR config*******/
 	unsigned char brightness;
 	unsigned char contract;
 	unsigned char autobright;
@@ -201,13 +221,9 @@ public:
 	
 	unsigned char correct;
 	unsigned char digitfilter;
-	unsigned char digitdenoise;
+	unsigned char digitenhance;
 	unsigned char mirror;
-	
-	unsigned char crossdisplay;
-	unsigned int crossx;
-	unsigned int crossy;
-	unsigned int save;
+	unsigned char outputresol;
 
 	
 	/******zero config*******/

@@ -96,6 +96,8 @@ public:
 	void  ackrecordconfig(sendInfo * spBuf);
 	void  ackmvconfig(sendInfo * spBuf);
 	void  ackpanoconfig(sendInfo * spBuf);
+	void  acksensortvconfig(sendInfo * spBuf);
+	void  acksensortrkconfig(sendInfo * spBuf);
 	void  acksensorconfig(sendInfo * spBuf);
 	void  ackrecordconfig(sendInfo * spBuf,int classid);
 	int fw_update_runtar(void);
@@ -116,6 +118,8 @@ public:
     void panoenable();
     void scan_plantformconfig();
     void plantformconfig();
+    void sensortvconfig();
+    void sensortrkconfig();
     void sensorconfig();
     void zeroconfig();
     void recordconfig();

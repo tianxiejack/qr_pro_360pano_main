@@ -56,6 +56,8 @@ typedef enum _sys_msg_id_ {
     
     MSGID_EXT_INPUT_ScanPlantfromConfig,
     MSGID_EXT_INPUT_PlantfromConfig,
+    MSGID_EXT_INPUT_SensorTVConfig,
+    MSGID_EXT_INPUT_SensorTRKConfig,
     MSGID_EXT_INPUT_SensorConfig,
     MSGID_EXT_INPUT_ZeroConfig,
     MSGID_EXT_INPUT_RecordConfig,
@@ -317,6 +319,8 @@ typedef enum{
 	
 	ACK_param_todef,
 	ACK_playerquerry=0x62,
+	ACK_sensortvconfig=0x77,
+	ACK_sensortrkconfig=0x78,
 	ACK_scanplantformconfig=0x79,
 	ACK_plantformconfig=0x80,
 	ACK_sensorconfig=0x81,

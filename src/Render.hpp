@@ -641,6 +641,9 @@ public:
 
 	static void nvconfigenable(long lparam);
 	static void choosedev(long lparam);
+	static void sensortvcfg(long lparam);
+	static void sensortrkcfg(long lparam);
+	static void sensorfrcfg(long lparam);
 	void CheckArea(int x,int y);
 	void configloadtoglobal();
 	void mousemotion(int button, int x, int y);

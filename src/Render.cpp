@@ -5316,11 +5316,9 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PanoConfig,panoconfig,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MVCONFIGENABLE,nvconfigenable,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_CHOOSEDEV,choosedev,0);
-	
-	
-	
-	
-	
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorTVConfig,sensortvcfg,0);  
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorTRKConfig,sensortrkcfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorConfig,sensorfrcfg,0);
 	
 	
 	//MSGID_EXT_INPUT_WorkModeCTRL
@@ -5778,6 +5776,29 @@ void Render::choosedev(long lparam)
 
 }
 
+void Render::sensortvcfg(long lparam)
+{
+	sensortvcfg_t sensortvcfg_tmp = Status::getinstance()->sensortvcfg;
+}
+
+void Render::sensortrkcfg(long lparam)
+{
+	sensortvcfg_t sensortrkcfg_tmp = Status::getinstance()->sensortrkcfg;
+}
+
+void Render::sensorfrcfg(long lparam)
+{
+	int brightness = Status::getinstance()->brightness;
+	int contract = Status::getinstance()->contract;
+	int autobright = Status::getinstance()->autobright;
+	int backandwrite = Status::getinstance()->backandwrite;
+	int correct = Status::getinstance()->correct;
+	int digitfilter = Status::getinstance()->digitfilter;
+	int digitenhance = Status::getinstance()->digitenhance;
+	int mirror = Status::getinstance()->mirror;
+	int outputresol = Status::getinstance()->outputresol;
+}
+
 void Render::CheckArea(int x,int y)
 {
 	if(displayMode==SELECT_FULL_SCREEN_A
@@ -5823,7 +5844,6 @@ void Render::changezoom(int rigion, int zoomstat)
 {
 
 }
-
 
 void Render::ACK_response(int cmdid, int param)
 {

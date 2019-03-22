@@ -1217,6 +1217,7 @@ void Plantformpzt::getpanotitlepos()
 void Plantformpzt::registorfun()
 {
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PLATCTRL,ptzcontrl,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_ScanPlantfromConfig,scanplantformcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCALLENGTHCTRL,focallencontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_IRISCTRL,iriscontrl,0);

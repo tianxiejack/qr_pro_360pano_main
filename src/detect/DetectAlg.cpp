@@ -804,8 +804,7 @@ void DetectAlg::registorfun()
 void DetectAlg::detectparam(long param)
 {
 	
-	
-
+	mtdcfg_t mtdcfg_tmp = Status::getinstance()->mtdcfg;
 }
 
 DetectAlg *DetectAlg::getinstance()

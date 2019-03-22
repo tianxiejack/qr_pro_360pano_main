@@ -35,6 +35,25 @@ typedef struct{
 	int elecshutter_time;
 }sensortvcfg_t;
 
+typedef struct{
+	int movedetectalgenable;
+	int sensitivity;
+	int speedpriority;
+	int movmaxwidth;
+	int movmaxheight;
+	int movminwidth;
+	int movminheight;
+	int moverecordtime;
+}mtdcfg_t;
+
+typedef struct{
+	int sensor;
+	int hideline;
+	int offset50m;
+	int offset100m;
+	int offset300m;
+}radarcfg_t;
+	
 class Status{
 public:
 	typedef enum {
@@ -154,6 +173,7 @@ public:
 		CFG_DEV = 16,
 	}Cfgid;
 
+
 	const int mvconfignum=16;
 
 	
@@ -237,22 +257,8 @@ public:
 	int recordpositionheld[HELDNUM][HELDWEEK][HELDHOUR];
 
 	/******movedetect config*******/
+	mtdcfg_t mtdcfg;
 
-	int movedetectalgenable;
-
-	//int movedetectmaxnum;
-	int sensitivity;
-	
-	int speedpriority;
-
-	
-	int movmaxwidth;
-	int movmaxheight;
-	int movminwidth;
-	int movminheight;
-	//int movedetectrecord;
-
-	int moverecordtime;
 
 	/******movearea config*******/
 	int detectareanum;
@@ -275,13 +281,15 @@ public:
 	int panoptzspeed;
 	int panopiexfocus;
 	int panopicturerate;
+	int panoresolution;
 
 
 	/******detect config*******/
 	int movdetectenable;
 	int panodetectenable;
 
-	/***********************/
+	/******radar config*******/
+	radarcfg_t radarcfg;
 
 	int querryconfig;
 
@@ -356,6 +364,7 @@ private:
 	~Status();
 	static Status*instance;
 	void init_scan_platformcfg();
+	void init_mtdcfg();
 
 public:
 	static Status* getinstance();

@@ -5323,7 +5323,9 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorTVConfig,sensortvcfg,0);  
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorTRKConfig,sensortrkcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorConfig,sensorfrcfg,0);
-	
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_DisplayConfig,displaycfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_RadarConfig,radarcfg,0);
+
 	
 	//MSGID_EXT_INPUT_WorkModeCTRL
 }
@@ -5755,7 +5757,7 @@ void Render::panoconfig(long lparam)
 	int focus=Status::getinstance()->panopiexfocus;
 	int speed=Status::getinstance()->panoptzspeed;
 	int framerate=Status::getinstance()->panopicturerate;
-
+	int resolution=Status::getinstance()->panoresolution;
 	
 
 	Config::getinstance()->setptzspeed(speed);
@@ -5813,6 +5815,16 @@ void Render::sensorfrcfg(long lparam)
 	int digitenhance = Status::getinstance()->digitenhance;
 	int mirror = Status::getinstance()->mirror;
 	int outputresol = Status::getinstance()->outputresol;
+}
+
+void Render::displaycfg(long lparam)
+{
+	int resolution = Status::getinstance()->displayresolution;
+}
+
+void Render::radarcfg(long lparam)
+{
+	radarcfg_t radarcfg_tmp =  Status::getinstance()->radarcfg;
 }
 
 void Render::CheckArea(int x,int y)

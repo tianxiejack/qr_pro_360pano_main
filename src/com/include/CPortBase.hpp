@@ -92,9 +92,11 @@ public:
 	void  recordquerry(sendInfo * spBuf);
 	int upgradefw(unsigned char *swap_data_buf, unsigned int swap_data_len);
 	void  ackscanplantformconfig(sendInfo * spBuf);
+	void ackradarconfig(sendInfo * spBuf);
 	void  ackplantformconfig(sendInfo * spBuf);
 	void  ackrecordconfig(sendInfo * spBuf);
 	void  ackmvconfig(sendInfo * spBuf);
+	void ackdisplayconfig(sendInfo * spBuf);
 	void  ackpanoconfig(sendInfo * spBuf);
 	void  acksensortvconfig(sendInfo * spBuf);
 	void  acksensortrkconfig(sendInfo * spBuf);
@@ -132,6 +134,7 @@ public:
     void  rebootconfig();
     void choosedev();
     void chooseptz();
+    void radarconfig();
 
 protected:
     int prcRcvFrameBufQue(int method);

@@ -67,6 +67,7 @@ typedef enum _sys_msg_id_ {
     
     MSGID_EXT_INPUT_CorrectTimeConfig,
     MSGID_EXT_INPUT_PanoConfig,
+    MSGID_EXT_INPUT_RadarConfig,
 
     MSGID_EXT_INPUT_MVDETECTGO,
 
@@ -322,6 +323,7 @@ typedef enum{
 	ACK_sensortvconfig=0x77,
 	ACK_sensortrkconfig=0x78,
 	ACK_scanplantformconfig=0x79,
+	ACK_radarconfig=0x7a,
 	ACK_plantformconfig=0x80,
 	ACK_sensorconfig=0x81,
 	ACK_zeroconfig=0x82,

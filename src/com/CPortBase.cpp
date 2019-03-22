@@ -222,6 +222,43 @@ void CPortBase::scan_plantformconfig()
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_ScanPlantfromConfig, 0);
 }
 
+void CPortBase::radarconfig()
+{
+	int configchange=0;
+	int offset50 = _globalDate->rcvBufQue.at(7) | (_globalDate->rcvBufQue.at(8) << 8);
+	int offset100 = _globalDate->rcvBufQue.at(9) | (_globalDate->rcvBufQue.at(10) << 10);
+	int offset300 = _globalDate->rcvBufQue.at(11) | (_globalDate->rcvBufQue.at(12) << 12);
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->radarcfg.sensor)
+	{
+		Status::getinstance()->radarcfg.sensor=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->radarcfg.hideline)
+	{
+		Status::getinstance()->radarcfg.hideline=_globalDate->rcvBufQue.at(6);
+		configchange=1;
+	}
+	if(offset50!=Status::getinstance()->radarcfg.offset50m)
+	{
+		Status::getinstance()->radarcfg.offset50m=offset50;
+		configchange=1;
+	}
+	if(offset100!=Status::getinstance()->radarcfg.offset100m)
+	{
+		Status::getinstance()->radarcfg.offset100m=offset100;
+		configchange=1;
+	}
+	if(offset300!=Status::getinstance()->radarcfg.offset300m)
+	{
+		Status::getinstance()->radarcfg.offset300m=offset300;
+		configchange=1;
+	}
+	
+	
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_RadarConfig, 0);
+}
+
 void CPortBase::plantformconfig()
 {
 	int configchange=0;
@@ -541,55 +578,55 @@ void CPortBase::recordconfig()
  void CPortBase::movedetectconfig()
  	{
  		int configchange=0;
-		if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->movedetectalgenable)
+		if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->mtdcfg.movedetectalgenable)
 			{
-				Status::getinstance()->movedetectalgenable=_globalDate->rcvBufQue.at(5);
+				Status::getinstance()->mtdcfg.movedetectalgenable=_globalDate->rcvBufQue.at(5);
 				configchange=1;
 			}
-		if((_globalDate->rcvBufQue.at(6))!=Status::getinstance()->sensitivity)
+		if((_globalDate->rcvBufQue.at(6))!=Status::getinstance()->mtdcfg.sensitivity)
 			{
-				Status::getinstance()->sensitivity=_globalDate->rcvBufQue.at(6);
+				Status::getinstance()->mtdcfg.sensitivity=_globalDate->rcvBufQue.at(6);
 				configchange=1;
 			}
-		if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->speedpriority)
+		if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->mtdcfg.speedpriority)
 			{
-				Status::getinstance()->speedpriority=_globalDate->rcvBufQue.at(7);
+				Status::getinstance()->mtdcfg.speedpriority=_globalDate->rcvBufQue.at(7);
 				configchange=1;
 			}
-		if((_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9))!=Status::getinstance()->movmaxwidth)
+		if((_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9))!=Status::getinstance()->mtdcfg.movmaxwidth)
 			{
-				Status::getinstance()->movmaxwidth=_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9);
+				Status::getinstance()->mtdcfg.movmaxwidth=_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9);
 				configchange=1;
 			}
-		if((_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11))!=Status::getinstance()->movmaxheight)
+		if((_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11))!=Status::getinstance()->mtdcfg.movmaxheight)
 			{
-				Status::getinstance()->movmaxheight=_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11);
-				configchange=1;
-			}
-
-		if((_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13))!=Status::getinstance()->movminwidth)
-			{
-				Status::getinstance()->movminwidth=_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13);
-				configchange=1;
-			}
-		if((_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15))!=Status::getinstance()->movminheight)
-			{
-				Status::getinstance()->movminheight=_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15);
+				Status::getinstance()->mtdcfg.movmaxheight=_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11);
 				configchange=1;
 			}
 
-		
-
-		if((_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17))!=Status::getinstance()->moverecordtime)
+		if((_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13))!=Status::getinstance()->mtdcfg.movminwidth)
 			{
-				Status::getinstance()->moverecordtime=_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17);
+				Status::getinstance()->mtdcfg.movminwidth=_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13);
+				configchange=1;
+			}
+		if((_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15))!=Status::getinstance()->mtdcfg.movminheight)
+			{
+				Status::getinstance()->mtdcfg.movminheight=_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15);
 				configchange=1;
 			}
 
 		
 
-		OSA_printf("movedetectalgenable=%d  sensitivity=%d  speedpriority=%d movminwidth=%d movminheight=%d moverecordtime=%d\n",Status::getinstance()->movedetectalgenable,Status::getinstance()->sensitivity,Status::getinstance()->speedpriority,\
-			Status::getinstance()->movminwidth,Status::getinstance()->movminheight,Status::getinstance()->moverecordtime);
+		if((_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17))!=Status::getinstance()->mtdcfg.moverecordtime)
+			{
+				Status::getinstance()->mtdcfg.moverecordtime=_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17);
+				configchange=1;
+			}
+
+		
+
+		OSA_printf("movedetectalgenable=%d  sensitivity=%d  speedpriority=%d movminwidth=%d movminheight=%d moverecordtime=%d\n",Status::getinstance()->mtdcfg.movedetectalgenable,Status::getinstance()->mtdcfg.sensitivity,Status::getinstance()->mtdcfg.speedpriority,\
+			Status::getinstance()->mtdcfg.movminwidth,Status::getinstance()->mtdcfg.movminheight,Status::getinstance()->mtdcfg.moverecordtime);
 
 		if(configchange)
 			pM->MSGDRIV_send(MSGID_EXT_INPUT_MoveDetectConfig,0);
@@ -687,6 +724,11 @@ void CPortBase::recordconfig()
 				Status::getinstance()->panopicturerate=_globalDate->rcvBufQue.at(8);
 				configchange=1;
 			}
+		if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->panoresolution)
+			{
+				Status::getinstance()->panoresolution=_globalDate->rcvBufQue.at(9);
+				configchange=1;
+			}
 		OSA_printf("%s:%d panoptzspeed=%d panopiexfocus=%d panopicturerate=%d\n",__func__,__LINE__,Status::getinstance()->panoptzspeed,Status::getinstance()->panopiexfocus,Status::getinstance()->panopicturerate);
 		if(configchange)
 			pM->MSGDRIV_send(MSGID_EXT_INPUT_PanoConfig,0);
@@ -729,6 +771,10 @@ void CPortBase::recordconfig()
 					CGlobalDate::Instance()->feedback=ACK_mvconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
+				case Status::CFG_OUTPUTRESOL:
+					CGlobalDate::Instance()->feedback=ACK_displayconfig;
+					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
+					break;
 				case Status::CFG_VIDEO:
 					CGlobalDate::Instance()->feedback=ACK_recordconfigmv;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
@@ -747,6 +793,10 @@ void CPortBase::recordconfig()
 					break;
 				case Status::CFG_SENSORTRK:
 					CGlobalDate::Instance()->feedback=ACK_sensortrkconfig;
+					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
+					break;
+				case Status::CFG_SENSORRADAR:
+					CGlobalDate::Instance()->feedback=ACK_radarconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
 					break;
 				default:
@@ -1154,6 +1204,15 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		case 0x79:
 			scan_plantformconfig();
 			break;
+		case 0x7a:
+			radarconfig();
+			break;
+		case 0x7b:
+			break;
+		case 0x7c:
+			break;
+		case 0x7d:
+			break;
 		case 0x80:
 			plantformconfig();
 			break;
@@ -1314,7 +1373,7 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 			//recordquerry(psendBuf);
 			break;
 		case ACK_displayconfig:
-			//recordquerry(psendBuf);
+			ackdisplayconfig(psendBuf);
 			break;
 		case ACK_correcttimeconfig:
 			//recordquerry(psendBuf);
@@ -1328,6 +1387,9 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 			break;
 		case ACK_scanplantformconfig:
 			ackscanplantformconfig(psendBuf);
+			break;
+		case ACK_radarconfig:
+			ackradarconfig(psendBuf);
 			break;
 		default:
 			break;
@@ -1809,6 +1871,30 @@ void  CPortBase::ackscanplantformconfig(sendInfo * spBuf)
 	spBuf->byteSizeSend=infosize+5;
 }
 
+void CPortBase::ackradarconfig(sendInfo * spBuf)
+{
+	u_int8_t sumCheck;
+	int infosize=9;
+	spBuf->sendBuff[0]=0xEB;
+	spBuf->sendBuff[1]=0x51;
+	spBuf->sendBuff[2]=infosize&0xff;
+	spBuf->sendBuff[3]=(infosize>>8)&0xff;
+	spBuf->sendBuff[4]=ACK_radarconfig;
+	spBuf->sendBuff[5]=Status::getinstance()->radarcfg.sensor&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->radarcfg.hideline&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->radarcfg.offset50m&0xff;
+	spBuf->sendBuff[8]=(Status::getinstance()->radarcfg.offset50m>>8)&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->radarcfg.offset100m&0xff;
+	spBuf->sendBuff[10]=(Status::getinstance()->radarcfg.offset100m>>8)&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->radarcfg.offset300m&0xff;
+	spBuf->sendBuff[12]=(Status::getinstance()->radarcfg.offset300m>>8)&0xff;
+	
+	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
+	
+	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);
+	spBuf->byteSizeSend=infosize+5;
+}
+
 void  CPortBase::ackplantformconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
@@ -1988,19 +2074,19 @@ void  CPortBase:: ackmvconfig(sendInfo * spBuf)
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_mvconfig;
-	spBuf->sendBuff[5]=Status::getinstance()->movedetectalgenable&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->sensitivity&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->speedpriority&0xff;
-	spBuf->sendBuff[8]=(Status::getinstance()->movmaxwidth>>8)&0xff;
-	spBuf->sendBuff[9]=Status::getinstance()->movmaxwidth&0xff;
-	spBuf->sendBuff[10]=(Status::getinstance()->movmaxheight>>8)&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->movmaxheight&0xff;
-	spBuf->sendBuff[12]=(Status::getinstance()->movminwidth>>8)&0xff;
-	spBuf->sendBuff[13]=Status::getinstance()->movminwidth&0xff;
-	spBuf->sendBuff[14]=(Status::getinstance()->movminheight>>8)&0xff;
-	spBuf->sendBuff[15]=Status::getinstance()->movminheight&0xff;
-	spBuf->sendBuff[16]=(Status::getinstance()->moverecordtime>>8)&0xff;
-	spBuf->sendBuff[17]=Status::getinstance()->moverecordtime&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->mtdcfg.movedetectalgenable&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->mtdcfg.sensitivity&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->mtdcfg.speedpriority&0xff;
+	spBuf->sendBuff[8]=(Status::getinstance()->mtdcfg.movmaxwidth>>8)&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->mtdcfg.movmaxwidth&0xff;
+	spBuf->sendBuff[10]=(Status::getinstance()->mtdcfg.movmaxheight>>8)&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->mtdcfg.movmaxheight&0xff;
+	spBuf->sendBuff[12]=(Status::getinstance()->mtdcfg.movminwidth>>8)&0xff;
+	spBuf->sendBuff[13]=Status::getinstance()->mtdcfg.movminwidth&0xff;
+	spBuf->sendBuff[14]=(Status::getinstance()->mtdcfg.movminheight>>8)&0xff;
+	spBuf->sendBuff[15]=Status::getinstance()->mtdcfg.movminheight&0xff;
+	spBuf->sendBuff[16]=(Status::getinstance()->mtdcfg.moverecordtime>>8)&0xff;
+	spBuf->sendBuff[17]=Status::getinstance()->mtdcfg.moverecordtime&0xff;
 	
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
@@ -2010,6 +2096,22 @@ void  CPortBase:: ackmvconfig(sendInfo * spBuf)
 	printf("%s\n",__func__);
 }
 
+void CPortBase::ackdisplayconfig(sendInfo * spBuf)
+{
+	u_int8_t sumCheck;
+	int infosize=2;
+	spBuf->sendBuff[0]=0xEB;
+	spBuf->sendBuff[1]=0x51;
+	spBuf->sendBuff[2]=infosize&0xff;
+	spBuf->sendBuff[3]=(infosize>>8)&0xff;
+	spBuf->sendBuff[4]=ACK_displayconfig;
+	spBuf->sendBuff[5]=Status::getinstance()->displayresolution&0xff;
+	
+	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
+	
+	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);
+	spBuf->byteSizeSend=infosize+5;
+}
 
 void  CPortBase:: ackpanoconfig(sendInfo * spBuf)
 {
@@ -2024,6 +2126,7 @@ void  CPortBase:: ackpanoconfig(sendInfo * spBuf)
 	spBuf->sendBuff[6]=(Status::getinstance()->panopiexfocus>>8)&0xff;
 	spBuf->sendBuff[7]=Status::getinstance()->panopiexfocus&0xff;
 	spBuf->sendBuff[8]=(Status::getinstance()->panopicturerate)&0xff;
+	spBuf->sendBuff[9]=(Status::getinstance()->panoresolution)&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	

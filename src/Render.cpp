@@ -1165,6 +1165,7 @@ void Render::panomod()
 	
 	if(getmenumode()==SELECTZEROMODE)
 		{
+			enable=0;
 			setcriticalmode(1);
 			if(zeroselect)
 				{

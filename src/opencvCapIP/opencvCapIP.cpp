@@ -102,20 +102,10 @@ void opencvCapIP::processImg()
 	if(info == NULL){
 		return;
 		}
-		getEuler(&info->framegyroroll,&info->framegyropitch,&info->framegyroyaw);
-			info->channels = capframe.channels();
-			info->width = capframe.cols;
-			info->height = capframe.rows;
+			info->channels =3;
+			info->width = 1920;
+			info->height = 1080;
 			info->virtAddr=capframe.data;
-			Privatedata privatedata;
-			privatedata.gyrox= info->framegyroroll*1.0/ANGLESCALE ;
-			privatedata.gyroy=info->framegyropitch*1.0/ANGLESCALE;
-			privatedata.gyroz=info->framegyroyaw*1.0/ANGLESCALE;
-
-		//	if(info->calibration==1)
-			//	GstreaemerContrl::getinstance()->gstputmux(img,&privatedata);
-			// Imageprocesspt->CaptureThreadProcess(capframe,info,queueid);
-
 			image_queue_putFull(imgQ[queueid], info);
 }
 
@@ -134,16 +124,16 @@ void opencvCapIP::Capture(char *ptr)
 		if(m_cap.isOpened())
 		{
 			m_cap >> capframe;
-		//	if(capframe.rows>0)
+			if(capframe.rows>0)
 			{
-		//		caplastframe=capframe;
+				caplastframe=capframe;
 			}
-	//		else
+			else
 			{
-	//			capframe=caplastframe;
+				capframe=caplastframe;
 			}
-			imshow("a",capframe);
-	//		processImg();
+		//	imshow("a",capframe);
+			processImg();
 			waitKey(delay);
 		//	usleep(20000);
 		}

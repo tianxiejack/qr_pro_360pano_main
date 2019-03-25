@@ -53,6 +53,7 @@ typedef enum _sys_msg_id_ {
     MSGID_EXT_INPUT_PlayerSelect,
     MSGID_EXT_INPUT_PlayerQuerry,
     MSGID_EXT_INPUT_MVCONFIGENABLE,
+    MSGID_EXT_INPUT_LIVEVIDEO,
     
     MSGID_EXT_INPUT_ScanPlantfromConfig,
     MSGID_EXT_INPUT_PlantfromConfig,

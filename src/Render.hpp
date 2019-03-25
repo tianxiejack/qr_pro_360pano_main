@@ -649,6 +649,7 @@ public:
 	static void trackcfg(long lparam);
 	static void adddevcfg(long lparam);
 	static void deldevcfg(long lparam);
+	static void livevideo(long lparam);
 	void CheckArea(int x,int y);
 	void configloadtoglobal();
 	void mousemotion(int button, int x, int y);

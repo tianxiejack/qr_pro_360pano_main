@@ -139,6 +139,7 @@ public:
     void trackconfig();
     void adddevconfig();
     void deletedevconfig();
+    void livevideo();
 
 protected:
     int prcRcvFrameBufQue(int method);

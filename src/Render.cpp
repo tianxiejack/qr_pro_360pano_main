@@ -5335,6 +5335,7 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_TrackConfig,trackcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_AdddevConfig,adddevcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_DeldevConfig,deldevcfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEVIDEO,livevideo,0);
 	
 
 	
@@ -5851,6 +5852,11 @@ void Render::adddevcfg(long lparam)
 void Render::deldevcfg(long lparam)
 {
 	int deldevid = Status::getinstance()->deldevid;
+}
+
+void Render::livevideo(long lparam)
+{
+	int livevideoflg = Status::getinstance()->livevideoflg;
 }
 
 void Render::CheckArea(int x,int y)

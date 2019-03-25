@@ -178,6 +178,16 @@ void CPortBase::playerselect()
 		
 	};
 
+void CPortBase::livevideo()
+{
+	if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->livevideoflg)
+	{
+		Status::getinstance()->livevideoflg=_globalDate->rcvBufQue.at(5);
+	}
+
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEVIDEO, 0);
+}
+
 void CPortBase::panoenable()
 {
 	if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->mvconfigenable)
@@ -1233,6 +1243,9 @@ int CPortBase::prcRcvFrameBufQue(int method)
 			break;
 		case 0x62:
 			playerquery();
+			break;
+		case 0x63:
+			livevideo();
 			break;
 		case 0x65:
 			panoenable();

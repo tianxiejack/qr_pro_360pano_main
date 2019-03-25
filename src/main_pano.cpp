@@ -316,9 +316,9 @@ int main_pano(int argc, char **argv)
 {
 	//ptzmsg.initUDP();
 	cvCapIp.Open();
-	while(0)
+	//while(0)
 	{
-		sleep(20);
+	//	sleep(20);
 	}
 #if 1
 	/* Initialize GStreamer */

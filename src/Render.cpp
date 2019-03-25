@@ -896,6 +896,7 @@ void Render::RenderScene(void)
 				TracksingleView(0,0,renderwidth,renderheight);
 				break;
 			case TRACK_360_MODE:
+				pano360View(0,0,renderwidth,renderheight);
 				break;
 			case 	SELECT_FULL_SCREEN_A:
 				SelectFullScreenView(0,0,renderwidth,renderheight,RENDERCAMERA1);
@@ -1404,7 +1405,7 @@ void Render::Panotexture(void)
 	GLenum magFilter=GL_LINEAR;
 	GLenum wrapMode=GL_CLAMP_TO_EDGE;
 
-	
+
 
 	for(int i=0;i<pano360texturenum;i++)
 		{
@@ -4776,11 +4777,17 @@ void Render::MouseSelectpos()
 				mousetitleangle=mousetitleangle+360;
 			printf("the angle =%f   zero tile=%f \n",mousetitleangle,getptzzerotitleangle());
 			setscanpanflag(0);
-			Plantformpzt::getinstance()->setpanopanpos(mouseangle);
-			Plantformpzt::getinstance()->setpanotitlepos(mousetitleangle);
-			Plantformpzt::getinstance()->setpanopanforever(mouseangle);
-			Plantformpzt::getinstance()->setpanotitleforever(mousetitleangle);
+			if(displayMode==PANO_360_MODE)
+			{
+				Plantformpzt::getinstance()->setpanopanpos(mouseangle);
+				Plantformpzt::getinstance()->setpanotitlepos(mousetitleangle);
+				Plantformpzt::getinstance()->setpanopanforever(mouseangle);
+				Plantformpzt::getinstance()->setpanotitleforever(mousetitleangle);
+			}
+			else if(displayMode==TRACK_360_MODE)
+			{
 
+			}
 			
 			setpoisitionreachangle(mouseangle,mousetitleangle);
 			OSA_printf("the pan=%f tile=%f \n",mouseangle,mousetitleangle);

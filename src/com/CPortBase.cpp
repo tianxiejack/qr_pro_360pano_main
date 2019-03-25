@@ -259,6 +259,44 @@ void CPortBase::radarconfig()
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_RadarConfig, 0);
 }
 
+void CPortBase::trackconfig()
+{
+	int configchange=0;
+
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->trackcfg.trkprio)
+	{
+		Status::getinstance()->trackcfg.trkprio=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->trackcfg.trktime)
+	{
+		Status::getinstance()->trackcfg.trktime=_globalDate->rcvBufQue.at(6);
+		configchange=1;
+	}
+	
+	
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_TrackConfig, 0);
+}
+
+void CPortBase::adddevconfig()
+{
+	Status::getinstance()->adddevcfg.devid=_globalDate->rcvBufQue.at(5);
+	for(int i = 0; i < 16; i++)
+	{
+		Status::getinstance()->adddevcfg.ip[i] = _globalDate->rcvBufQue.at(i+6);
+	}
+	
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_AdddevConfig, 0);
+
+}
+
+void CPortBase::deletedevconfig()
+{
+	Status::getinstance()->deldevid=_globalDate->rcvBufQue.at(5);
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_DeldevConfig, 0);
+}
+
 void CPortBase::plantformconfig()
 {
 	int configchange=0;
@@ -799,6 +837,10 @@ void CPortBase::recordconfig()
 					CGlobalDate::Instance()->feedback=ACK_radarconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
 					break;
+				case Status::CFG_TRK:
+					CGlobalDate::Instance()->feedback=ACK_trackconfig;
+					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
+					break;
 				default:
 					break;
 
@@ -1208,10 +1250,13 @@ int CPortBase::prcRcvFrameBufQue(int method)
 			radarconfig();
 			break;
 		case 0x7b:
+			trackconfig();
 			break;
 		case 0x7c:
+			adddevconfig();
 			break;
 		case 0x7d:
+			deletedevconfig();
 			break;
 		case 0x80:
 			plantformconfig();
@@ -1390,6 +1435,9 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 			break;
 		case ACK_radarconfig:
 			ackradarconfig(psendBuf);
+			break;
+		case ACK_trackconfig:
+			acktrackconfig(psendBuf);
 			break;
 		default:
 			break;
@@ -1888,6 +1936,24 @@ void CPortBase::ackradarconfig(sendInfo * spBuf)
 	spBuf->sendBuff[10]=(Status::getinstance()->radarcfg.offset100m>>8)&0xff;
 	spBuf->sendBuff[11]=Status::getinstance()->radarcfg.offset300m&0xff;
 	spBuf->sendBuff[12]=(Status::getinstance()->radarcfg.offset300m>>8)&0xff;
+	
+	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
+	
+	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);
+	spBuf->byteSizeSend=infosize+5;
+}
+
+void CPortBase::acktrackconfig(sendInfo * spBuf)
+{
+	u_int8_t sumCheck;
+	int infosize=3;
+	spBuf->sendBuff[0]=0xEB;
+	spBuf->sendBuff[1]=0x51;
+	spBuf->sendBuff[2]=infosize&0xff;
+	spBuf->sendBuff[3]=(infosize>>8)&0xff;
+	spBuf->sendBuff[4]=ACK_trackconfig;
+	spBuf->sendBuff[5]=Status::getinstance()->trackcfg.trkprio&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->trackcfg.trktime&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	

@@ -646,6 +646,9 @@ public:
 	static void sensorfrcfg(long lparam);
 	static void displaycfg(long lparam);
 	static void radarcfg(long lparam);
+	static void trackcfg(long lparam);
+	static void adddevcfg(long lparam);
+	static void deldevcfg(long lparam);
 	void CheckArea(int x,int y);
 	void configloadtoglobal();
 	void mousemotion(int button, int x, int y);

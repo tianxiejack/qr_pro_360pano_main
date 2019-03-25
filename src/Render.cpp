@@ -5325,6 +5325,10 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorConfig,sensorfrcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_DisplayConfig,displaycfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_RadarConfig,radarcfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_TrackConfig,trackcfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_AdddevConfig,adddevcfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_DeldevConfig,deldevcfg,0);
+	
 
 	
 	//MSGID_EXT_INPUT_WorkModeCTRL
@@ -5825,6 +5829,21 @@ void Render::displaycfg(long lparam)
 void Render::radarcfg(long lparam)
 {
 	radarcfg_t radarcfg_tmp =  Status::getinstance()->radarcfg;
+}
+
+void Render::trackcfg(long lparam)
+{
+	trackcfg_t trackcfg_tmp = Status::getinstance()->trackcfg;
+}
+
+void Render::adddevcfg(long lparam)
+{
+	adddevcfg_t adddevcfg_tmp = Status::getinstance()->adddevcfg;
+}
+
+void Render::deldevcfg(long lparam)
+{
+	int deldevid = Status::getinstance()->deldevid;
 }
 
 void Render::CheckArea(int x,int y)

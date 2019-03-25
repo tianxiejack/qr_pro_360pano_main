@@ -53,6 +53,16 @@ typedef struct{
 	int offset100m;
 	int offset300m;
 }radarcfg_t;
+
+typedef struct{
+	int trkprio;
+	int trktime;
+}trackcfg_t;
+
+typedef struct{
+	int devid;
+	char ip[16];
+}adddevcfg_t;
 	
 class Status{
 public:
@@ -290,6 +300,13 @@ public:
 
 	/******radar config*******/
 	radarcfg_t radarcfg;
+
+	/******track config*******/
+	trackcfg_t trackcfg;
+
+	/******dev config*******/
+	adddevcfg_t adddevcfg;
+	int deldevid;
 
 	int querryconfig;
 

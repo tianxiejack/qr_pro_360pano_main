@@ -93,6 +93,7 @@ public:
 	int upgradefw(unsigned char *swap_data_buf, unsigned int swap_data_len);
 	void  ackscanplantformconfig(sendInfo * spBuf);
 	void ackradarconfig(sendInfo * spBuf);
+	void acktrackconfig(sendInfo * spBuf);
 	void  ackplantformconfig(sendInfo * spBuf);
 	void  ackrecordconfig(sendInfo * spBuf);
 	void  ackmvconfig(sendInfo * spBuf);
@@ -135,6 +136,9 @@ public:
     void choosedev();
     void chooseptz();
     void radarconfig();
+    void trackconfig();
+    void adddevconfig();
+    void deletedevconfig();
 
 protected:
     int prcRcvFrameBufQue(int method);

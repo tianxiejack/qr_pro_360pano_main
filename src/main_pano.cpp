@@ -315,7 +315,7 @@ extern opencvCapIP cvCapIp;
 int main_pano(int argc, char **argv)
 {
 	//ptzmsg.initUDP();
-	cvCapIp.Open();
+	//cvCapIp.Open();
 	//while(0)
 	{
 	//	sleep(20);

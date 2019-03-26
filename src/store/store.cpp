@@ -32,7 +32,7 @@ void Store::addstore()
 	parm.ptzpan=Plantformpzt::getinstance()->getpanangle();
 	parm.ptztitle=Plantformpzt::getinstance()->gettitleangle();
 	parm.value=1;
-	printf("the pan=%f tile=%f\n",parm.ptzpan,parm.ptztitle);
+	//printf("the pan=%f tile=%f\n",parm.ptzpan,parm.ptztitle);
 	store.push_back(parm);
 }
 		
@@ -105,6 +105,7 @@ void Store::save()
 	for(iter=store.begin();iter!=store.end();iter++)
 		{
 			parm=*iter;
+		//	printf("value=%d  P=%f Z=%f\n",parm.value,parm.ptzpan,parm.ptztitle);
 			if(parm.value!=1)
 				continue;
 			sprintf(buffer,"valid:%d_pan:%f_title:%f",parm.value,parm.ptzpan,parm.ptztitle);

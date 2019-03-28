@@ -30,6 +30,8 @@
 #include"videorecord.hpp"
 #include "DxTimer.hpp"
 #include "store.hpp"
+#include "StlGlDefines.h"
+
 //#include"Gyroprocess.hpp"
 
 int RADX=0;
@@ -123,14 +125,27 @@ static  GLfloat vTexCoordsindentify [] = { 0.0f, 0.0f,
 					      0.0f, 1.0f ,
 					      0.1,1.0};
 
+
 Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),pano360textureh(0),MOUSEx(0),MOUSEy(0),BUTTON(0),
 	MOUSEST(0),mousex(0),mousey(0),mouseflag(0),pano360renderw(0),pano360renderH(0),pano360renderLux(0),pano360renderLuy(0),
 	CameraFov(0),maxtexture(0),pano360texturenum(0),pano360texturewidth(0),pano360textureheight(0),selecttexture(0),shotcutnum(0),
 	movviewx(0),movviewy(0),movvieww(0),movviewh(0),menumode(0),tailcut(0),radarinner(3.0),radaroutter(10),viewfov(90),viewfocus(10),
 	osdmenushow(0),osdmenushowpre(0),screenpiex(NULL),screenenable(1),recordscreen(0),zeroselect(0),poisitionreach(0),poisitionreachpan(0),
 	poisitionreachtitle(0),criticalmode(0),debuggl(0),recordtimer(60),singleenable(0),singleangle(0),siglecircle(0),timerclock(600),currentnum(0),
-	movareaflag(0),movupdown(0),movconfignum(0),mul(1.0),PBOcapture(PBOManager(PBOTEXTMAX,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT))
+	movareaflag(0),movupdown(0),movconfignum(0),mul(1.0)//,
 	{
+			pPBOSdr=new PBOSender(1,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT);
+			pFBOMgr[PANO_PIC]=new	FBOManager(PANO360FBOW,PANO360FBOH,GL_BGR,GL_RGB8);
+			pPBORcr[PANO_PIC]=new	PBOReceiver(PANO_PIC,1,PANO360FBOW,PANO360FBOH,3,GL_BGR_EXT);
+		for(int i=ROI_A;i<PIC_COUNT;i++)
+		{
+			pFBOMgr[i]=new FBOManager(ROIFBOW,ROIFBOH,GL_BGR,GL_RGB8);
+			pPBORcr[i]=new	PBOReceiver(i,1,ROIFBOW,ROIFBOH,3,GL_BGR_EXT);
+		}
+		for(int i=0;i<PIC_COUNT;i++)
+		{
+			pFPfacade[i]=new PBO_FBO_Facade(*(pFBOMgr[i]),*(pPBORcr[i]));
+		}
 		displayMode=SINGLE_VIDEO_VIEW_MODE;
 		panosrcwidth=0;
 		panosrcheight=0;
@@ -157,7 +172,7 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		memset(panopositon,0,BRIDGENUM*sizeof(Rect));
 		for(int i=0;i<PIC_COUNT;i++)
 		{
-			CapOnce[i]=false;;
+			CapOnce[i]=false;
 		}
 		for(int i=0;i<BRIDGENUM;i++)
 			{
@@ -227,6 +242,34 @@ Render::~Render()
 		OSA_mutexDelete(&mvlock);
 		glDeleteTextures(CCT_COUNT, ChineseC_Textures);
 	}
+
+void Render::FBOdraw(int idx)
+{
+	switch(idx)
+	{
+		case PANO_PIC:
+			pano360View(0,0,renderwidth,renderheight,true);
+			break;
+		case ROI_A:
+			SelectFullScreenView(0,0,ROIFBOW,ROIFBOH,RENDERCAMERA1,true);
+			break;
+		case	ROI_B:
+			SelectFullScreenView(0,0,ROIFBOW,ROIFBOH,RENDERCAMERA2,true);
+			break;
+		case ROI_C:
+			SelectFullScreenView(0,0,ROIFBOW,ROIFBOH,RENDERCAMERA3,true);
+			break;
+			default:
+				break;
+	}
+}
+
+
+
+
+
+
+
 
 bool Render::LoadTGATexture(const char *szFileName, GLenum minFilter, GLenum magFilter, GLenum wrapMode)
 {
@@ -425,12 +468,21 @@ void Render::SetupRC(int windowWidth, int windowHeight)
 	registorfun();
 	//
 
-	if(!PBOcapture.IsInitOK()){
-		cout<<"Failed to init PBO manager"<<endl;
+	if(!pPBOSdr->Init()){
+		cout<<"Failed to init PBOSdr manager"<<endl;
 		exit(1);
 	}
-
-
+	for(int i=0;i<PIC_COUNT;i++)
+	{
+		if(!pFBOMgr[i]->Init()){
+					cout<<"Failed to init FBOMgr manager"<<endl;
+					exit(1);
+				}
+		if(!pPBORcr[i]->Init()){
+				cout<<"Failed to init PBORcr manager"<<endl;
+				exit(1);
+			}
+	}
 }
 
 void Render::ShutdownRC()
@@ -890,7 +942,25 @@ void Render::RenderScene(void)
 				panotestView(0,0,renderwidth,renderheight); 
 				break;	
 			case PANO_360_MODE:
-				pano360View(0,0,renderwidth,renderheight); 
+				if(pFPfacade[PANO_PIC]->IsFboUsed())
+				{
+					pFBOMgr[PANO_PIC]->SetDrawBehaviour(this);
+					pFPfacade[PANO_PIC]->DrawAndGet(PANO_PIC);
+				}
+				Render2Front(0,0,1920,1080);
+
+				for(int i=ROI_A;i<PIC_COUNT;i++)
+				{
+					if(CapOnce[i])
+					{
+						if(pFPfacade[i]->IsFboUsed())
+						{
+							pFBOMgr[i]->SetDrawBehaviour(this);
+							pFPfacade[i]->DrawAndGet(i);
+						}
+					}
+				}
+		//		pano360View(0,0,renderwidth,renderheight);
 				break;
 			case TRACK_SINGLE_VIEW_MODE:
 				TracksingleView(0,0,renderwidth,renderheight);
@@ -934,8 +1004,15 @@ void Render::RenderScene(void)
 			Drawfusion();
 			Drawosd();
 		}
-		// Perform the buffer swap to display back buffer
 
+
+
+
+
+
+
+
+		// Perform the buffer swap to display back buffer
 		
 		glFinish();
 		OSA_mutexUnlock(&renderlock);
@@ -1222,7 +1299,24 @@ void Render::panomod()
 	
 }
 
-void Render::SelectFullScreenView(int x,int y,int width,int height,int idx)
+
+void Render::Render2Front(int x,int y,int width,int height)
+{
+	unsigned int lx=x,ly=y,w=width,h=height;
+	M3DMatrix44f identy;
+	glUseProgram(0);
+	glViewport(lx,ly,w,h);
+	 modelViewMatrix.PushMatrix();
+	 float ROTATEANGLE=154.0f;
+	glBindTexture(GL_TEXTURE_2D,pFPfacade[PANO_PIC]->GetFboTextureID());
+	m3dLoadIdentity44(identy);
+	 m3dRotationMatrix44(identy,ROTATEANGLE,1.0f,0.0f,0.0f);
+	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
+	panselecttriangleBatchnew[RENDER2FRONTBATCH][0]->Draw();
+	 modelViewMatrix.PopMatrix();
+}
+
+void Render::SelectFullScreenView(int x,int y,int width,int height,int idx,bool isfboDraw)
 {
 	int id=0;
 	unsigned int lx,ly,w,h;
@@ -1240,7 +1334,13 @@ void Render::SelectFullScreenView(int x,int y,int width,int height,int idx)
 		viewcamera[idx].leftdownrect.height=h;
 		glViewport(lx,ly,w,h);
 		//glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
+		glBindTexture(GL_TEXTURE_2D,pFPfacade[PANO_PIC]->GetFboTextureID());
 		m3dLoadIdentity44(identy);
+		if(isfboDraw)
+		{
+			 float ROTATEANGLE=154.0f;
+			 m3dRotationMatrix44(identy,ROTATEANGLE,1.0f,0.0f,0.0f);
+		}
 		shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
 	for(int i=0;i<viewcamera[idx].blindtextnum;i++)
 	{
@@ -1411,7 +1511,6 @@ void Render::Panotexture(void)
 	GLenum minFilter=GL_LINEAR;
 	GLenum magFilter=GL_LINEAR;
 	GLenum wrapMode=GL_CLAMP_TO_EDGE;
-
 
 
 	for(int i=0;i<pano360texturenum;i++)
@@ -2955,7 +3054,7 @@ void Render::panoshow()
 
 }
 
-void Render::pano360View(int x,int y,int width,int height)
+void Render::pano360View(int x,int y,int width,int height,bool isfboDraw)
 {
 	//return;
 	int startnum=0;
@@ -2985,7 +3084,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	*/
 	
 	
-	
+
 	/*************************************************************************/
 	if(getmenumode()==SELECTMODE){
 		lx=0;
@@ -3298,7 +3397,7 @@ void Render::pano360View(int x,int y,int width,int height)
 #endif
 	m3dLoadIdentity44(identy);
 	//shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
-	
+
 	if(getmenumode()==PANOMODE)
 		{
 			if(panselecttriangleBatchnewenable[RENDERCAMERA1])
@@ -3373,7 +3472,7 @@ void Render::pano360View(int x,int y,int width,int height)
 	//shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, transformPipeline.GetModelViewProjectionMatrix(), 0);
 	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
 	
-	
+
 	if(panselecttriangleBatchnewenable[RENDERCAMERA3])
 				{
 					if(viewcamera[RENDERCAMERA3].blindtextnum==1)
@@ -3474,7 +3573,7 @@ void Render::pano360View(int x,int y,int width,int height)
 //**draw track Viewo
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
-	
+
 	/*************************************************************************/
 	modelViewMatrix.PopMatrix();
 
@@ -5205,8 +5304,8 @@ void Render::ResizeRectByRatio(int idx,bool plus)
 	unsigned int lx,ly,w,h;
 	lx=0;
 	ly=height*4/6;
-	w=width-height/3;
-	h=height*1/6;
+	w=width-height/3;//1560
+	h=height*1/6;//120
 	float step=0;
 	static float lastmul=1.0;
 	if(plus)
@@ -5238,8 +5337,8 @@ void Render::ResizeRectByRatio(int idx,bool plus)
 		int xoffsetStep=33;//13;//0.1/2.0*oriW;
 		int yoffsetStep=11;////4;//0.1/2.0*oriH;
 	//	printf("midx=%d midy=%d\n",viewcamera[i].fixrect.x+viewcamera[i].fixrect.width/2,viewcamera[i].fixrect.y+viewcamera[i].fixrect.height/2);
-		viewcamera[i].fixrect.width=w/3*0.5*mul;
-		viewcamera[i].fixrect.height=h*0.5*mul;
+		viewcamera[i].fixrect.width=w/3*0.5*mul;//260
+		viewcamera[i].fixrect.height=h*0.5*mul;//60
 
 	//	printf("fixrect.width=%d,fixrect.height=%d\n",viewcamera[i].fixrect.width,viewcamera[i].fixrect.height);
 		{

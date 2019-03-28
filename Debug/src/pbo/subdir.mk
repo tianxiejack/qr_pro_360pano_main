@@ -4,13 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/pbo/PBOManager.cpp 
+../src/pbo/FBOManager.cpp \
+../src/pbo/PBOManager.cpp \
+../src/pbo/PBO_FBO_Facade.cpp \
+../src/pbo/pboProcessSrcThread.cpp 
 
 OBJS += \
-./src/pbo/PBOManager.o 
+./src/pbo/FBOManager.o \
+./src/pbo/PBOManager.o \
+./src/pbo/PBO_FBO_Facade.o \
+./src/pbo/pboProcessSrcThread.o 
 
 CPP_DEPS += \
-./src/pbo/PBOManager.d 
+./src/pbo/FBOManager.d \
+./src/pbo/PBOManager.d \
+./src/pbo/PBO_FBO_Facade.d \
+./src/pbo/pboProcessSrcThread.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

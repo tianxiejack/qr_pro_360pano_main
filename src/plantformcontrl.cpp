@@ -417,7 +417,7 @@ void Plantformpzt::main_contrl_func()
 				
 				OSA_waitMsecs(1000);
 				//initptzpos(anglepan,angletitle);
-
+			//	printf("anglepan=%f\n",anglepan);
 				setpanopanpos(anglepan);
 				getpanopanpos();
 

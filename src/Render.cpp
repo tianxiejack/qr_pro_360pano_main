@@ -137,15 +137,20 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 			pPBOSdr=new PBOSender(1,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT);
 			pFBOMgr[PANO_PIC]=new	FBOManager(PANO360FBOW,PANO360FBOH,GL_BGR,GL_RGB8);
 			pPBORcr[PANO_PIC]=new	PBOReceiver(PANO_PIC,1,PANO360FBOW,PANO360FBOH,3,GL_BGR_EXT);
+
+		mpifRecord[PANO_PIC]=new RealRecordByCV(PANO_PIC,PANO360FBOW,360);
 		for(int i=ROI_A;i<PIC_COUNT;i++)
 		{
 			pFBOMgr[i]=new FBOManager(ROIFBOW,ROIFBOH,GL_BGR,GL_RGB8);
 			pPBORcr[i]=new	PBOReceiver(i,1,ROIFBOW,ROIFBOH,3,GL_BGR_EXT);
+			mpifRecord[i]=new RealRecordByCV(i,ROIFBOW,ROIFBOH);
 		}
 		for(int i=0;i<PIC_COUNT;i++)
 		{
 			pFPfacade[i]=new PBO_FBO_Facade(*(pFBOMgr[i]),*(pPBORcr[i]));
 		}
+
+
 		displayMode=SINGLE_VIDEO_VIEW_MODE;
 		panosrcwidth=0;
 		panosrcheight=0;
@@ -173,6 +178,7 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		for(int i=0;i<PIC_COUNT;i++)
 		{
 			CapOnce[i]=false;
+			mRecord[i]=false;
 		}
 		for(int i=0;i<BRIDGENUM;i++)
 			{
@@ -753,7 +759,11 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 //				shotcut=(shotcut+1)%2;
 				break;
 			case 'r':
-				Plantformpzt::getinstance()->setpanoscan();
+				 StartRecordAllVideo();
+			//	Plantformpzt::getinstance()->setpanoscan();
+				break;
+			case 'R':
+				StopRecordAllVideo();
 				break;
 			case 'e':
 				Plantformpzt::getinstance()->setpanoantiscan();
@@ -5290,11 +5300,28 @@ void Render::gltMakeradarpoints(vector<OSDPoint>& osdpoints, GLfloat innerRadius
 
 #define ratiosetp (0.02)
 
+void Render::StopRecordAllVideo()
+{
+	for(int i=0;i<PIC_COUNT;i++)
+	{
+		mRecord[i]=false;
+		mpifRecord[i]->StopRecord();
+	}
+}
+
+void Render::StartRecordAllVideo()
+{
+	for(int i=0;i<PIC_COUNT;i++)
+	{
+		mRecord[i]=true;
+		mpifRecord[i]->StartRecord();
+	}
+}
 void Render::SaveAllPic()
 {
 	for(int i=0;i<PIC_COUNT;i++)
 	{
-		CapOnce[i]=true;;
+		CapOnce[i]=true;
 	}
 }
 

@@ -37,6 +37,8 @@
 #include"configfile.hpp"
 #include "StlGlDefines.h"
 #include "PBO_FBO_Facade.h"
+#include "IFrealRecord.h"
+#include "realRecord.h"
 //#include "mvdectInterface.hpp"
 //static const int ALPHA_MASK_HEIGHT= DEFAULT_IMAGE_HEIGHT;
 //static const int ALPHA_MASK_WIDTH = (DEFAULT_IMAGE_WIDTH/16);
@@ -499,14 +501,23 @@ public:
 	void ResizeRectByRatio(int idx,bool puls=true);
 
 	void SaveAllPic();
-	bool IstoSavePic(SavePic idx){return CapOnce[idx];};
-	void ResetSaveState(SavePic idx){CapOnce[idx]=false;};
+	void StartRecordAllVideo();
+	void StopRecordAllVideo();
+	bool IstoSavePic(SaveIDX idx){return CapOnce[idx];};
+	void ResetSaveState(SaveIDX idx){CapOnce[idx]=false;};
+
+	bool IstoRecordVideo(SaveIDX idx){return mRecord[idx];};
+	void ResetRecordState(SaveIDX idx){mRecord[idx]=false;};
+	IFrealRecord *GetifRealRecord(int idx){return mpifRecord[idx];};
+
 public:
 	unsigned int Fullscreen;
 	void FBOdraw(int idx);
 	PBOReceiver *GetPBORcr(int idx){return pPBORcr[idx];};
 private:
+	IFrealRecord *mpifRecord[PIC_COUNT];
 	bool CapOnce[PIC_COUNT];
+	bool mRecord[PIC_COUNT];
 	float mul;
 
 

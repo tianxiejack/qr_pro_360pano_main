@@ -14,6 +14,7 @@ RM := rm -rf
 -include src/status/subdir.mk
 -include src/rtsp/subdir.mk
 -include src/record/subdir.mk
+-include src/realRecord/subdir.mk
 -include src/ptzProxy/subdir.mk
 -include src/subdir.mk
 -include src/pelco/subdir.mk

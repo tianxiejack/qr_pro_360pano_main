@@ -47,7 +47,14 @@ typedef enum{
 	ROI_B,
 	ROI_C,
 	PIC_COUNT
-}SavePic;
+}SaveIDX;
+
+enum
+{
+	START_STATE,
+	RECORDING_STATE,
+	STOP_STATE
+};
 
 enum{
 	TV_QUE_ID=0,

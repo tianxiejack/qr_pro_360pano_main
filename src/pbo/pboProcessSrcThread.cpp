@@ -40,10 +40,10 @@ void process(SaveIDX id,bool isCapVideo)
 	int matW[PIC_COUNT]={1920,ROIFBOW,ROIFBOW,ROIFBOW};
 	int matH[PIC_COUNT]={360,ROIFBOH,ROIFBOH,ROIFBOH};
 
-	OSA_semWait(render.GetPBORcr(id)->getSemPBO(),100000);
+//	OSA_semWait(render.GetPBORcr(id)->getSemPBO(),100000);
 	Mat testData(matH[id], matW[id], CV_8UC3);
 	bool isCapedFrame=false;
-	if(isCapVideo)
+	if(!isCapVideo)
 	{
 			if(render.IstoSavePic(id))
 			{

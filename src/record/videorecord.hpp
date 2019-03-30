@@ -7,7 +7,9 @@
 
 #ifndef VIDEORECORD_HPP_
 #define VIDEORECORD_HPP_
-#include "osa.h"
+//#include "osa.h"
+#include <stdio.h>
+#include <sys/time.h>
 #include <queue>
 #include "opencv2/core/core.hpp"
 typedef struct {
@@ -128,6 +130,7 @@ class VideoRecord{
 
 		void setmovtimedelay(int enable){timerdelayenable=enable;};
 		int getmovtimedelay(){return timerdelayenable;};
+		void heldrecord();
 
 		void setdataheldrecord(int a[2][7][24])
 			{
@@ -142,8 +145,7 @@ class VideoRecord{
 						callback=call;
 
 					}
-	private:
-		void heldrecord();
+
 	private:
 		int timerdelayenable;
 		int timeenable;
@@ -166,7 +168,6 @@ class VideoRecord{
 		
 
 		 FILE *videorecordfb;
-		 MyTData mydata;
 		 int tm_year;
 		 int tm_mon;
 		 int tm_mday;
@@ -175,6 +176,8 @@ class VideoRecord{
 		 int tm_sec;
 		 int g_gst_wrPkt;
 		 queue<SyncDate> *_syncdata;
+public:
+	 MyTData mydata;
 
 
 

@@ -1,6 +1,10 @@
 #include"videorecord.hpp"
 #include<stdio.h>
 #include <queue>
+#include "cv.h"
+#include "cxcore.h"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 VideoRecord* VideoRecord::instance=NULL;
 #define SAVEDIR "/home/ubuntu/calib/video"
@@ -39,8 +43,8 @@ void VideoRecord::heldrecord()
 	int timeenableweek=0;
 	int movenableweek=0;
 
-	timeenableweek=recordpositionheld[0][week][hour];
-	movenableweek=recordpositionheld[1][week][hour];
+	timeenableweek=recordpositionheld[0][week-1][hour-1];
+	movenableweek=recordpositionheld[1][week-1][hour-1];
 
 	settimerecordenable(timeenableweek);
 
@@ -63,9 +67,36 @@ void VideoRecord::heldrecord()
 	 
 
 }
+
+/************************************************************************
+Flag==0: gray
+Flag==1: rgb
+************************************************************************/
+void Unchar2IplImg(unsigned char *pImg, IplImage *pDis, int nW, int nH,bool Flag)
+{
+	if (Flag)
+	{
+		for (int j = 0; j<nH; j++)
+		{
+			memcpy(&pDis->imageData[(nH-j-1)*nW*3],&pImg[j*nW*3],nW*3);
+		}
+	}
+	else
+	{
+		for (int j = 0; j<nH; j++)
+		{
+			memcpy(&pDis->imageData[(nH-j-1)*nW],&pImg[j*nW],nW);
+		}
+	}
+
+}
+
 void VideoRecord::recordvideo(void *data,void* size)
 {
 	//printf("data=%p size=%d instance=%p\n",data,size,instance);
+	
+#define TMP_TEST 1
+#if TMP_TEST
 	if(data==NULL||size==NULL||instance==NULL)
 		return ;
 	//return;
@@ -88,6 +119,69 @@ void VideoRecord::recordvideo(void *data,void* size)
 
 	char *videodata=(char *)data;
 	int videolen=*(int*)size;
+
+/*
+	char zzqname[20] = {0};
+	static int flagg = 0;
+	static Mat zzqimg = Mat(1080,1920,CV_8UC3);
+	static int curlen = 0;
+
+	if(flagg<1)
+	{
+		if(videolen == 8)
+		{
+			memcpy(zzqimg.data, videodata, 8);
+			curlen = 8;
+		}
+		
+		else if(videolen > 10)
+		{
+			memcpy(zzqimg.data+8, videodata, videolen);
+			curlen = 8 + videolen;
+		}
+		else if(videolen == 1)
+		{
+			memcpy(zzqimg.data+curlen, videodata, 1);
+			curlen = 0;
+
+			sprintf(zzqname, "output%d.bmp", flagg);
+			printf("zzqimg.channels=%d\n",zzqimg.channels());
+			imwrite(zzqname,zzqimg);
+			memset(zzqimg.data, 0 ,curlen+1);
+			flagg++;
+
+			//imshow("zzq  ", zzqimg);
+			//waitKey(1);
+			
+		}
+	}
+*/
+
+	/*
+	static char zzq_filename[128];
+	static int zzq_count = 0;
+	static FILE *zzq_videorecordfb;
+	sprintf(zzq_filename,"%s",  "zzqrecord2.avi");
+	
+	if(zzq_count == 0)
+		zzq_videorecordfb =  fopen(zzq_filename,"wb");
+
+	if(zzq_count<300)
+	{
+		fwrite(videodata, videolen, 1, zzq_videorecordfb);
+		zzq_count++;
+	}
+
+
+	if(zzq_count == 300)
+	{
+		fclose(zzq_videorecordfb);
+		zzq_count++;
+	}
+	*/
+	
+
+
 	if(videolen>10)
 		filewriteenable=1;
 	if(filewriteenable)
@@ -113,6 +207,10 @@ void VideoRecord::recordvideo(void *data,void* size)
 	int mint=tm_set.tm_min;
 	int sect=tm_set.tm_sec;
 	//printf("instance->getrecordflag()=%d\n",instance->getrecordflag());
+
+	//CvSize zzqsize = cvSize(1920, 1080);
+	//static CvVideoWriter *writer = cvCreateVideoWriter("/home/ubuntu/calib/video/zzq.avi", CV_FOURCC('M', 'J', 'P', 'G'), 25, zzqsize);
+	//IplImage *frame = cvCreateImage(cvSize(1920,1080), 8, 1);
 
 	instance->heldrecord();
 	if(instance->getrecordflag()==0||instance->getforceclose()||instance->getforcecloseonece())
@@ -182,7 +280,13 @@ void VideoRecord::recordvideo(void *data,void* size)
 			instance->mydata.open(filedataname);
 			instance->g_gst_wrPkt = 0;
 			if(instance->videorecordfb!=NULL&&instance->aviheadenable==0)
+			{
 				fwrite(instance->avihead, instance->aviheadlen, 1, instance->videorecordfb);
+				//Unchar2IplImg((unsigned char *)instance->avihead, frame, 1920, 1080, 1);
+				//cvWriteFrame(writer, frame);
+				printf("%s,%d, write,len=%d$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n", __FILE__,__LINE__, instance->aviheadlen);
+				
+			}
 				
 			printf(" open local file %s\n", filename);
 		}
@@ -240,7 +344,10 @@ void VideoRecord::recordvideo(void *data,void* size)
 						instance->mydata.open(filedataname);
 						instance->g_gst_wrPkt = 0;
 						if(instance->videorecordfb!=NULL&&instance->aviheadenable==0)
+						{
 							fwrite(instance->avihead, instance->aviheadlen, 1, instance->videorecordfb);
+							printf("%s,%d, write,len=%d$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n", __FILE__,__LINE__, instance->aviheadlen);
+						}
 						printf(" open local file %s\n", filename);
 					}
 
@@ -249,6 +356,9 @@ void VideoRecord::recordvideo(void *data,void* size)
 		if(instance->videorecordfb != NULL)
 		{
 			fwrite(videodata, videolen, 1, instance->videorecordfb);
+			//Unchar2IplImg((unsigned char *)instance->avihead, frame, 1920, 1080, 1);
+			//cvWriteFrame(writer, frame);
+			printf("%s,%d, write,len=%d$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n", __FILE__,__LINE__, instance->aviheadlen);
 			if(filewriteenable)
 			instance->mydata.write(syncdata.event, syncdata.gyroX, syncdata.gyroY, syncdata.gyroZ);
 			instance->g_gst_wrPkt++;
@@ -260,7 +370,7 @@ void VideoRecord::recordvideo(void *data,void* size)
 
 
 	
-	
+#endif	
 
 }
 

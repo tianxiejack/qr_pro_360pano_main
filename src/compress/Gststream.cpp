@@ -13,6 +13,8 @@
 #include "osa_image_queue.h"
 #include "osa_sem.h"
 #include "config.h"
+
+#if 0
 typedef struct _CustomData
 {
   	GstElement *pipeline, *source, *videoconvert0, *tee0, *queue0, *fakesink0;
@@ -84,6 +86,8 @@ Gstreamer::~Gstreamer()
 
 void * Gstreamer::thrdhndl_push_buffer(void* arg)
 {
+
+/*
 	GstCustomData* pData = (GstCustomData *)arg;
 	pData->bPush = true;
 	while(pData->bPush){
@@ -100,23 +104,53 @@ void * Gstreamer::thrdhndl_push_buffer(void* arg)
 			privatedata.gyroz=bufInfo->framegyroyaw*1.0/ANGLESCALE;
 			if( pData->record->sy_cb!=NULL)
 		    		pData->record->sy_cb(&privatedata);
+*/
+
+/*
+			int width = bufInfo->width;
+			int height = bufInfo->height;
+			int channels = bufInfo->channels;
+			static gboolean white = FALSE; 
+			GstBuffer *buffer; 
+			guint size; 
+			GstFlowReturn ret; 
+			size = width * height * channels; 
+			buffer = gst_buffer_new_allocate (NULL, size, NULL);
+			gst_buffer_memset (buffer, 0, white ? 0xff : 0x0, size); 
+			white = !white; 
+
+			GstMapInfo map;
+		  	gst_buffer_map(buffer, &map, GST_MAP_READ);
+			printf("%s,%d, putsize=%d, width*height*channels=%d\n",__FILE__,__LINE__, bufInfo->size, width*height*channels);
+			printf("%s,%d, strlen(bufInfo->physAddr)=%d\n", __FILE__, __LINE__, strlen((char *)bufInfo->physAddr));
+			memcpy(map.data, bufInfo->physAddr, width*height*channels);
+		  	GST_BUFFER_PTS (buffer) = pData->buffer_timestamp;
+		  	GST_BUFFER_DURATION (buffer) = gst_util_uint64_scale_int (1, GST_SECOND, pData->framerate);
+		 	 pData->buffer_timestamp += GST_BUFFER_DURATION (buffer) ;
+		  	g_signal_emit_by_name (pData->source, "push-buffer", buffer, &ret);
+		  	gst_buffer_unmap(buffer,&map);
+		  	gst_buffer_unref (buffer);
+*/
+
+/*
+			
 			GstBuffer *buffer = (GstBuffer *)bufInfo->physAddr;
-			OSA_assert(buffer != NULL);
+			OSA_assert(buffer != NULL);		
 			GST_BUFFER_PTS(buffer) = pData->buffer_timestamp;
 			GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale_int(1, GST_SECOND, pData->framerate);
 			//printf("the frame rate=%d\n",pData->framerate);
 			pData->buffer_timestamp+=GST_BUFFER_DURATION(buffer);
 			gst_buffer_ref(buffer);
+			//printf("%s,%d, buffer->size=%d\n", buffer->size);
 			GstFlowReturn ret = gst_app_src_push_buffer(GST_APP_SRC(pData->source), buffer);
 			if( ret != GST_FLOW_OK )
 			{
 				g_print("\n %s %d: gst_app_src_push_buffer error!\n", __func__, __LINE__);
 			}
+			
 			image_queue_putEmpty(&pData->pushBuffQueue, bufInfo);
 				
 
-			//printf("^^^^^^^push_buffer^^^^pData->source=%p^^^^^^\n",pData->source);
-			//printf("%s  ok \n",__func__);
 		}
 	    if(image_queue_fullCount(&pData->pushBuffQueue)>0){
 	    	bufInfo = image_queue_getFull(&pData->pushBuffQueue);
@@ -125,6 +159,7 @@ void * Gstreamer::thrdhndl_push_buffer(void* arg)
 	    }
 	}
 	return NULL;
+	*/
 }
 void * Gstreamer::thrdhndl_timer(void* arg)
 {
@@ -168,6 +203,7 @@ void * Gstreamer::thrdhndl_timer(void* arg)
 
 void * Gstreamer::thrdhndl_out_buffer(void* arg)
 {
+/*
 	GstCustomData* pData = (GstCustomData *)arg;
 	pData->bOut = true;
 	while(pData->bOut){
@@ -186,7 +222,10 @@ void * Gstreamer::thrdhndl_out_buffer(void* arg)
 		    {
 		    	pData->outDgFlag = 2;
 		    	if( pData->record->sd_cb!=NULL)
+		    	{
+		    		printf("%s, %d, capp sync422_on_timer\n", __FILE__,__LINE__);
 		    		pData->record->sd_cb(pData->record->index, map.data, map.size);
+		    	}
 		    	pData->outDgFlag = 3;
 		        gst_buffer_unmap(buffer, &map);
 		        pData->outDgFlag = 4;
@@ -372,8 +411,9 @@ int Gstreamer::gstlinkInit_convert_enc_rtp(RecordHandle *recordHandle)
 	gst_element_sync_state_with_parent (pData->udpsink);
 
 	g_print("\n\n%s gst starting ... %s: %d\n\n", __func__, pData->ip_addr, pData->port);
+*/
 
-	/* Create gstreamer loop */
+/*
 	pData->loop = g_main_loop_new(NULL, FALSE);
 	pData->ret = gst_element_set_state (pData->pipeline, GST_STATE_PLAYING);
 	if (pData->ret == GST_STATE_CHANGE_FAILURE)
@@ -383,11 +423,12 @@ int Gstreamer::gstlinkInit_convert_enc_rtp(RecordHandle *recordHandle)
 		return -1;
 	}
 
-  	/* Wait until error or EOS */
+  	
 	pData->bus = gst_element_get_bus(pData->pipeline);
   	gst_bus_add_watch(pData->bus, bus_call, pData->loop);
 
 	return ret;
+*/
 }
 int Gstreamer::gstlinkInit_appsrc_enc_rtp(RecordHandle *recordHandle)
 {
@@ -505,6 +546,7 @@ int Gstreamer::gstlinkInit_appsrc_enc_rtp(RecordHandle *recordHandle)
 
 GstPadProbeReturn Gstreamer::filesink1_buffer (GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
 {
+/*
 	GstCustomData *pData = (GstCustomData *)user_data;
 	gint iBufSize = 0;
 	gchar* pbuffer = NULL;
@@ -526,7 +568,9 @@ GstPadProbeReturn Gstreamer::filesink1_buffer (GstPad *pad, GstPadProbeInfo *inf
 
 			//malloc 2 p1 p2
 			if( pData->record->sd_cb!=NULL)
+			{
 		    		pData->record->sd_cb(pData->record->index, map.data, map.size);
+			}
 		
 
 		gst_buffer_unmap(buffer, &map);
@@ -535,6 +579,7 @@ GstPadProbeReturn Gstreamer::filesink1_buffer (GstPad *pad, GstPadProbeInfo *inf
 	GST_PAD_PROBE_INFO_DATA(info) = buffer;
 
 	return GST_PAD_PROBE_OK;  //just into print one time
+*/
 }
 
 #define UDPSINK  (0)
@@ -586,6 +631,7 @@ if(RECORDAVI)
 	else
 		{
 			pData->filesink1 = gst_element_factory_make("fakesink", NULL);
+			
 		}
 
 	gst_object_ref(pData->queue1);
@@ -709,7 +755,8 @@ else
 	
 		}
 
-	
+	//g_object_set (pData->filesink1, "location", "hahazzq.avi", NULL);
+	g_object_set (G_OBJECT (pData->filesink1), "location", "test.ogg", NULL);
 
 	g_object_set (pData->omxh265enc, "iframeinterval", 30, NULL);
 	g_object_set (pData->omxh265enc, "bitrate", GST_ENCBITRATE, NULL);
@@ -1094,111 +1141,14 @@ void * Gstreamer::rtp_main_loop(void* arg)
 }
 RecordHandle * Gstreamer::gstpipeadd(GstCapture_data gstCapture_data)
 {
+
 	int res;
 	static int createNum = 0;
 	pthread_t thread_0;
 	printf("\r\n gst_Capture--------------Build date: %s %s \r\n", __DATE__, __TIME__);
 	RecordHandle * recordHandle = (RecordHandle *)malloc(sizeof(RecordHandle));
 	memset(recordHandle, 0, sizeof(RecordHandle));
-	recordHandle->index = createNum;
-	recordHandle->width = gstCapture_data.width;
-	recordHandle->height = gstCapture_data.height;
-	recordHandle->ip_port = gstCapture_data.ip_port;
-	recordHandle->filp_method = gstCapture_data.filp_method;
-	recordHandle->capture_src = gstCapture_data.capture_src;
-	recordHandle->framerate = gstCapture_data.framerate;
-	recordHandle->bitrate = gstCapture_data.bitrate;
-	recordHandle->sd_cb=gstCapture_data.sd_cb;
-	recordHandle->sy_cb=gstCapture_data.sy_cb;
-	for(int i=0;i<ENC_QP_PARAMS_COUNT;i++)
-		recordHandle->Q_PIB[i]=gstCapture_data.Q_PIB[i];
-	OSA_assert(gstCapture_data.format!=NULL);
-	strcpy(recordHandle->format, gstCapture_data.format);
-	if(gstCapture_data.ip_addr!=NULL)
-		strcpy(recordHandle->ip_addr, gstCapture_data.ip_addr);
-	recordHandle->bEnable = FALSE;
 
-	recordHandle->context = (GstCustomData *)malloc(sizeof(GstCustomData));
-	GstCustomData* pData = (GstCustomData* )recordHandle->context;
-	memset(pData, 0, sizeof(GstCustomData));
-	pData->record = recordHandle;
-	pData->height = recordHandle->height;
-	pData->width = recordHandle->width;
-	pData->framerate = recordHandle->framerate;
-	pData->bitrate = recordHandle->bitrate;
-	pData->filp_method = recordHandle->filp_method;
-	pData->capture_src = recordHandle->capture_src;
-	strcpy(pData->format, recordHandle->format);
-	strcpy(pData->ip_addr, recordHandle->ip_addr);
-	pData->notify = gstCapture_data.notify;
-	pData->port = recordHandle->ip_port;
-	pData->queue1 = NULL;
-	pData->omxh265enc = NULL;
-	pData->nvvidconv0 = NULL;
-	pData->fakesink1 = NULL;
-	/* Initialize GStreamer */
-	/*
-	static bool bGstInit = false;
-	if(!bGstInit)
-		gst_init (NULL, NULL);
-	bGstInit = true;
-	*/
-	if(APPSRC == gstCapture_data.capture_src){
-		res = image_queue_create(&pData->pushBuffQueue, 3, pData->width*pData->height*3, memtype_null);
-		for(int i=0; i<3; i++){
-			GstMapInfo *info = new GstMapInfo;
-			GstBuffer *buffer;
-			buffer = gst_buffer_new_allocate(NULL, pData->pushBuffQueue.bufInfo[i].size, NULL);
-			int iret = gst_buffer_map(buffer, info, GST_MAP_WRITE);
-			OSA_assert(iret != 0);
-			pData->pushBuffQueue.bufInfo[i].virtAddr = info->data;
-			pData->pushBuffQueue.bufInfo[i].physAddr = buffer;
-			pData->pushBuffQueue.bufInfo[i].resource = (cudaGraphicsResource*)info;
-		}
-		res = OSA_semCreate(&pData->pushSem, 1, 0);
-		pthread_create(&pData->threadPushBuffer, NULL, thrdhndl_push_buffer, (void*)pData);
-		OSA_assert(pData->threadPushBuffer != 0);
-		recordHandle->pushQueue = &pData->pushBuffQueue;
-		recordHandle->pushSem = &pData->pushSem;
-
-		printf("#############the APPSRC=%d##pData->capture_src=%d############\n",gstCapture_data.capture_src,pData->capture_src);
-	}
-
-	res = image_queue_create(&pData->outBuffQueue, 3, pData->width*pData->height*3, memtype_null);
-	if(pData->notify == NULL){
-		pData->outSem = new OSA_SemHndl;
-		res = OSA_semCreate(pData->outSem, 1, 0);
-	}else{
-		pData->outSem = (OSA_SemHndl *)pData->notify;
-	}
-
-
-	//res = rtp_main_init(recordHandle);  //初始化gstreamer.
-	/*
-	if(XIMAGESRC == gstCapture_data.capture_src)
-		res = gstlinkInit_convert_enc_fakesink(recordHandle);
-		
-	if(APPSRC == gstCapture_data.capture_src)
-	*/
-	//res = gstlinkInit_convert_enc_rtp(recordHandle);
-	//res = gstlinkInit_convert_enc_fakesink(recordHandle);
-	//if(createNum==0)
-	res=record_main_init(recordHandle);
-	//else
-	//res = gstlinkInit_convert_enc_fakesink(recordHandle);
-	
-	printf("recordHandle=%p\n",recordHandle);
-	if(res == -1)
-	{
-		g_printerr("gst record init failed\n");
-		return NULL;
-	}
-/*
-	res = pthread_create(&thread_0, NULL, rtp_main_loop, (void*)recordHandle);
-	if(res == -1)
-		return NULL;
-*/
-	createNum ++;
 
 	return recordHandle;
 
@@ -1239,8 +1189,12 @@ int Gstreamer::gstCapturePushData(RecordHandle *recordHandle, char *pbuffer , in
 	return 0;
 }
 
-int Gstreamer::gstCapturePushDataMux(RecordHandle *recordHandle, char *pbuffer , int datasize,Privatedata *privatedata)
+int Gstreamer::gstCapturePushDataMux(RecordHandle *recordHandle, cv::Mat src, Privatedata *privatedata)
 {
+
+	char *pbuffer = (char *)src.data;
+	int datasize = src.cols*src.rows*src.channels();
+
 	if(recordHandle == NULL)
 	{
 		printf("recordHandle=%p\n",recordHandle);
@@ -1261,6 +1215,9 @@ int Gstreamer::gstCapturePushDataMux(RecordHandle *recordHandle, char *pbuffer ,
 	{
 		//printf("%s  ok \n",__func__);
 		memcpy(bufInfo->virtAddr, pbuffer, datasize);
+		bufInfo->width = src.cols;
+		bufInfo->height = src.rows;
+		bufInfo->channels = src.channels();
 		bufInfo->framegyroroll=privatedata->gyrox*ANGLESCALE;
 		bufInfo->framegyropitch=privatedata->gyroy*ANGLESCALE;
 		bufInfo->framegyroyaw=privatedata->gyroz*ANGLESCALE;
@@ -1275,3 +1232,5 @@ void Gstreamer::encode(Mat src)
 	
 
 }
+
+#endif

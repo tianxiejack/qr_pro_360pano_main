@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <sys/statfs.h>
 #include <sys/vfs.h>
+#include"Status.hpp"
 using namespace std;
 
 typedef struct {
@@ -53,6 +54,7 @@ public:
 	void findrecordnames();
 	void getnexvideo();
 	void setpalyervide(int num);
+	void setselecttime(playerdate_t startparam, playerdate_t selectparam);
 	void getJustCurrentFile(string path, vector<string> & video,vector<string> & files);
 	 bool startsWith(const std::string& str, const std::string& substr);
 	 bool endsWith(const std::string& str, const std::string& substr);

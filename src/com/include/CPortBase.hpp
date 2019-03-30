@@ -90,6 +90,7 @@ public:
     void upgradefwStat(sendInfo * spBuf);
     void paramtodef(sendInfo * spBuf);
 	void  recordquerry(sendInfo * spBuf);
+	void  ackplayertime(sendInfo * spBuf);
 	int upgradefw(unsigned char *swap_data_buf, unsigned int swap_data_len);
 	void  ackscanplantformconfig(sendInfo * spBuf);
 	void ackradarconfig(sendInfo * spBuf);

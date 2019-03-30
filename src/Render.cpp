@@ -5559,15 +5559,17 @@ void Render::playerquerry(long lParam)
 
 void Render::playerselect(long lParam)
 {
-	int year=Status::getinstance()->playeryear;
-	int mon=Status::getinstance()->playermonth;
-	int day=Status::getinstance()->playerday;
+	playerdate_t starttime2;
+	playerdate_t selecttime;
+	selecttime.year=Status::getinstance()->playeryear;
+	selecttime.mon=Status::getinstance()->playermonth;
+	selecttime.day=Status::getinstance()->playerday;
 
-	int hour=Status::getinstance()->playerhour;
-	int min=Status::getinstance()->playermin;
-	int sec=Status::getinstance()->playersec;
+	selecttime.hour=Status::getinstance()->playerhour;
+	selecttime.min=Status::getinstance()->playermin;
+	selecttime.sec=Status::getinstance()->playersec;
 
-	unsigned int time=day*24*60+hour*60+min;
+	unsigned int time=selecttime.day*24*60+selecttime.hour*60+selecttime.min;
 
 	printf("time=%d\n",time);
 	
@@ -5579,16 +5581,22 @@ void Render::playerselect(long lParam)
 		{
 			recorddate=RecordManager::getinstance()->recordtime[i];
 			
-			if(((recorddate.startyear==year)&&(recorddate.startmon==mon)&&(recorddate.startday==day))||\
-				((recorddate.endyear==year)&&(recorddate.endmon==mon)&&(recorddate.endday==day)))
+			if(((recorddate.startyear==selecttime.year)&&(recorddate.startmon==selecttime.mon)&&(recorddate.startday==selecttime.day))||
+				((recorddate.endyear==selecttime.year)&&(recorddate.endmon==selecttime.mon)&&(recorddate.endday==selecttime.day)))
 				{
 
 					unsigned int starttime=recorddate.startday*24*60+recorddate.starthour*60+recorddate.startmin;
 					unsigned int endtime=recorddate.endday*24*60+recorddate.endhour*60+recorddate.endtmin;
 					//printf("starttime=%d  endtime=%d\n",starttime,endtime);
-					if((starttime<=time)&&(endtime>=time))
+					if((starttime<=time)&&(endtime>time))
 						{	
 
+							starttime2.year = recorddate.startyear;
+							starttime2.mon = recorddate.startmon;
+							starttime2.day = recorddate.startday;
+							starttime2.hour = recorddate.starthour;
+							starttime2.min = recorddate.startmin;
+							starttime2.sec = recorddate.startsec;
 							findok=i;
 							break;
 
@@ -5603,8 +5611,9 @@ void Render::playerselect(long lParam)
 
 	if(findok>=0)
 		{
-			
+			RecordManager::getinstance()->setselecttime(starttime2, selecttime);
 			RecordManager::getinstance()->setpalyervide(findok);
+			RecordManager::getinstance()->enableplayer(1);
 
 		}
 

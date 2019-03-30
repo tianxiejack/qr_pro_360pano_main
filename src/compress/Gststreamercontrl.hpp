@@ -8,6 +8,7 @@
 #ifndef GSTSTREAMERCONTRL_HPP_
 #define GSTSTREAMERCONTRL_HPP_
 #include"Gststream.hpp"
+#include "ReSplic.h"
 
 class GstreaemerContrl
 {
@@ -20,7 +21,8 @@ public:
 	typedef void (* CallBackfun)(void *data,void *info);
 	void create();
 	
-	Gstreamer gstreamer;
+	//Gstreamer gstreamer;
+	IFSaveVideo *gstreamer_mp4;
 	static int sync422_ontime_video(int dtype, unsigned char *buf, int size);
 
 	CallBackfun gstrecordfun;
@@ -38,7 +40,12 @@ private:
 	
 	GstreaemerContrl();
 	~GstreaemerContrl();
+	int should_video();
+	int stop_video();
+	int save_gyro_data(Privatedata *privatedata);
+	void remove_last_video();
 	static GstreaemerContrl* instance;
+	int vedioing = 0;;
 	
 
 };

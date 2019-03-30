@@ -20,6 +20,8 @@
 #include <gst/app/gstappsink.h>
 #include <gst/gstinfo.h>
 #include <gst/app/gstappsink.h>
+#include "Status.hpp"
+
 using namespace std;
 typedef struct {
 	bool bTrack;
@@ -51,6 +53,24 @@ typedef struct{
 	double gyroy;
 	double gyroz;
 }VideoLoadData;
+
+typedef struct {
+	int startyear;
+	int startmon;
+	int startday;
+	int starthour;
+	int startmin;
+	int startsec;
+
+	int endyear;
+	int endmon;
+	int endday;
+	int endhour;
+	int endtmin;
+	int endsec;
+
+}Recordmantime2;
+
 #define FILEXML (1)
 #define MAX_LINE (100)
 class MyTDataLoad
@@ -173,6 +193,7 @@ class VideoLoad{
 		char * getvideoname(){return videoname;};
 
 		void playvideo();
+		void ACK_response_playertime(playertime_t param);
 	private:
 		VideoLoad();
 		~VideoLoad();
@@ -193,6 +214,8 @@ class VideoLoad{
 		string readavi;
 		string readdir;
 		int readnewfile;
+		playerdate_t starttime2;
+		playerdate_t selecttime;
 	private :
 		GstElement *pipeline, *sink;
 	      GstElement *app_src;
@@ -221,12 +244,16 @@ class VideoLoad{
 
         GstStructure *s;
 	public:
+		void setselecttime(playerdate_t startparam, playerdate_t selectparam){starttime2 = startparam; selecttime = selectparam;};
+		playerdate_t getselecttime(){return selecttime;};
+		playerdate_t getstarttime(){return starttime2;};
 		void setreadnewfile(int flag){readnewfile=flag;};
 		int getreadnewfile(){ return readnewfile;};
 		void setreadname(string name){readname=name;};
 		string getreadname(){return readname;};
 		void setreadavi(string name){readavi=name;};
 		string getreadavi(){return readavi;};
+		
 	public:
 		void initvideo();
 		static GstFlowReturn new_buffer(GstAppSink *appsink, gpointer user_data);

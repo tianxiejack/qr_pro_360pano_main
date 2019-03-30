@@ -425,7 +425,7 @@ static GstPadProbeReturn enc_unlink_cb(GstPad * pad, GstPadProbeInfo * info, gpo
 
 /* Bus messages processing, similar to all gstreamer examples */
 
-gboolean bus_call(GstBus *bus, GstMessage *message, gpointer user_data)
+static gboolean bus_call(GstBus *bus, GstMessage *message, gpointer user_data)
 {
 	GMainLoop *loop = (GMainLoop *)user_data;
 
@@ -472,7 +472,7 @@ gboolean bus_call(GstBus *bus, GstMessage *message, gpointer user_data)
 }
 
 
-void CustomData_init(CustomData *pData)
+static void CustomData_init(CustomData *pData)
 {
 	pData->queue1 = NULL;
 	pData->omxh265enc = NULL;
@@ -741,7 +741,7 @@ int record_main_init()
   	return 0;
 }
 
-void * record_main_loop(void* arg)
+static void * record_main_loop(void* arg)
 {
 	CustomData* pCustomData = (CustomData *)arg;
 	g_main_loop_run(pCustomData->loop); //链路停止，释放资源。

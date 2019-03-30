@@ -1406,6 +1406,9 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 		case ACK_playerquerry:
 			recordquerry(psendBuf);
 			break;
+		case ACK_playertime:
+			ackplayertime(psendBuf);
+			break;
 		case ACK_plantformconfig:
 			ackplantformconfig(psendBuf);
 			break;
@@ -1910,6 +1913,24 @@ void  CPortBase:: recordquerry(sendInfo * spBuf)
 	printf("%s\n",__func__);
 }
 
+void  CPortBase::ackplayertime(sendInfo * spBuf)
+{
+	u_int8_t sumCheck;
+	int infosize=4;
+	spBuf->sendBuff[0]=0xEB;
+	spBuf->sendBuff[1]=0x51;
+	spBuf->sendBuff[2]=infosize&0xff;
+	spBuf->sendBuff[3]=(infosize>>8)&0xff;
+	spBuf->sendBuff[4]=ACK_playertime;
+	spBuf->sendBuff[5]=Status::getinstance()->playertime.hour&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->playertime.min&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->playertime.sec&0xff;
+	
+	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
+	
+	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);
+	spBuf->byteSizeSend=infosize+5;
+}
 
 void  CPortBase::ackscanplantformconfig(sendInfo * spBuf)
 {

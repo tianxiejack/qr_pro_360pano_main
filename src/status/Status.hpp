@@ -63,6 +63,22 @@ typedef struct{
 	int devid;
 	char ip[16];
 }adddevcfg_t;
+
+typedef struct{
+	int hour;
+	int min;
+	int sec;
+}playertime_t;
+
+typedef struct
+{
+	int year;
+	int mon;
+	int day;
+	int hour;
+	int min;
+	int sec;
+}playerdate_t;
 	
 class Status{
 public:
@@ -325,6 +341,7 @@ public:
 	/***feedback***/
 	int ack_updatepano;
 	int ack_fullscreenmode;
+	playertime_t playertime;
 
 	//int getcurrentid(int id){int cid=0;cid=id;cid=cid%;};
 	

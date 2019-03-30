@@ -1,5 +1,5 @@
-#ifndef _CABIN_CAPTURE_H
-#define _CABIN_CAPTURE_H
+#ifndef _SCREENCAPTURE_H
+#define _SCREENCAPTURE_H
 
 #ifdef __cplusplus
 extern "C"

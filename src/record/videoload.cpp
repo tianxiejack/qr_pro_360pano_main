@@ -1,6 +1,8 @@
 #include"videoload.hpp"
 #include<stdio.h>
 #include"Queuebuffer.hpp"
+#include "CMessage.hpp"
+#include "globalDate.h"
 
 VideoLoad* VideoLoad::instance=NULL;
 #define DIRRECTDIR  "/home/ubuntu/calib/video/"
@@ -503,6 +505,11 @@ void VideoLoad::main_Recv_func()
 				setreadnewfile(0);
 				aviname=readdir+getreadavi();
 				xmlname=readdir+getreadname();
+
+				playerdate_t startdate = getstarttime();
+				playerdate_t selectdate = getselecttime();
+				unsigned int msec = ((selectdate.hour*3600+selectdate.hour*60+selectdate.sec) - (startdate.hour*3600+startdate.hour*60+startdate.sec))*1000;
+
 				if(OPENCVAVI)
 				videocapture.release();
 				else
@@ -510,7 +517,10 @@ void VideoLoad::main_Recv_func()
 				
 				mydata.close();
 				if(OPENCVAVI)
-				videocapture.open(aviname);
+				{
+					videocapture.open(aviname);
+					videocapture.set(CV_CAP_PROP_POS_MSEC, msec);
+				}
 				else
 				initgstreamer();
 				mydata.open(xmlname.c_str());
@@ -573,7 +583,28 @@ void VideoLoad::main_Recv_func()
 		if(callfun!=NULL)
 			{
 				if(RTSPURL==0)
-				callfun(fileframe.data,&loaddata);
+				{				
+					double msec = videocapture.get(CV_CAP_PROP_POS_MSEC);
+					//double frameindex = videocapture.get(CV_CAP_PROP_POS_FRAMES);
+	
+
+					//printf("time=%f@@@@@@@@@@\n", msec);
+					//printf("frameindex=%f@@@@@@@@@@\n", frameindex);
+					//printf("aviname=%s\n",aviname.c_str());
+					Recordmantime2 data;
+					sscanf(aviname.c_str()+strlen("/home/ubuntu/calib/video/"),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
+						,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
+					//printf("start hour min sec(%d:%d:%d)\n",data.starthour,data.startmin,data.startsec);
+					int sec_start = data.starthour * 3600 + data.startmin * 60 + data.startsec;
+					sec_start += msec/1000;
+					playertime_t playertime_tmp;
+					playertime_tmp.hour = sec_start/3600;
+					playertime_tmp.min = (sec_start - (playertime_tmp.hour*3600))/60;
+					playertime_tmp.sec = sec_start - (playertime_tmp.hour*3600) - (playertime_tmp.min*60);
+					ACK_response_playertime(playertime_tmp);
+					
+					callfun(fileframe.data,&loaddata);
+				}
 			}
 		if(OPENCVAVI)
 			;
@@ -587,6 +618,7 @@ void VideoLoad::main_Recv_func()
 		capturecallback(capture.data,&angle);
 		*/
 	}
+
 
 }
 void VideoLoad::main_Recv_funcdata()
@@ -691,3 +723,12 @@ VideoLoad *VideoLoad::getinstance()
 	return instance;
 
 }
+
+void VideoLoad::ACK_response_playertime(playertime_t param)
+{
+	Status::getinstance()->playertime = param;
+
+	CGlobalDate::Instance()->feedback=ACK_playertime;
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
+}
+

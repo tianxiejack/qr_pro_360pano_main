@@ -324,6 +324,7 @@ typedef enum{
 	
 	ACK_param_todef,
 	ACK_playerquerry=0x62,
+	ACK_playertime=0x63,
 	ACK_sensortvconfig=0x77,
 	ACK_sensortrkconfig=0x78,
 	ACK_scanplantformconfig=0x79,

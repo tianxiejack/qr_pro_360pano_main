@@ -297,6 +297,7 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 	privatedata.gyrox= info->framegyroroll*1.0/ANGLESCALE ;
 	privatedata.gyroy=info->framegyropitch*1.0/ANGLESCALE;
 	privatedata.gyroz=info->framegyroyaw*1.0/ANGLESCALE;
+	//info->calibration = 1;
 	if(info->calibration==1)
 	GstreaemerContrl::getinstance()->gstputmux(img,&privatedata);
     	 Imageprocesspt->CaptureThreadProcess(img,info,queueid);

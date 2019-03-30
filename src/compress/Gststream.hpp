@@ -16,10 +16,20 @@
 #include <gst/app/gstappsink.h>
 #include <gst/gstclock.h>
 #include <gst_interfaces.h>
+#include "MP4cabinCapture.h"
 using namespace cv;
+typedef struct{
+	double gyrox;
+	double gyroy;
+	double gyroz;
+	int event;
+
+}Privatedata;
+#if 0
 typedef int (*SendDataCallback)   (int dtype, unsigned char *buf, int size);
 
 typedef int (*SendSyncDataCallback)   (void *data);
+/*
 typedef enum
 {
 	FLIP_METHOD_NONE = 0,
@@ -32,12 +42,14 @@ typedef enum
 	FLIP_METHOD_UPPER_LEFT_DIAGONAL,
 	FLIP_METHOD_END
 }FLIP_METHOD;
-
+*/
+/*
 typedef enum
 {
 	XIMAGESRC = 0,
 	APPSRC
 }CAPTURE_SRC;
+*/
 
 enum
 {
@@ -49,13 +61,8 @@ enum
 	ENC_MAX_QB,
 	ENC_QP_PARAMS_COUNT
 };
-typedef struct{
-	double gyrox;
-	double gyroy;
-	double gyroz;
-	int event;
 
-}Privatedata;
+/*
 typedef struct _recordHandle
 {
 	int index;
@@ -79,6 +86,7 @@ typedef struct _recordHandle
 
 	Privatedata privatedata;
 }RecordHandle;
+*/
 
 typedef struct _gstCapture_data
 {
@@ -105,7 +113,7 @@ class Gstreamer
 		void create();
 		RecordHandle * gstpipeadd(GstCapture_data gstCapture_data);
 		int gstCapturePushData(RecordHandle *recordHandle, char *pbuffer , int datasize);
-		int gstCapturePushDataMux(RecordHandle *recordHandle, char *pbuffer , int datasize,Privatedata *privatedata);
+		int gstCapturePushDataMux(RecordHandle *recordHandle, cv::Mat src, Privatedata *privatedata);
 		void encode(Mat src);
 	private:
 		int gstlinkInit_convert_enc_fakesink(RecordHandle *recordHandle);
@@ -122,6 +130,6 @@ class Gstreamer
 		int record_main_init(RecordHandle *recordHandle);
 		static GstPadProbeReturn filesink1_buffer (GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
 };
-
+#endif
 
 #endif /* COMPRESS_HPP_ */

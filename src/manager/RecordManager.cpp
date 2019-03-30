@@ -12,6 +12,7 @@
 RecordManager*RecordManager::instance=NULL;
 #define AVHEAD "record"
 #define AVTAIL ".avi"
+#define MP4TAIL ".mp4"
 #define FILETAIL ".xml"
 #define AVCONTENC "/home/ubuntu/calib/video/"
 
@@ -70,8 +71,8 @@ bool RecordManager::endsWith(const std::string& str, const std::string& substr)
 void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vector<string> & files)
 {
 
-    DIR * dir;
-    struct dirent * ptr;
+    DIR * dir, *dir2;
+    struct dirent *ptr, *ptr2;
     int i=0;   
     string x,names;
     video.clear();
@@ -79,25 +80,60 @@ void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vect
     dir = opendir((char *)path.c_str());
     while((ptr = readdir(dir)) != NULL)
     	{
+    		if(ptr->d_type & DT_DIR)
+    		{
+			if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)
+				continue;
+			else
+			{
+				string  path2 = path + ptr->d_name;
+				printf("%s, %d,path=%s\n", __FILE__,__LINE__, path2.c_str());
+				dir2 = opendir((char *)path2.c_str());
+				while((ptr2 = readdir(dir2)) != NULL)
+				{
+				   	if(ptr2->d_type & DT_DIR)
+    					{
+						if(strcmp(ptr2->d_name,".")==0 || strcmp(ptr2->d_name,"..")==0)
+							continue;
+				   	}
+					else
+					{
+						x=ptr2->d_name;
+					      names = x;
+					      if(startsWith(names,AVHEAD))
+					      	{
+					      		if(endsWith(names,MP4TAIL))
+					      		{
+					      			printf("%s, %d,names=%s\n", __FILE__,__LINE__, names.c_str());
+								video.push_back(names);
+					      		}
+							else if(endsWith(names,FILETAIL))
+								files.push_back(names);
 
-		x=ptr->d_name;
-	      names = x;
-	      if(startsWith(names,AVHEAD))
-	      	{
-	      		cout<<names<<endl;
-	      		if(endsWith(names,AVTAIL))
-				video.push_back(names);
-			else if(endsWith(names,FILETAIL))
-				files.push_back(names);
+					      	}
+					}
+				}
+				closedir(dir2);
+			}
+		}
+		else
+		{
+			x=ptr->d_name;
+		      names = x;
+		      if(startsWith(names,AVHEAD))
+		      	{
+		      		if(endsWith(names,MP4TAIL))
+		      		{
+		      			printf("%s, %d,names=%s\n", __FILE__,__LINE__, names.c_str());
+					video.push_back(names);
+		      		}
+				else if(endsWith(names,FILETAIL))
+					files.push_back(names);
 
-	      	}
-		 
-	    
+		      	}
+		} 
     	}
 	closedir(dir);
-   
-
-   
  }
 
 #define DEFAULT_DISK_PATH "/home/ubuntu/calib/"
@@ -226,15 +262,24 @@ void RecordManager::findrecordnames()
 
 }
 
+
+void RecordManager::setselecttime(playerdate_t startparam, playerdate_t selectparam)
+{
+	VideoLoad::getinstance()->setselecttime(startparam, selectparam);
+}
+
 void RecordManager::setpalyervide(int num)
 {
 	int count=recordvideonames.size();
 	if(num>=count)
 		return ;
-
-
+	
 	string videname=recordvideonames[num];
-	cout<<videname<<endl;
+	string directory = videname.substr(7, 8);
+	videname = directory + "/" + videname;
+
+		
+	cout<<"zzq will play:"<<videname<<endl;
 	VideoLoad::getinstance()->setreadavi(videname);
 	cout<<videname<<endl;
 	string::iterator begin=videname.end()-4;
@@ -244,6 +289,7 @@ void RecordManager::setpalyervide(int num)
 	//string filename=videname.erase( 4,4);//+FILETAIL;
 	VideoLoad::getinstance()->setreadname(videname);
 	VideoLoad::getinstance()->setreadnewfile(1);
+
 
 	cout<<videname<<endl;
 	

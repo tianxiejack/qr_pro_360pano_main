@@ -1,9 +1,12 @@
 #include"Gststreamercontrl.hpp"
 #include "StlGlDefines.h"
 #include"videorecord.hpp"
-static char TARGET_IP[32] = "192.168.1.26";
+#include "screenCapture.h"
 
+static char TARGET_IP[32] = "192.168.1.26";
+#if 0
 GstCapture_data gstCapture_data[5];
+#endif
 RecordHandle * record_handle[5];
 #define PORT_RTP 16000
 static char strFormat[16] = "BGR";//"YUY2"//"GRAY8"
@@ -100,6 +103,8 @@ void GstreaemerContrl::registrecordfun(CallBackfun fun)
 
 void GstreaemerContrl::create()
 {
+
+#if 0
 	memset(gstCapture_data, 0, sizeof(gstCapture_data));
 	gstCapture_data[H265COMPRESS].width = TV_WIDTH;
 	gstCapture_data[H265COMPRESS].height = TV_HEIGHT;
@@ -137,8 +142,12 @@ void GstreaemerContrl::create()
 		gstCapture_data[H265RTP].Q_PIB[i]=-1;
 
 	record_handle[H265RTP] = gstreamer.gstpipeadd(gstCapture_data[H265RTP]);
-	
-	gstreamer.create();
+#endif	
+	//gstreamer.create();
+	gstreamer_mp4 = new SaveVideoByGST();
+	gstreamer_mp4->init();
+	gst_videnc_create();
+	gst_videnc_bitrate(2);
 
 }
 
@@ -146,18 +155,33 @@ void GstreaemerContrl::create()
 
 void GstreaemerContrl::gstputmat(cv::Mat src)
 {
+#if 0
 	gstreamer.gstCapturePushData(record_handle[H265RTP],(char *)src.data,src.cols*src.rows*src.channels());
+#endif
 }
 
 void GstreaemerContrl::gstputmux(cv::Mat src,Privatedata *privatedata)
 {
-	gstreamer.gstCapturePushDataMux(record_handle[H265RTP],(char *)src.data,src.cols*src.rows*src.channels(),privatedata);
+	//gstreamer.gstCapturePushDataMux(record_handle[H265RTP], src, privatedata);
 	//gstreamer.gstCapturePushDataMux(record_handle[H265COMPRESS],(char *)src.data,src.cols*src.rows*src.channels(),privatedata);
+	
+	if(should_video())	
+	{
+		gstreamer_mp4->SaveAsMp4(&src);
+		save_gyro_data(privatedata);
+		set_data_cnt(get_data_cnt() + 1);
+	}
+	else
+	{
+		stop_video();
+	}
 }
 
 void GstreaemerContrl::gstputmat(char* buf,int size)
 {
+#if 0
 	gstreamer.gstCapturePushData(record_handle[H265COMPRESS],buf,size);
+#endif
 }
 
 GstreaemerContrl*GstreaemerContrl::getinstance()
@@ -171,3 +195,52 @@ GstreaemerContrl*GstreaemerContrl::getinstance()
 
 }
 
+
+int GstreaemerContrl::should_video()
+{
+	VideoRecord::getinstance()->heldrecord();
+	
+	if(VideoRecord::getinstance()->getrecordflag())
+	{
+		vedioing = 1;
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+		
+	//VideoRecord::getinstance()->recordvideo();
+}
+
+int GstreaemerContrl::stop_video()
+{
+	if(vedioing == 1)
+	{
+		if(get_video_cnt()>0)
+		{
+			remove_last_video();
+			set_video_cnt(0);
+		}
+
+		set_data_cnt(0);
+		vedioing = 0;
+	}
+}
+
+int GstreaemerContrl::save_gyro_data(Privatedata *privatedata)
+{
+	VideoRecord::getinstance()->mydata.write(privatedata->event, privatedata->gyrox, privatedata->gyroy, privatedata->gyroz);
+}
+
+void GstreaemerContrl::remove_last_video()
+{
+	char buf[sizeof(filename_bak) + 16]={0};
+	sprintf(buf,"sudo rm %s",filename_bak);
+	system(buf);
+
+
+	VideoRecord::getinstance()->mydata.close();
+	sprintf(buf,"%s",filename_gyro_bak);
+	remove(buf);
+}

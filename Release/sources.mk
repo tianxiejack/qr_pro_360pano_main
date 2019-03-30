@@ -30,6 +30,7 @@ src/stich \
 src/status \
 src/rtsp \
 src/record \
+src/realRecord \
 src/ptzProxy \
 src \
 src/pelco \

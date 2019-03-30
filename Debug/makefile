@@ -14,6 +14,7 @@ RM := rm -rf
 -include src/status/subdir.mk
 -include src/rtsp/subdir.mk
 -include src/record/subdir.mk
+-include src/realRecord/subdir.mk
 -include src/ptzProxy/subdir.mk
 -include src/subdir.mk
 -include src/pelco/subdir.mk
@@ -95,7 +96,7 @@ all: 360PANO
 360PANO: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: NVCC Linker'
-	/usr/local/cuda-8.0/bin/nvcc --cudart static -L../lib -L/usr/lib -Xlinker -rpath-link="/usr/lib/aarch64-linux-gnu/tegra" --relocatable-device-code=false -gencode arch=compute_50,code=compute_50 -gencode arch=compute_50,code=sm_50 -m64 -ccbin aarch64-linux-gnu-g++ -link -o  "360PANO" $(OBJS) $(USER_OBJS) $(LIBS)
+	/usr/local/cuda-8.0/bin/nvcc --cudart static -L../lib -L/usr/lib -Xlinker -rpath-link="/usr/lib/aarch64-linux-gnu/tegra" --relocatable-device-code=false -gencode arch=compute_53,code=compute_53 -gencode arch=compute_53,code=sm_53 -m64 -ccbin aarch64-linux-gnu-g++ -link -o  "360PANO" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

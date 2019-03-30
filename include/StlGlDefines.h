@@ -37,14 +37,24 @@
 #define GST_ENCBITRATE_4M	(2800000)
 #define GST_ENCBITRATE_8M	(5600000)
 
+#define	 	PANO360FBOW	1920//1560
+#define		PANO360FBOH	1080//360
+#define		ROIFBOW	1920
+#define		ROIFBOH		720
 typedef enum{
 	PANO_PIC,
 	ROI_A,
 	ROI_B,
 	ROI_C,
-	ROI_IP,
 	PIC_COUNT
-}SavePic;
+}SaveIDX;
+
+enum
+{
+	START_STATE,
+	RECORDING_STATE,
+	STOP_STATE
+};
 
 enum{
 	TV_QUE_ID=0,

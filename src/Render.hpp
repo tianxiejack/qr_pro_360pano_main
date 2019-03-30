@@ -19,7 +19,7 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "PBOManager.h"
-
+#include "FBOManager.h"
 #include <GLBatch.h>
 #include <GLShaderManager.h>
 #include <GLMatrixStack.h>
@@ -36,6 +36,9 @@
 #include"Status.hpp"
 #include"configfile.hpp"
 #include "StlGlDefines.h"
+#include "PBO_FBO_Facade.h"
+#include "IFrealRecord.h"
+#include "realRecord.h"
 //#include "mvdectInterface.hpp"
 //static const int ALPHA_MASK_HEIGHT= DEFAULT_IMAGE_HEIGHT;
 //static const int ALPHA_MASK_WIDTH = (DEFAULT_IMAGE_WIDTH/16);
@@ -88,7 +91,8 @@ typedef struct{
 
 #define MVDETECTSCAN (1)
 
-class Render{
+class Render:public InterFaceDrawBehaviour
+{
 #define BRIDGENUM 40
 #define CARSNUM 24
 #define PANO360NUM 20
@@ -110,6 +114,7 @@ public:
 	RENDERCAMERA2,
 	RENDERCAMERA3,
 	RENDERCAMERA4,
+	RENDER2FRONTBATCH,
 	RENDERCAMERASELECT,
 	RENDERCAMERMAX,
 	RENDERRADER,
@@ -186,11 +191,11 @@ public:
 	void Textureinit(void);
 	void Panotexture(void);
 	void Selecttexture(void);
-
+	void Render2Front(int w,int y,int width,int height);
 	void singleView(int x,int y,int width,int height);
 	void TracksingleView(int x,int y,int width,int height);
 	void singleViewInit(void);
-	void SelectFullScreenView(int x,int y,int width,int height,int idx);
+	void SelectFullScreenView(int x,int y,int width,int height,int idx,bool isfboDraw=false);
 	void	SelectFullScreenTrackView(int x,int y,int width,int height);
 	void	RadarFullScreenView(int x,int y,int width,int height);
 	void tgaBatchInit();
@@ -369,7 +374,7 @@ public:
 
 	void panoshow();
 	void selectshow();
-	void pano360View(int x,int y,int width,int height);
+	void pano360View(int x,int y,int width,int height,bool isfboDraw=false);
 	void pano360triangleBatchhalfhead(int mod);
 
 	/******************360pano***********************/
@@ -496,15 +501,30 @@ public:
 	void ResizeRectByRatio(int idx,bool puls=true);
 
 	void SaveAllPic();
-	bool IstoSavePic(SavePic idx){return CapOnce[idx];};
-	void ResetSaveState(SavePic idx){CapOnce[idx]=false;};
+	void StartRecordAllVideo();
+	void StopRecordAllVideo();
+	bool IstoSavePic(SaveIDX idx){return CapOnce[idx];};
+	void ResetSaveState(SaveIDX idx){CapOnce[idx]=false;};
+
+	bool IstoRecordVideo(SaveIDX idx){return mRecord[idx];};
+	void ResetRecordState(SaveIDX idx){mRecord[idx]=false;};
+	IFrealRecord *GetifRealRecord(int idx){return mpifRecord[idx];};
+
 public:
 	unsigned int Fullscreen;
-	
+	void FBOdraw(int idx);
+	PBOReceiver *GetPBORcr(int idx){return pPBORcr[idx];};
 private:
+	IFrealRecord *mpifRecord[PIC_COUNT];
 	bool CapOnce[PIC_COUNT];
+	bool mRecord[PIC_COUNT];
 	float mul;
-	PBOManager PBOcapture;
+
+
+	pPBO_FBO_Facade pFPfacade[PIC_COUNT];
+	PBOSender *pPBOSdr;
+	PBOReceiver *pPBORcr[PIC_COUNT];
+	FBOManager *pFBOMgr[PIC_COUNT];
 public:
 	unsigned int panosrcwidth;
 	unsigned int panosrcheight;

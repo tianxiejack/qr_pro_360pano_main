@@ -54,6 +54,7 @@ void StichAlg::Zeropreprocess()
 						printf("BEGIN %s %d \n",__func__,__LINE__);
 						zeroptzangle=Plantformpzt::getinstance()->getpanopan();
 						zeroptztiangle=Plantformpzt::getinstance()->getpanotitle();
+						printf("zeroptzangle=%f\n",zeroptzangle);
 						OSA_printf("zeroptztiangle=%f\n",zeroptztiangle);
 						printf("END %s %d \n",__func__,__LINE__);
 						

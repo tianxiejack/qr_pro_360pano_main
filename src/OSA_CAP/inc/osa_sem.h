@@ -12,7 +12,7 @@ typedef struct {
   pthread_mutex_t lock;
   pthread_cond_t  cond;
 
-} OSA_SemHndl;
+} OSA_SemHndl,*pOSA_SemHndl;
 
 
 // sem

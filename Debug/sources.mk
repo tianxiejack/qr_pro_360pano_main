@@ -47,6 +47,7 @@ src/live555/liveMedia \
 src/live555/groupsock \
 src/live555/UsageEnvironment \
 src/live555/BasicUsageEnvironment \
+src/gstreamer \
 src/gpio \
 src/glcom \
 src/file \

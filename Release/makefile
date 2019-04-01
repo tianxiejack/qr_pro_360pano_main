@@ -31,6 +31,7 @@ RM := rm -rf
 -include src/live555/groupsock/subdir.mk
 -include src/live555/UsageEnvironment/subdir.mk
 -include src/live555/BasicUsageEnvironment/subdir.mk
+-include src/gstreamer/subdir.mk
 -include src/gpio/subdir.mk
 -include src/glcom/subdir.mk
 -include src/file/subdir.mk

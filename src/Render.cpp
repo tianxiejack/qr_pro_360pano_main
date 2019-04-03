@@ -1241,11 +1241,11 @@ void Render::panomod()
 	double angle=0;
 	bool enable=1;
 	
-	double tmpzeroptzangle=Plantformpzt::getinstance()->getpanopan();
-	double tmpzeroptztiangle=Plantformpzt::getinstance()->getpanotitle();
+	//double tmpzeroptzangle=Plantformpzt::getinstance()->getpanopan();
+	//double tmpzeroptztiangle=Plantformpzt::getinstance()->getpanotitle();
 
-	setptzzeroangle(tmpzeroptzangle);
-	setptzzerotitleangle(tmpzeroptztiangle);
+	//setptzzeroangle(tmpzeroptzangle);
+	//setptzzerotitleangle(tmpzeroptztiangle);
 
 	if(getmenumode()==SELECTMODE||getmenumode()==SINGLEMODE)
 		{
@@ -1279,7 +1279,7 @@ void Render::panomod()
 				{
 
 					double zeroanglepan=getptzzeroangle()-1;
-					zeroanglepan=Config::getinstance()->getpanozeroptz();//add
+					//zeroanglepan=Config::getinstance()->getpanozeroptz();//add
 					if(zeroanglepan<0)
 						zeroanglepan+=360;
 					Plantformpzt::getinstance()->setpanopanpos(zeroanglepan);

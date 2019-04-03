@@ -465,7 +465,6 @@ void VideoLoad::registerfun(VideoCallBackfun fun)
 void VideoLoad::playvideo()
 {
 	OSA_semSignal(&loadsem);
-
 }
 void VideoLoad::initvideo()
 {
@@ -493,7 +492,6 @@ void VideoLoad::main_Recv_func()
 	
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{	
-		
 		int capangle=0;
 		//OSA_waitMsecs(30);
 		OSA_semWait(&loadsem,OSA_TIMEOUT_FOREVER);
@@ -583,11 +581,10 @@ void VideoLoad::main_Recv_func()
 		if(callfun!=NULL)
 			{
 				if(RTSPURL==0)
-				{				
+				{	
 					double msec = videocapture.get(CV_CAP_PROP_POS_MSEC);
 					//double frameindex = videocapture.get(CV_CAP_PROP_POS_FRAMES);
 	
-
 					//printf("time=%f@@@@@@@@@@\n", msec);
 					//printf("frameindex=%f@@@@@@@@@@\n", frameindex);
 					//printf("aviname=%s\n",aviname.c_str());

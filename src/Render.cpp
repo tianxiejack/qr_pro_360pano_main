@@ -131,7 +131,7 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 	CameraFov(0),maxtexture(0),pano360texturenum(0),pano360texturewidth(0),pano360textureheight(0),selecttexture(0),shotcutnum(0),
 	movviewx(0),movviewy(0),movvieww(0),movviewh(0),menumode(0),tailcut(0),radarinner(3.0),radaroutter(10),viewfov(90),viewfocus(10),
 	osdmenushow(0),osdmenushowpre(0),screenpiex(NULL),screenenable(1),recordscreen(0),zeroselect(0),poisitionreach(0),poisitionreachpan(0),
-	poisitionreachtitle(0),criticalmode(0),debuggl(0),recordtimer(60),singleenable(0),singleangle(0),siglecircle(0),timerclock(600),currentnum(0),
+	poisitionreachtitle(0),criticalmode(0),debuggl(0),singleenable(0),singleangle(0),siglecircle(0),timerclock(600),currentnum(0),
 	movareaflag(0),movupdown(0),movconfignum(0),mul(1.0)//,
 	{
 			pPBOSdr=new PBOSender(1,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT);
@@ -659,15 +659,25 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 					case GLUT_KEY_F8://singprint
 						//setfilestoreenable(0);
 						//destoryfile();
-						if(recordtimer<600)
-							recordtimer++;
-						RecordManager::getinstance()->setplayertimer(recordtimer);
+						{
+							int playclass = RecordManager::getinstance()->getpalyerclass();
+							if(playclass > -16)
+							{
+								RecordManager::getinstance()->setpalyerclass(playclass - 2);
+								RecordManager::getinstance()->setplayertimer(RecordManager::getinstance()->getpalyerclass());
+							}
+						}
 						break;
 					case GLUT_KEY_F9://singprint
 						//setpanoflagenable(1);
-						if(recordtimer>30)
-							recordtimer--;
-						RecordManager::getinstance()->setplayertimer(recordtimer);
+						{
+							int playclass = RecordManager::getinstance()->getpalyerclass();
+							if(playclass < 16)
+							{
+								RecordManager::getinstance()->setpalyerclass(playclass + 2);
+								RecordManager::getinstance()->setplayertimer(RecordManager::getinstance()->getpalyerclass());
+							}
+						}
 						break;
 					case GLUT_KEY_F10://singprint
 						setpanoflagenable(0);
@@ -5633,15 +5643,21 @@ void Render::playerctl(long lParam)
 		}
 	else if(lParam==Status::PLAYERACC)
 		{
-			if(pthis->recordtimer<600)
-				pthis->recordtimer++;
-			RecordManager::getinstance()->setplayertimer(pthis->recordtimer);
+			int playclass = RecordManager::getinstance()->getpalyerclass();
+			if(playclass > -16)
+			{
+				RecordManager::getinstance()->setpalyerclass(playclass - 2);
+				RecordManager::getinstance()->setplayertimer(RecordManager::getinstance()->getpalyerclass());
+			}
 		}
 	else if(lParam==Status::PLAYERDEC)
 		{
-			if(pthis->recordtimer>30)
-				pthis->recordtimer--;
-			RecordManager::getinstance()->setplayertimer(pthis->recordtimer);
+			int playclass = RecordManager::getinstance()->getpalyerclass();
+			if(playclass < 16)
+			{
+				RecordManager::getinstance()->setpalyerclass(playclass + 2);
+				RecordManager::getinstance()->setplayertimer(RecordManager::getinstance()->getpalyerclass());
+			}
 		}
 
 }

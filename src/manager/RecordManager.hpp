@@ -52,6 +52,9 @@ public:
 	
 	void createplayertimer();
 	void findrecordnames();
+
+	int getpalyerclass(){return playerclass;};
+	void setpalyerclass(int value){playerclass = value;};
 	void getnexvideo();
 	void setpalyervide(int num);
 	void setselecttime(playerdate_t startparam, playerdate_t selectparam);
@@ -59,7 +62,7 @@ public:
 	 bool startsWith(const std::string& str, const std::string& substr);
 	 bool endsWith(const std::string& str, const std::string& substr);
 	static void recordplaycallback(void *arg);
-	void setplayertimer(unsigned int timer);
+	void setplayertimer(int playerclass);
 	int getDiskInfo(pDISK diskInfo,const char *path);
 	int calDiskInfo(int *diskTotal,int *diskAvail,int *diskFree,pDISK diskInfo);
 	static void ringrecord();
@@ -69,6 +72,8 @@ public:
 	string recordnameerase;
 	string recordavierase;
 	string recorddirerase;
+	int playerclass = 0;
+	int recordtimer = 60;
 	
 private:
 	 DISK diskInfo;

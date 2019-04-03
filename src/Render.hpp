@@ -263,8 +263,6 @@ public:
 	void loadmvarea();
 
 	std::vector<cv::Point>  mvcontours[16];
-	/***********************************************/
-	int recordtimer;
 
 	 
 	/******************modeselect ***********************/

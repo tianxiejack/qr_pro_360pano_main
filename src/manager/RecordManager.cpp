@@ -46,9 +46,67 @@ void RecordManager::recordplaycallback(void *arg)
 	
 }
 
-void RecordManager::setplayertimer(unsigned int timer)
+void RecordManager::setplayertimer(int playerclass)
 {
-	DxTimer::getinstance()->resetTimer(createplayertimeid,timer);
+	switch(playerclass)
+	{
+		case -16:
+			recordtimer = 960;
+			break;
+		case -14:
+			recordtimer = 840;
+			break;
+		case -12:
+			recordtimer = 720;
+			break;
+		case -10:
+			recordtimer = 600;
+			break;
+		case -8:
+			recordtimer = 480;
+			break;
+		case -6:
+			recordtimer = 360;
+			break;
+		case -4:
+			recordtimer = 240;
+			break;
+		case -2:
+			recordtimer = 120;
+			break;
+		case 0:
+			recordtimer = 60;
+			break;
+		case 2:
+			recordtimer = 30;
+			break;
+		case 4:
+			recordtimer = 15;
+			break;
+		case 6:
+			recordtimer = 11;
+			break;
+		case 8:
+			recordtimer = 7;
+			break;
+		case 10:
+			recordtimer = 6;
+			break;
+		case 12:
+			recordtimer = 5;
+			break;
+		case 14:
+			recordtimer = 4;
+			break;
+		case 16:
+			recordtimer = 3;
+			break;
+		default:
+			break;
+	}
+	
+	printf("%s,%d,player timer=%d\n",__FILE__,__LINE__,recordtimer);
+	DxTimer::getinstance()->resetTimer(createplayertimeid,recordtimer);
 
 }
 void RecordManager::createplayertimer()

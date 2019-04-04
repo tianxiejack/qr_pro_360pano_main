@@ -2984,10 +2984,10 @@ void Render::Drawosd()
 {
 	if(getmenumode()==PANOMODE)
 		{
-			if(MULTICPUPANO)
-				DrawmovMultidetect();
-			else
-				Drawmovdetect();
+		//	if(MULTICPUPANO)
+			//	DrawmovMultidetect();
+		//	else
+		//		Drawmovdetect();
 		}
 	else if(getmenumode()==SELECTZEROMODE)
 		{
@@ -2997,8 +2997,9 @@ void Render::Drawosd()
 	if(DETECTTEST)
 		Drawmovdetect();
 	if(getmenumode()==SINGLEMODE)
-		Drawmov();
-
+	{
+	//	Drawmov();
+	}
 
 	if(Status::getinstance()->calibration==0)
 		Drawmenu();

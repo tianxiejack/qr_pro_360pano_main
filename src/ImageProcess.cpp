@@ -393,7 +393,7 @@ int ImageProcess::judgezero()
 
 int  ImageProcess::Panorest()
 {
-	if(getstichreset()==0)
+/*	if(getstichreset()==0)
 		return 0;
 
 	DetectAlg::getinstance()->lkmove.lkmovdetectreset();
@@ -406,7 +406,7 @@ int  ImageProcess::Panorest()
 	StichAlg::getinstance()->setzeroflag(0);
 	setstichreset(0);
 	for(int i=0;i<MOVELKBLOCKNUM;i++)
-		DetectAlg::getinstance()->LKprocessangle[i]=0;
+		DetectAlg::getinstance()->LKprocessangle[i]=0;*/
 	return 1;
 }
 void ImageProcess::zeroprocess()
@@ -1231,8 +1231,9 @@ void ImageProcess::main_proc_func()
 		queuebuf=Queue::getinstance();
 
 		if(detectenable(infocap))
-			DetectAlg::getinstance()->detectprocess(src1,infocap);
-
+		{
+		//	DetectAlg::getinstance()->detectprocess(src1,infocap);
+		}
 		if(stichenable(infocap))
 			{
 				outputif=(OSA_BufInfo *)queuebuf->getempty(Queue::TOPANOSTICH,0,OSA_TIMEOUT_NONE);

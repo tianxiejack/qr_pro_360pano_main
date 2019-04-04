@@ -393,11 +393,11 @@ int ImageProcess::judgezero()
 
 int  ImageProcess::Panorest()
 {
-/*	if(getstichreset()==0)
+	if(getstichreset()==0)
 		return 0;
 
-	DetectAlg::getinstance()->lkmove.lkmovdetectreset();
-	DetectAlg::getinstance()->m_pMovDetector->mvPause();
+//	DetectAlg::getinstance()->lkmove.lkmovdetectreset();
+//	DetectAlg::getinstance()->m_pMovDetector->mvPause();
 	
 	Gyrorest();
 	StichAlg::getinstance()->setcamerazeroossfet(0);
@@ -405,8 +405,8 @@ int  ImageProcess::Panorest()
 	StichAlg::getinstance()->setzeroangle(0);
 	StichAlg::getinstance()->setzeroflag(0);
 	setstichreset(0);
-	for(int i=0;i<MOVELKBLOCKNUM;i++)
-		DetectAlg::getinstance()->LKprocessangle[i]=0;*/
+//	for(int i=0;i<MOVELKBLOCKNUM;i++)
+//		DetectAlg::getinstance()->LKprocessangle[i]=0;
 	return 1;
 }
 void ImageProcess::zeroprocess()

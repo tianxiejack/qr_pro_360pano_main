@@ -6099,3 +6099,15 @@ void Render::ACK_response(int cmdid, int param)
 	CGlobalDate::Instance()->feedback=cmdid;
 	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
 }
+
+void Render::sendfile(char *filepath)
+{
+	while(CGlobalDate::Instance()->get_sendfile_status())
+	{
+		CGlobalDate::Instance()->milliseconds_sleep(10);
+	}
+	CGlobalDate::Instance()->set_sendfile_status(1);
+	memset(CGlobalDate::Instance()->send_filepath, 0, sizeof(CGlobalDate::Instance()->send_filepath));
+	memcpy(CGlobalDate::Instance()->send_filepath, filepath, strlen(filepath));
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket_client);
+}

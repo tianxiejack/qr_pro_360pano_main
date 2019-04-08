@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/com/CClient.cpp \
 ../src/com/CConnect.cpp \
 ../src/com/CNetBase.cpp \
 ../src/com/CNetWork.cpp \
@@ -17,6 +18,7 @@ CPP_SRCS += \
 ../src/com/statCtrl.cpp 
 
 OBJS += \
+./src/com/CClient.o \
 ./src/com/CConnect.o \
 ./src/com/CNetBase.o \
 ./src/com/CNetWork.o \
@@ -30,6 +32,7 @@ OBJS += \
 ./src/com/statCtrl.o 
 
 CPP_DEPS += \
+./src/com/CClient.d \
 ./src/com/CConnect.d \
 ./src/com/CNetBase.d \
 ./src/com/CNetWork.d \

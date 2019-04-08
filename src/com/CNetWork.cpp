@@ -114,6 +114,7 @@ int CNetWork::AccpetLinkThread()
             clientConnect=true;;
             //CConnect  *pConnect = new CConnect (m_connectfd, connectAddr);
             CConnect  *pConnect = new CConnect();
+            CClient  *pClient = new CClient();
 
             pConnect->m_connect = m_connectfd;
             pConnect->m_addr= connectAddr;
@@ -124,8 +125,14 @@ int CNetWork::AccpetLinkThread()
             printf("INFO: Accept Connect IP : %s---- Port: %d\r\n",connectIP, connectPort);
             connetVector.push_back(pConnect);
             pConnect->bConnecting=true;
+
+            memcpy(pClient->serverip, connectIP, strlen(connectIP));
+            clientVector.push_back(pClient);
             OSA_mutexUnlock(&mutexConn);
+
             pConnect->run();
+            pClient->create();
+            pClient->run();
         }
     }
     return 0;
@@ -138,9 +145,11 @@ int CNetWork::ReclaimConnectThread()
     {
         OSA_mutexLock(&mutexConn);
         CConnectVECTOR::iterator iter = connetVector.begin();
+        CClientVECTOR::iterator iterc = clientVector.begin();
         for (iter; iter != connetVector.end();)
         {
             CConnect *pCLink= (CConnect*)*iter;
+            CClient *pCClient= (CClient*)*iterc;
             if (!pCLink->IsConnecting())
             {
                 //printf("INFO:  Reclainm connect begin!!\r\n");
@@ -148,11 +157,18 @@ int CNetWork::ReclaimConnectThread()
 		  // printf("INFO:  Reclainm connect 1!!\r\n");
                 delete pCLink;
                 pCLink = NULL;
-		  // printf("INFO:  Reclainm connect end!!\r\n");
+
+		  
+                pCClient->DisConnecting();
+                clientVector.erase(iterc);
+                 delete pCClient;
+                pCClient = NULL;
+                printf("INFO:  Reclainm connect end!!\r\n");
             }
             else
             {
                 iter++;						//指针下移
+                iterc++;
             }
         }
         if(connetVector.size() == 0)

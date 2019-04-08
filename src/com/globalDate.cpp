@@ -27,6 +27,8 @@ CGlobalDate::CGlobalDate():EXT_Ctrl(Cmd_Mesg_Max), Host_Ctrl(40), commode(0), fe
 
 	OSA_semCreate(&m_semHndl,1,0);
 	OSA_semCreate(&m_semHndl_s,1,0);
+	OSA_semCreate(&m_semHndl_socket_client,1,0);
+	set_sendfile_status(0);
 
 	//OSA_semCreate(&m_semHndl_retest,1,0);
 	//OSA_semCreate(&m_semHndl_automtd,1,0);
@@ -42,4 +44,16 @@ CGlobalDate* CGlobalDate::Instance()
 	if(_Instance == 0)
 		_Instance =  new CGlobalDate();
 	return _Instance;
+}
+
+void CGlobalDate::milliseconds_sleep(unsigned long mSec)
+{
+    struct timeval tv;
+
+    int err;
+    do{
+        tv.tv_sec = mSec/1000;
+        tv.tv_usec = (mSec%1000)*1000;
+        err = select(0, NULL, NULL, NULL, &tv);
+    }while(err<0 && errno==EINTR);
 }

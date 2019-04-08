@@ -14,6 +14,7 @@
 //#include "app_status.h"
 #include "CMessage.hpp"
 #include "osa_sem.h"
+#include <errno.h>
 //#include "Ipcctl.h"
 
 using namespace std;
@@ -246,6 +247,12 @@ OSA_SemHndl m_semHndl_socket;
 OSA_SemHndl m_semHndl_socket_s;
 OSA_SemHndl m_semHndl_retest;
 OSA_SemHndl m_semHndl_automtd;
+OSA_SemHndl m_semHndl_socket_client;
+int sendfile_status;
+void set_sendfile_status(int value){sendfile_status = value;};
+int get_sendfile_status(void){return sendfile_status;};
+void milliseconds_sleep(unsigned long mSec);
+
 int joystick_flag;
 int commode;
 int feedback;
@@ -276,6 +283,7 @@ int ThreeMode_bak;
 int Sync_Query;
 int rcv_zoomValue;
 int captureMode;
+char send_filepath[128] = {0};
 
 private:
 CGlobalDate();

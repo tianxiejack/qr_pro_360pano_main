@@ -676,6 +676,7 @@ public:
 	void changezoom(int rigion, int zoomstat);
 	
 	void ACK_response(int cmdid, int param);
+	void sendfile(char *filepath);
 
 };
 

@@ -3,6 +3,7 @@
 
 #include "CPortBase.hpp"
 #include "CConnect.hpp"
+#include "CClient.hpp"
 #include "osa_mutex.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11,6 +12,7 @@
 #include <net/if.h>
 
 typedef  vector<CConnect*>  CConnectVECTOR;
+typedef  vector<CClient*>  CClientVECTOR;
 
 class CNetWork:public CPortBase
 {
@@ -36,6 +38,8 @@ private:
     int AccpetLinkThread();
     int ReclaimConnectThread();
     CConnectVECTOR  connetVector;
+    CClientVECTOR clientVector;
+	
     static void *NetAcceptThrdFunc(void* AcceptContext)
     {
         CNetWork *m_thrd = (CNetWork *)AcceptContext;

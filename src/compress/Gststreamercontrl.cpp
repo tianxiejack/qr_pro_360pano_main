@@ -10,7 +10,7 @@ GstCapture_data gstCapture_data[5];
 RecordHandle * record_handle[5];
 #define PORT_RTP 16000
 static char strFormat[16] = "BGR";//"YUY2"//"GRAY8"
-#define SAVEDIR "/home/ubuntu/calib"
+#define SAVEDIR "/home/nvidia/calib"
 
 static int g_gst_recrod=true;
 static FILE *g_gst_wrfp=NULL;

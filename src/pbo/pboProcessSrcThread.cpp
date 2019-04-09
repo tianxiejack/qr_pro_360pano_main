@@ -14,13 +14,13 @@
 using namespace cv;
 static int iniCC=3;
 extern Render render;
-
 void SavePicByTime(char *filename,int idx)
 {
 	time_t now = time(NULL);
 		struct tm curr_tm = *localtime(&now);
-		char Idxstring[PIC_COUNT][32]={"PANO_PIC","ROI_A","ROI_B","ROI_C"};
-		sprintf(filename,"./%s/%d%02d%02d_%02d%02d%02d.bmp",
+
+		char Idxstring[PIC_COUNT][32]={"Panoramic","Partial1","Partial2","Partial3"};
+		sprintf(filename,"/home/ubuntu/calib/realtimevideo/%s-%d%02d%02d%02d%02d%02d.jpg",
 						Idxstring[idx],
 						curr_tm.tm_year , curr_tm.tm_mon , curr_tm.tm_mday,
 						curr_tm.tm_hour, curr_tm.tm_min, curr_tm.tm_sec
@@ -56,6 +56,7 @@ void process(SaveIDX id,bool isCapVideo)
 					char filename[128]={0};
 					SavePicByTime(filename,id);
 					imwrite(filename,testData);
+					render.sendfile(filename);
 					render.ResetSaveState(id);
 				}
 				isCapedFrame=true;

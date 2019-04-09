@@ -5,7 +5,7 @@
 #include "globalDate.h"
 
 VideoLoad* VideoLoad::instance=NULL;
-#define DIRRECTDIR  "/home/ubuntu/calib/video/"
+#define DIRRECTDIR  "/home/nvidia/calib/video/"
 
 #define OPENCVAVI (1)
 
@@ -24,7 +24,7 @@ void VideoLoad::initgstreamer()
 {
 	 descr =
              //g_strdup_printf ("filesrc location=%s ! qtdemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert ! appsink name=sink sync=false "
-    		  g_strdup_printf ("filesrc  location=/home/ubuntu/calib/video/1.avi ! avidemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert  ! video/x-raw, format=(string)BGR !  appsink name=sink sync=false "
+    		  g_strdup_printf ("filesrc  location=/home/nvidia/calib/video/1.avi ! avidemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert  ! video/x-raw, format=(string)BGR !  appsink name=sink sync=false "
     		//  g_strdup_printf ("appsrc name=source ! avidemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert ! 'video/x-raw, format=RGB' ! appsink name=sink sync=false "
     	  );
 //
@@ -321,7 +321,7 @@ void VideoLoad::initgstreamerfile()
     launch_stream
 	//<< "nvcamerasrc ! "
 	//<< "video/x-raw(memory:NVMM), width="<< w <<", height="<< h <<", framerate=30/1 ! " 
-    <<"filesrc  location=/home/ubuntu/calib/video/1.avi !"
+    <<"filesrc  location=/home/nvidia/calib/video/1.avi !"
    // << "rtspsrc location=rtsp://192.168.1.188:8554/test.264 latency=0 ! "
     //<< "filesrc 1.avi ! decodebin ! "
     << "avidemux name=demux !"
@@ -341,7 +341,7 @@ void VideoLoad::initgstreamerfile()
 /*
 	 descr =
              //g_strdup_printf ("filesrc location=%s ! qtdemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert ! appsink name=sink sync=false "
-    		  g_strdup_printf ("filesrc  location=/home/ubuntu/calib/video/1.avi ! avidemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert  ! video/x-raw, format=(string)BGR !  appsink name=sink sync=false "
+    		  g_strdup_printf ("filesrc  location=/home/nvidia/calib/video/1.avi ! avidemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert  ! video/x-raw, format=(string)BGR !  appsink name=sink sync=false "
     		//  g_strdup_printf ("appsrc name=source ! avidemux name=demux ! queue ! h264parse ! omxh264dec ! videoconvert ! 'video/x-raw, format=RGB' ! appsink name=sink sync=false "
     	  );
     	  */
@@ -589,7 +589,7 @@ void VideoLoad::main_Recv_func()
 					//printf("frameindex=%f@@@@@@@@@@\n", frameindex);
 					//printf("aviname=%s\n",aviname.c_str());
 					Recordmantime2 data;
-					sscanf(aviname.c_str()+strlen("/home/ubuntu/calib/video/"),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
+					sscanf(aviname.c_str()+strlen("/home/nvidia/calib/video/"),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
 						,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
 					//printf("start hour min sec(%d:%d:%d)\n",data.starthour,data.startmin,data.startsec);
 					int sec_start = data.starthour * 3600 + data.startmin * 60 + data.startsec;

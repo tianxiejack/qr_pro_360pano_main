@@ -746,14 +746,14 @@ int  getPano360OffsetT(cv::Mat & src,cv::Mat & dst,int *xoffset ,int* yoffset)
 		minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc, Mat()); 
 
 		//if(FEATURETEST==0)
-		sprintf(bufname,"/home/ubuntu/calib/%d.bmp",tempcount);
+		sprintf(bufname,"/home/nvidia/calib/%d.bmp",tempcount);
 		tempcounterror++;
 		if(maxVal<0.80)
 			{
 			
 				matchLoc = maxLoc;
 				rectangle(tempdst, Rect(matchLoc.x,matchLoc.y,temprect.width,temprect.height), Scalar(255,0,0),1,  8);
-				sprintf(bufname,"/home/ubuntu/calib/error%f_%d.bmp",maxVal,tempcount);
+				sprintf(bufname,"/home/nvidia/calib/error%f_%d.bmp",maxVal,tempcount);
 				//imwrite(bufname,tempdst);
 			return -1;
 			}

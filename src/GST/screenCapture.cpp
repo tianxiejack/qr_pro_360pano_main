@@ -893,7 +893,7 @@ int ChangeQP_range(int minQP, int maxQP, int minQI, int maxQI, int minQB, int ma
 #define GST_ENCBITRATE_4M	(2800000)
 #define GST_ENCBITRATE_8M	(5600000)
 
-#define SAVEDIR "/home/ubuntu/calib"
+#define SAVEDIR "/home/nvidia/calib"
 
 static int g_gst_recrod=true;
 static FILE *g_gst_wrfp=NULL;

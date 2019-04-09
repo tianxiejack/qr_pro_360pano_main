@@ -144,7 +144,7 @@ void ImageProcess::Create()
 	//bool status=videowriter.open("mov.avi", CV_FOURCC('X', 'V', 'I', 'D'),rate, videoSize, false);
 	for(int i=0;i<MULTICPUPANONUM;i++)
 		{
-			sprintf(bufname,"/home/ubuntu/calib/mov%d.avi",i);
+			sprintf(bufname,"/home/nvidia/calib/mov%d.avi",i);
 			videowriter[i].open(bufname, CV_FOURCC('M', 'J', 'P', 'G'),rate, videoSize, false);
 		}
 	
@@ -396,8 +396,8 @@ int  ImageProcess::Panorest()
 	if(getstichreset()==0)
 		return 0;
 
-//	DetectAlg::getinstance()->lkmove.lkmovdetectreset();
-//	DetectAlg::getinstance()->m_pMovDetector->mvPause();
+	DetectAlg::getinstance()->lkmove.lkmovdetectreset();
+	DetectAlg::getinstance()->m_pMovDetector->mvPause();
 	
 	Gyrorest();
 	StichAlg::getinstance()->setcamerazeroossfet(0);
@@ -405,8 +405,8 @@ int  ImageProcess::Panorest()
 	StichAlg::getinstance()->setzeroangle(0);
 	StichAlg::getinstance()->setzeroflag(0);
 	setstichreset(0);
-//	for(int i=0;i<MOVELKBLOCKNUM;i++)
-//		DetectAlg::getinstance()->LKprocessangle[i]=0;
+	for(int i=0;i<MOVELKBLOCKNUM;i++)
+		DetectAlg::getinstance()->LKprocessangle[i]=0;
 	return 1;
 }
 void ImageProcess::zeroprocess()
@@ -1232,7 +1232,7 @@ void ImageProcess::main_proc_func()
 
 		if(detectenable(infocap))
 		{
-		//	DetectAlg::getinstance()->detectprocess(src1,infocap);
+			DetectAlg::getinstance()->detectprocess(src1,infocap);
 		}
 		if(stichenable(infocap))
 			{

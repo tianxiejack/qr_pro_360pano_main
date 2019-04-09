@@ -47,7 +47,7 @@ using namespace cv;
 VideoCapture videocapture;
 Mat fileframe;
 
-#define AVINAME "/home/ubuntu/calib1/mov11.avi"
+#define AVINAME "/home/nvidia/calib1/mov11.avi"
 
 static int fullframe=0;
 int oddevenflag=-1;
@@ -341,7 +341,7 @@ int main_pano(int argc, char **argv)
 	/*timer */
 	DxTimer::getinstance()->create();
 	/*detect alg */
-	//DetectAlg::getinstance()->create();
+	DetectAlg::getinstance()->create();
 	/*stich alg*/
 	StichAlg::getinstance()->create();
 	/*plantform contrl*/

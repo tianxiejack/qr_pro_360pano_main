@@ -14,6 +14,7 @@ class IFrealRecord
 	virtual	void StartRecord()=0;
 	virtual	void PushData(Mat *pmatSrc)=0;
 	virtual void StopRecord()=0;
+	virtual char *GetFileName()=0;
 };
 
 

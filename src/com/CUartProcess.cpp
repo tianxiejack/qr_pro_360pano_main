@@ -333,7 +333,7 @@ int CUartProcess::expconfig(unsigned char *swap_data_buf, unsigned int swap_data
 		return -1;
 	}
 	
-	if(NULL ==(fp = fopen("/home/ubuntu/dss_bin/Profile.yml","r")))
+	if(NULL ==(fp = fopen("/home/nvidia/dss_bin/Profile.yml","r")))
 	{
 		perror("fopen\r\n");
 		return -1;

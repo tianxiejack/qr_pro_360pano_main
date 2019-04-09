@@ -18,7 +18,7 @@ int max_period = 1;
 
 
 
-#define VIDEODIR  "/home/ubuntu/calib/video"
+#define VIDEODIR  "/home/nvidia/calib/video"
 	int CurSteps = 0;
 	char MP4_pipeline[16]={};
 

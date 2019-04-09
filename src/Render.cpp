@@ -409,7 +409,7 @@ void Render::SetupRC(int windowWidth, int windowHeight)
 	/********osd**********/
 	Glosdhandle.create();
 	Glosdhandle.setwindow(windowWidth, windowHeight);
-	Glosdhandle.createunicode("/home/ubuntu/default.ttf", 40, 512, 512);
+	Glosdhandle.createunicode("/home/nvidia/default.ttf", 40, 512, 512);
 
 	//#include "FileRW.hpp"
 	Plantformpzt::getinstance()->registcall(callbackpanomod,Plantformpzt::RENDERPANO);
@@ -2984,10 +2984,10 @@ void Render::Drawosd()
 {
 	if(getmenumode()==PANOMODE)
 		{
-		//	if(MULTICPUPANO)
-			//	DrawmovMultidetect();
-		//	else
-		//		Drawmovdetect();
+			if(MULTICPUPANO)
+				DrawmovMultidetect();
+			else
+				Drawmovdetect();
 		}
 	else if(getmenumode()==SELECTZEROMODE)
 		{
@@ -2998,7 +2998,7 @@ void Render::Drawosd()
 		Drawmovdetect();
 	if(getmenumode()==SINGLEMODE)
 	{
-	//	Drawmov();
+		Drawmov();
 	}
 
 	if(Status::getinstance()->calibration==0)
@@ -3826,7 +3826,7 @@ void Render::loadpano360picture()
 	char name[200];
 	for(int i=0;i<PANO360NUM;i++)
 	{
-		sprintf(name,"/home/ubuntu/pano/%d.bmp",i+1);
+		sprintf(name,"/home/nvidia/pano/%d.bmp",i+1);
 		printf("%s\n",name);
 		pano360[i] = imread(name, CV_LOAD_IMAGE_UNCHANGED);
 		resize(pano360[i],pano360[i],Size(PANO360WIDTH,PANO360HEIGHT),0,0,INTER_LINEAR);
@@ -4065,7 +4065,7 @@ void Render::CaptureSavebmp(Mat& src)
 	static int bmpcount=0;
 	char file_name[40];
 	
-	sprintf(file_name,"/home/ubuntu/calib/%d.bmp",bmpcount);
+	sprintf(file_name,"/home/nvidia/calib/%d.bmp",bmpcount);
 	//sprintf(file_name,"calibration/%d.bmp",bmpcount);
 	//Mat frame_copy(SDI_HEIGHT,SDI_WIDTH,CV_8UC4,pic);
 	imwrite(file_name,src);
@@ -5305,8 +5305,6 @@ void Render::gltMakeradarpoints(vector<OSDPoint>& osdpoints, GLfloat innerRadius
 		
 			}
 		}
-	
-
 	}
 
 #define ratiosetp (0.02)
@@ -5317,6 +5315,7 @@ void Render::StopRecordAllVideo()
 	{
 		mRecord[i]=false;
 		mpifRecord[i]->StopRecord();
+		sendfile(mpifRecord[i]->GetFileName());
 	}
 }
 

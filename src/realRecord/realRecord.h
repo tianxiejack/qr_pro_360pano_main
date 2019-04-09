@@ -19,6 +19,7 @@ public:
 	 void StartRecord();
 	 void PushData(Mat *pmatSrc);
 	 void StopRecord();
+	 char *GetFileName();
 private:
 	 int videoIdx;
 	 int videoW;

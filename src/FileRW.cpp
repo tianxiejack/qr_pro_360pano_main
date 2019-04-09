@@ -1,7 +1,7 @@
 #include "FileRW.hpp"
 
 FileStorage filestore;
-#define FILENAME "/home/ubuntu/calib/GY.xml"
+#define FILENAME "/home/nvidia/calib/GY.xml"
 
 
 

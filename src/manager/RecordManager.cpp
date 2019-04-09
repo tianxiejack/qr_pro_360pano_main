@@ -14,7 +14,7 @@ RecordManager*RecordManager::instance=NULL;
 #define AVTAIL ".avi"
 #define MP4TAIL ".mp4"
 #define FILETAIL ".xml"
-#define AVCONTENC "/home/ubuntu/calib/video/"
+#define AVCONTENC "/home/nvidia/calib/video/"
 
 
 RecordManager::RecordManager():recordpath(AVCONTENC),nextvideoid(0),createplayertimeid(0),playertimer(60),enableplay(0),recordavierase("1.avi"),recorddirerase(AVCONTENC),recordnameerase("1.xml")
@@ -194,7 +194,7 @@ void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vect
 	closedir(dir);
  }
 
-#define DEFAULT_DISK_PATH "/home/ubuntu/calib/"
+#define DEFAULT_DISK_PATH "/home/nvidia/calib/"
 
 
 

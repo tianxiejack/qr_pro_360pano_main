@@ -171,7 +171,7 @@ void LKmove::runOpticalFlow(const cv::Mat &image1, const cv::Mat &image2, cv::Ma
    	{
 	//	rectangle(optical_flow_image, objectsrect[i], Scalar(255,255,255),1,  8);
    	}
-   sprintf(bufname,"/home/ubuntu/lk/%d.jpg",countnum);
+   sprintf(bufname,"/home/nvidia/lk/%d.jpg",countnum);
    countnum++;
   // if(!optical_flow_image.empty())
    imwrite(bufname,optical_flow_image);

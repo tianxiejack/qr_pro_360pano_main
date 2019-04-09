@@ -23,6 +23,10 @@
 #include"lkdetect.hpp"
 #include "IBGS.h"
 #include"classifydetect.hpp"
+#if USE_DETECTV2
+#include"DetecterFactory.hpp"
+#include "Detector.hpp"
+#endif
 using namespace cv;
 using namespace ibgs;
 
@@ -54,10 +58,12 @@ class DetectAlg
 
 	public :
 		void create();
+		void createV2();
+#if USE_DETECTV2
 
-	
-
-		
+		static  void	detectcall(vector<BoundingBox>& trackbox);
+		static  void trackcall(vector<BoundingBox>& trackbox);
+#endif
 		static DetectAlg *getinstance();
 	public:
 		
@@ -80,7 +86,13 @@ class DetectAlg
 		Mat detedtgraysrc;
 		Mat panoblock[MOVEBLOCKNUM];
 		Mat panoblockdown;
-
+#if USE_DETECTV2
+		OSA_MutexHndl mulock;
+		OSA_MutexHndl mulocktrack;
+		Detector *detectornew;
+		vector<BoundingBox> detectbox_;
+		vector<BoundingBox> trackbox_;
+#endif
 		int newframe;
 		void setnewframe(int flag){newframe=flag;};
 		int getnewframe(){return newframe;};
@@ -89,6 +101,7 @@ class DetectAlg
 		
 		Mat Modelframe[MOVEBLOCKNUM][MODELINGNUM];
 		void panomoveprocess();
+		void panomoveprocessV2();
 		void getnumofpano360image(int startx,int endx,int *texturestart,int *textureend);
 		static void NotifyFunc(void *context, int chId);
 		static void NotifyFunclk(void *context, int chId);

@@ -7,7 +7,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 VideoRecord* VideoRecord::instance=NULL;
-#define SAVEDIR "/home/ubuntu/calib/video"
+#define SAVEDIR "/home/nvidia/calib/video"
 VideoRecord::VideoRecord():timeenable(1),eventenable(0),tm_year(0),tm_mon(0),tm_mday(0),tm_hour(0),tm_min(0),tm_sec(0),videorecordfb(NULL),aviheadenable(1),
 timerdelayenable(0),callback(NULL),forceclose_(0),forcecloseonece_(0)
 {
@@ -209,7 +209,7 @@ void VideoRecord::recordvideo(void *data,void* size)
 	//printf("instance->getrecordflag()=%d\n",instance->getrecordflag());
 
 	//CvSize zzqsize = cvSize(1920, 1080);
-	//static CvVideoWriter *writer = cvCreateVideoWriter("/home/ubuntu/calib/video/zzq.avi", CV_FOURCC('M', 'J', 'P', 'G'), 25, zzqsize);
+	//static CvVideoWriter *writer = cvCreateVideoWriter("/home/nvidia/calib/video/zzq.avi", CV_FOURCC('M', 'J', 'P', 'G'), 25, zzqsize);
 	//IplImage *frame = cvCreateImage(cvSize(1920,1080), 8, 1);
 
 	instance->heldrecord();

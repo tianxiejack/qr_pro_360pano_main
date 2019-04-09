@@ -12,8 +12,8 @@ void RealRecordByCV::SaveVideoByTime()
 	memset(mpfilename,0,128);
 	time_t now = time(NULL);
 		struct tm curr_tm = *localtime(&now);
-		char Idxstring[PIC_COUNT][32]={"PANO_VIDEO","ROI_A_VIDEO","ROI_B_VIDEO","ROI_C_VIDEO"};
-		sprintf(mpfilename,"./%s/%d%02d%02d_%02d%02d%02d.avi",
+		char Idxstring[PIC_COUNT][32]={"Panoramic","Partial1","Partial2","Partial3"};
+		sprintf(mpfilename,"/home/ubuntu/calib/realtimevideo/%s-%d%02d%02d%02d%02d%02d.avi",
 						Idxstring[videoIdx],
 						curr_tm.tm_year , curr_tm.tm_mon , curr_tm.tm_mday,
 						curr_tm.tm_hour, curr_tm.tm_min, curr_tm.tm_sec
@@ -43,4 +43,9 @@ void RealRecordByCV::SaveVideoByTime()
 	 void RealRecordByCV::StopRecord()
 	 {
 		 outputVideo.release();
+	 }
+
+	 char *RealRecordByCV::GetFileName()
+	 {
+		 return mpfilename;
 	 }

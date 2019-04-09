@@ -52,11 +52,11 @@ int  OpticalFlowCalculator::getOffsetT(const cv::Mat & src, const cv::Mat & dst,
 		Point matchLoc; 
 		minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc, Mat()); 
 		//if(FEATURETEST==0)
-		sprintf(bufname,"/home/ubuntu/calib/lk%d.bmp",tempcount);
+		sprintf(bufname,"/home/nvidia/calib/lk%d.bmp",tempcount);
 		tempcounterror++;
 		if(maxVal<0.85)
 			{
-				//sprintf(bufname,"/home/ubuntu/calib/error%d.bmp",tempcount);
+				//sprintf(bufname,"/home/nvidia/calib/error%d.bmp",tempcount);
 				//imwrite(bufname,tempdst);
 			return -1;
 			}

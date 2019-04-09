@@ -8,9 +8,33 @@
 #include<sys/stat.h>
 #include "CMessage.hpp"
 #include"Status.hpp"
+#if USE_DETECTV2
+#include"DetecterFactory.hpp"
+#include "Detector.hpp"
+#endif
 DetectAlg*DetectAlg::instance=NULL;
 
+#if USE_DETECTV2
+void DetectAlg::trackcall(vector<BoundingBox>& trackbox)
+{
 
+	instance->trackbox_.clear();
+	OSA_mutexLock(&instance->mulocktrack);
+	instance->trackbox_.insert(instance->trackbox_.begin(),trackbox.begin(),trackbox.end());
+	OSA_mutexUnlock(&instance->mulocktrack);
+	//swap(detectbox_,trackbox);
+}
+
+void DetectAlg::detectcall(vector<BoundingBox>& trackbox)
+{
+
+	instance->detectbox_.clear();
+	OSA_mutexLock(&instance->mulock);
+	instance->detectbox_.insert(instance->detectbox_.begin(),trackbox.begin(),trackbox.end());
+	OSA_mutexUnlock(&instance->mulock);
+	//swap(detectbox_,trackbox);
+}
+#endif
 DetectAlg::DetectAlg():newframe(0),currentcapangle(0),movblocknum(0)
 	{
 	};
@@ -50,6 +74,28 @@ void DetectAlg::detectprocesstest(Mat src)
 		}
 
 
+}
+
+void DetectAlg::panomoveprocessV2()
+{
+#if USE_DETECTV2
+	vector<BoundingBox> trackbox;
+	vector<BoundingBox> algbox;
+	Mat dst;
+	//src.copyTo(dst);
+//	cvtColor(src,dst,COLOR_BGR2RGB);
+//	double exec_time = (double)getTickCount();
+
+#ifdef DEEPDETECT
+	//detectornew->detectasync(dst);
+	detectornew->detect(src,algbox,trackbox);
+#else
+		Mat src1;
+		cvtColor(src,src1,COLOR_RGB2GRAY);
+		printf("the w=%d h=%d \n",src1.cols,src1.rows);
+		detectornew->detect(src1,algbox,trackbox);
+#endif
+#endif
 }
 void DetectAlg::panomoveprocess()
 {
@@ -218,7 +264,7 @@ void DetectAlg::panomoveprocess()
 							}
 						else
 							m_pMovDetector->setFrame(LKRramegrayblackboard,LKRramegrayblackboard.cols,LKRramegrayblackboard.rows,blocknum,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
-						
+
 				}
 				}
 			return;
@@ -378,6 +424,38 @@ int DetectAlg::mk_dir(char *dir)
  
     return 0;
 }
+
+void DetectAlg::createV2()
+{
+	std::vector<std::string> model;
+	std::vector<cv::Size> modelsize;
+
+	OSA_mutexCreate(&mulock);
+	OSA_mutexCreate(&mulocktrack);
+#ifdef DEEPDETECT
+//	readclassnmaeformtxt("config/labels.txt");
+	model.push_back(string("config/yolo_v3_tiny.yml"));
+	modelsize.push_back(Size(1920,1080));
+	detectornew=DetectorFactory::getinstance()->createDetector(DetectorFactory::DEEPLEARNDETECTOR);
+#else
+	model.push_back(string("car.xml"));
+	modelsize.push_back(Size(32,32));
+	detectornew=DetectorFactory::getinstance()->createDetector(DetectorFactory::HOGDETECTOR);
+#endif
+
+	detectornew->setparam(Detector::MAXTRACKNUM,20);
+	detectornew->init(model,modelsize);
+#ifdef DEEPDETECT
+	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,100);
+#else
+	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,200);
+#endif
+	detectornew->dynamicsetparam(Detector::DETECTMOD,1);
+	detectornew->dynamicsetparam(Detector::DETECTFREQUENCY,1);
+	//detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
+	detectornew->getversion();
+	detectornew->setasyncdetect(detectcall,trackcall);
+}
 void DetectAlg::create()
 {
 	for(int i=0;i<2;i++)
@@ -446,10 +524,10 @@ void DetectAlg::create()
 	#endif
 	//videowriter=VideoWriter("mov.avi", CV_FOURCC('M', 'J', 'P', 'G'), rate, videoSize);
 	//bool status=videowriter.open("mov.avi", CV_FOURCC('X', 'V', 'I', 'D'),rate, videoSize, false);
-	mk_dir("/home/ubuntu/calib/");
+	mk_dir("/home/nvidia/calib/");
 	for(int i=0;i<MULTICPUPANONUM;i++)
 		{
-			sprintf(bufname,"/home/ubuntu/calib/mov%d.avi",i);
+			sprintf(bufname,"/home/nvidia/calib/mov%d.avi",i);
 			videowriter[i].open(bufname, CV_FOURCC('M', 'J', 'P', 'G'),rate, videoSize, false);
 		}
 	

@@ -5,10 +5,10 @@
 #include"osa.h"
 ConfigFile* ConfigFile::instance=NULL;
 #define MODE (S_IRWXU | S_IRWXG | S_IRWXO)
-#define configdir "/home/ubuntu/config/"
+#define configdir "/home/nvidia/config/"
 
-#define detectconfigfile "/home/ubuntu/config/detect.txt"
-#define RecordConfigfile "/home/ubuntu/config/record.txt"
+#define detectconfigfile "/home/nvidia/config/detect.txt"
+#define RecordConfigfile "/home/nvidia/config/record.txt"
 
 ConfigFile::ConfigFile():mvconfigfile(NULL),recordconfigfile(NULL)
 {

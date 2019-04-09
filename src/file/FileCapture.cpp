@@ -6,7 +6,7 @@
 #include "config.hpp"
 using namespace cv;
 using namespace std;
-//char filename[50]="/home/ubuntu/file/"
+//char filename[50]="/home/nvidia/file/"
 
 #define BLOCKIDMAX (13)
 #define FEILDIDMAX (40)
@@ -41,7 +41,7 @@ void *FileCapture::readfilepicture(void *info)
 {
 	char bufname[50];
 	int *angle=(int *)info;
-	sprintf(bufname,"/home/ubuntu/calib/xb/%da%d.jpg",blockid,fieldid);
+	sprintf(bufname,"/home/nvidia/calib/xb/%da%d.jpg",blockid,fieldid);
 	//puts(bufname);
 	Mat filepic;
 	filepic=imread(bufname,CV_LOAD_IMAGE_UNCHANGED);

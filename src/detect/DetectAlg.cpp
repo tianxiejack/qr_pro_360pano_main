@@ -427,6 +427,7 @@ int DetectAlg::mk_dir(char *dir)
 
 void DetectAlg::createV2()
 {
+#if	USE_DETECTV2
 	std::vector<std::string> model;
 	std::vector<cv::Size> modelsize;
 
@@ -455,6 +456,7 @@ void DetectAlg::createV2()
 	//detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
 	detectornew->getversion();
 	detectornew->setasyncdetect(detectcall,trackcall);
+#endif
 }
 void DetectAlg::create()
 {

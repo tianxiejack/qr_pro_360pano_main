@@ -123,6 +123,10 @@ int CClient::sendfile(char *filename)
 	unsigned char checksum = 0;
 	unsigned char usocket_send_buf[1024+256] = {0};
 	unsigned char buf[1024+256] = {0};
+	char namebak[128] = {0};
+	char name[128] = {0};
+	
+	memcpy(namebak, filename, strlen(filename));
 	
 	if(NULL ==(fp = fopen(filename, "r")))
 	{
@@ -143,14 +147,21 @@ int CClient::sendfile(char *filename)
 	usocket_send_buf[8] = (filesize>>24)&0xff;
 
 
-
-	len = strlen(filename);
+	char *ptr;
+	ptr = strtok(namebak, "/");
+	while(ptr!=NULL)
+	{
+		memcpy(name, ptr, strlen(ptr));
+		ptr = strtok(NULL, "/");
+	}
+	printf("%s, %d, name=%s\n",  __FILE__,__LINE__, name);
+	len = strlen(name);
 	usocket_send_buf[9] = -1;
 	usocket_send_buf[2] = (len+8)&0xff;
 	usocket_send_buf[3] = ((len+8)>>8)&0xff;
 	usocket_send_buf[10] = len&0xff;
 	usocket_send_buf[11] = (len>>8)&0xff;
-	memcpy(usocket_send_buf+12,filename, len);
+	memcpy(usocket_send_buf+12,name, len);
 	for(int m = 1; m<12+len;m++)
 		checksum ^= usocket_send_buf[m];
 	usocket_send_buf[12+len] = checksum;
@@ -217,6 +228,7 @@ int CClient::sendfile(char *filename)
 	{
 		printf("sendfile %s fail\n", filename);
 	}
+	
 	fclose(fp);
 }
 

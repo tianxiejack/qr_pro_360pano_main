@@ -2487,6 +2487,25 @@ glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
 }
 
+void Render::DrawTime()
+{
+	wchar_t wbuf[33] = {0};
+	wchar_t wday[7][33] = {L"星期日",L"星期一",L"星期二",L"星期三",L"星期四",L"星期五",L"星期六"};
+
+	time_t timep;
+	struct tm *p;
+	time(&timep);
+	p=gmtime(&timep);
+
+	swprintf(wbuf, 33, L"%d/%d/%d %ls %02d:%02d:%02d", (1900+p->tm_year), (1+p->tm_mon), p->tm_mday, wday[p->tm_wday] , p->tm_hour, p->tm_min, p->tm_sec);
+
+	Glosdhandle.drawunicodebegin();
+	Rgba colour=Rgba(0,0,255,255);
+	Glosdhandle.setcolorunicode(0);
+	Glosdhandle.drawunicode(50,20,colour,wbuf);
+	Glosdhandle.drawunicodeend();
+}
+
 void Render::Drawlines()
 {
 	glViewport(0,0,renderwidth,renderheight);
@@ -3014,8 +3033,6 @@ void Render::Drawosd()
 	DrawSelectrect();
 
 }
-
-
 
 void Render::pano360triangleBatchhalfhead(GLBatch &Batch,int mod)
 {

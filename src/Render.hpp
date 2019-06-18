@@ -300,6 +300,7 @@ public:
 	void draw180Luler();
 	void draw360Luler();
 	void drawradar(int x,int y,int w,int h);
+	void DrawTime();
 	void initTgaTexture();
 
 	MENU *Menu;

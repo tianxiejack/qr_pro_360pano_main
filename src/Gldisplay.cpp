@@ -213,6 +213,7 @@ int GLMain::start(int argc, char** argv,void *parm)
 		image_queue_create(&m_bufQue[chId], m_initPrm->nQueueSize,
 				m_initPrm->channelsSize[chId].w*m_initPrm->channelsSize[chId].h*m_initPrm->channelsSize[chId].c,
 				m_initPrm->memType);
+	
 	//initGlew();
 	//render.initPixle();
 

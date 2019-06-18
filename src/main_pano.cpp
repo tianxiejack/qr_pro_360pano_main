@@ -315,13 +315,6 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 extern opencvCapIP cvCapIp;
 int main_pano(int argc, char **argv)
 {
-	//ptzmsg.initUDP();
-	//cvCapIp.Open();
-	//while(0)
-	{
-	//	sleep(20);
-	}
-#if 1
 	/* Initialize GStreamer */
 	gst_init (NULL, NULL);
 	#if CONFIGINIT
@@ -363,8 +356,7 @@ int main_pano(int argc, char **argv)
 	RecordManager::getinstance()->create();
 	/*video record information*/
 	Store::getinstance()->create();
-	
-	
+
 	GLMain_InitPrm dsInit;
 	kalmanfilterinit();  
 	/*video capture*/
@@ -382,9 +374,14 @@ int main_pano(int argc, char **argv)
 	dsInit.nChannels = QUE_CHID_COUNT;
 	dsInit.nQueueSize = QUE_CHID_COUNT;
 	dsInit.memType = memtype_malloc;
-	dsInit.channelsSize[0].w = config->getcamwidth();
-	dsInit.channelsSize[0].h = config->getcamheight();
-	dsInit.channelsSize[0].c = config->getcamchannel();
+	
+	for(int i=0;i<QUE_CHID_COUNT;i++)
+	{
+		dsInit.channelsSize[i].w = config->getcamwidth();
+		dsInit.channelsSize[i].h = config->getcamheight();
+		dsInit.channelsSize[i].c = config->getcamchannel();
+	}
+	
 	/*render create*/
 	render.start(argc,  argv,(void *)&dsInit);
 	imgQ[TV_QUE_ID] = &render.m_bufQue[TV_QUE_ID];
@@ -413,7 +410,7 @@ int main_pano(int argc, char **argv)
 	  
 	/*main loop*/
 	render.mainloop();
-#endif
+
 	return 0;
 }
 

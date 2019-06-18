@@ -1,7 +1,0 @@
----- DETECTTEST Matches (6 in 3 files) ----
-Config.h (z:\home\wj\cuda-workspace\360pano\src):#define DETECTTEST (1)
-ImageProcess.cpp (z:\home\wj\cuda-workspace\360pano\src):	if(DETECTTEST)
-ImageProcess.cpp (z:\home\wj\cuda-workspace\360pano\src):					if(DETECTTEST==0)
-ImageProcess.cpp (z:\home\wj\cuda-workspace\360pano\src):		if(DETECTTEST)
-Render.cpp (z:\home\wj\cuda-workspace\360pano\src):	//#define DETECTTEST (1)
-Render.cpp (z:\home\wj\cuda-workspace\360pano\src):	if(DETECTTEST)

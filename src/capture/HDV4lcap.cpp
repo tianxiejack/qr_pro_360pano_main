@@ -744,28 +744,25 @@ void HDv4l_cam::mainloop(int cap_chid)
 	struct timeval tv;
 	int ret;
 
-		FD_ZERO(&fds);
-		FD_SET(m_devFd, &fds);
+	FD_ZERO(&fds);
+	FD_SET(m_devFd, &fds);
 
-		/* Timeout. */
-		tv.tv_sec = 2;
-		tv.tv_usec = 0;
+	/* Timeout. */
+	tv.tv_sec = 2;
+	tv.tv_usec = 0;
 
-		ret = select(m_devFd + 1, &fds, NULL, NULL, &tv);
+	ret = select(m_devFd + 1, &fds, NULL, NULL, &tv);
 
-		if (-1 == ret)
-		{
-			if (EINTR == errno)
-				return;
-
-			errno_exit("select");
-		}else if (0 == ret)
-		{
-			fprintf(stderr, "select timeout\n");
+	if (-1 == ret){
+		if (EINTR == errno)
 			return;
-		}
-			if (-1 == read_frame(cap_chid))  /* EAGAIN - continue select loop. */
-				return;
+		errno_exit("select");
+	}else if (0 == ret){
+		fprintf(stderr, "select timeout\n");
+		return;
+	}
+	if (-1 == read_frame(cap_chid))  /* EAGAIN - continue select loop. */
+		return;
 }
 
 

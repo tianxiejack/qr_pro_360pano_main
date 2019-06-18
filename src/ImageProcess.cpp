@@ -123,33 +123,7 @@ void ImageProcess::Init()
 }
 void ImageProcess::Create()
 {
-/*
-	char bufname[50];
-	m_pMovDetector=MvDetector_Create();
-	m_pMovDetector->init(NotifyFunc,( void *) this);
 
-	lkmove.lkmovdetectcreate(NotifyFunclk,( void *) this);
-
-	//bgs = new FrameDifference;
-	//bgs = new StaticFrameDifference;
-	//bgs = new TwoPoints;
-	//bgs = new LBFuzzyGaussian;
-	double rate = 2.0;
-	#if MULTICPUPANOLK
-	Size videoSize(Config::getinstance()->getmvprocesswidth()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup());
-	#else
-	Size videoSize(Config::getinstance()->getmvprocesswidth()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup());
-	#endif
-	//videowriter=VideoWriter("mov.avi", CV_FOURCC('M', 'J', 'P', 'G'), rate, videoSize);
-	//bool status=videowriter.open("mov.avi", CV_FOURCC('X', 'V', 'I', 'D'),rate, videoSize, false);
-	for(int i=0;i<MULTICPUPANONUM;i++)
-		{
-			sprintf(bufname,"/home/nvidia/calib/mov%d.avi",i);
-			videowriter[i].open(bufname, CV_FOURCC('M', 'J', 'P', 'G'),rate, videoSize, false);
-		}
-	
-	OSA_printf("***********Create* end=**************\n");
-	*/
 }
 void ImageProcess::unInit()
 {
@@ -166,70 +140,11 @@ void ImageProcess::CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo,int chid)
 	int queueid=chid;
 	Plantformpzt::getinstance()->setplantformcalibration(frameinfo->calibration);
 	Status::getinstance()->calibration=frameinfo->calibration;
-#if 0
-	int frameid=getImagePinpang();
-	int preframeid=getImagePrePinpang();
-	double exec_time = (double)getTickCount();
-	cvtColor(src,processgray[frameid],CV_BGR2GRAY);
-	double rotsita=0;
-
-	
-	//processgray[frameid] = imread("/home/ubuntu/pano/4.bmp", 1);    //\u53f3\u56fe
-	//processgray[preframeid] = imread("/home/ubuntu/pano/3.bmp", 1);
-	#if 0
-	resize(processgray[frameid],processgraytemp[frameid],Size(720,405),0,0,INTER_LINEAR);
-	 
-	  // do something ...
-	   if(currentcount>100)
-	  frameinfo->validintervalsita=getPano360Rotation(processgraytemp[preframeid],processgraytemp[frameid],&rotsita);
-	 #else
-	 
-//	OSA_printf("the preid=%d currentid=%d DATA=%p\n",preframeid,frameid,processgray[preframeid].data);
-//	 if(currentcount>100)
-//	frameinfo->validintervalsita=getPano360Rotation(processgray[frameid],processgray[preframeid],&rotsita);
-	
-	 #endif
-	  exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
-
-	  OSA_printf("the exec_time=%f\n",exec_time);
-	
-	frameinfo->intervalsita=rotsita;
-	currentcount++;
-	setnextImagePinpang();
-#endif
-	//OSA_semSignal(&mainProcThrObj.procNotifySem);
-/*
-	detectprocesstest(src,frameinfo);
-	
-	if(Panorest())
-		return;
-	if(getscanpanflag()==0)
-		return ;
-	
-	if(frameinfo->calibration==0)
-		return ;
-	
-	detectprocess(src,frameinfo);
-
-
-
-	
-	if(getzeroflameupdate()==0)
-	if(abs(frameinfo->framegyroyaw*1.0/ANGLESCALE-AngleStich)<ANGLEINTREVAL&&(getzerocalibing()==0)&&(getpanoflagenable()==1))
-		{
-			return ;
-		}
-
-*/
-	
 	
 	OSA_BufInfo* info=NULL;
 	info = image_queue_getEmpty(&mcap_bufQue[queueid]);
-	if(info == NULL){
-			return;
-			}
-
-	
+	if(info == NULL)
+		return;
 	
 	memcpy(info->virtAddr,src.data,src.rows*src.cols*src.channels());
 	//OSA_printf("the w=%d h=%d c=%d\n",src.cols,src.rows,src.channels());
@@ -244,8 +159,6 @@ void ImageProcess::CaptureThreadProcess(Mat src,OSA_BufInfo* frameinfo,int chid)
 	image_queue_putFull(&mcap_bufQue[queueid], info);
 
 	//AngleStich=frameinfo->framegyroyaw*1.0/ANGLESCALE;
-
-
 }
 
 
@@ -1222,7 +1135,7 @@ void ImageProcess::main_proc_func()
 	Queue *queuebuf;
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
-
+		
 		infocap=image_queue_getFullforever(&mcap_bufQue[queueid]);
 		if(infocap==NULL)
 				continue;
@@ -1268,171 +1181,6 @@ void ImageProcess::main_proc_func()
 		
 		 queuebuf->putfull(Queue::TOPANOSTICH,0,outputif);
 		 image_queue_putEmpty(&mcap_bufQue[queueid],infocap);
-	continue;
-
-
-	#if 0
-	/******************************************/
-		settailcut(0);
-	
-		infocap=image_queue_getFullforever(&mcap_bufQue[queueid]);
-		if(infocap==NULL)
-			continue;
-		Mat src=Mat(infocap->height,infocap->width,CV_8UC3,infocap->virtAddr);
-		//imshow("t",cap);
-		//waitKey(2);
-		//OSA_printf("1****************************\n");
-				/*****************************************/
-		double exec_time = (double)getTickCount();
-
-		/*****************current angle  no feature*********************/
-		double angle=0;
-		if(FEATURESTICH)
-		{
-			
-		}
-		else	
-		angle=infocap->framegyroyaw*1.0/ANGLESCALE+getcamerazeroossfet();
-
-		//OSA_printf("the algle is %f\n",angle);
-		imageangle=angle;
-		if(imageangle<0)
-			imageangle+=360;
-		else if(imageangle>=360)
-			imageangle-=360;
-		
-		setgyroangle(imageangle);
-		setcurrentangle(imageangle);
-
-	
-		
-
-		/*****************************************/
-
-		/********************drop the flame*********************/
-		double dropangle=getcurrentangle();
-		if(dropangle<300&&dropangle>0.001)
-			setzerodroreset(0);
-		if((getcalibrationzeroangle()>300)&&getzzerodroreset())
-			{
-				
-				//if(dropangle>getcalibrationzeroangle())
-					setzerodropflame(1);
-
-			}
-		else
-			setzerodropflame(0);
-		if(getzerodropflame())
-			{
-				image_queue_putEmpty(&mcap_bufQue[queueid],infocap);
-				OSA_printf("************drop fram calib angle=%f crrent angle=%f****************\n",getcalibrationzeroangle(),dropangle);
-				continue;
-
-			}
-		/********************drop the flame*********************/
-	
-		//OSA_semSignal(&mainProcThrdetectObj.procNotifySem);
-		
-		
-		//OSA_semWait(&mainProcThrObj.procNotifySem, OSA_TIMEOUT_FOREVER);
-		info = image_queue_getEmpty(&m_bufQue[SIGNALEQUEUEID]);
-		if(info == NULL){
-			//info = image_queue_getFull(imgQ[queueid]);
-			//OSA_assert(info != NULL);
-			OSA_printf("NO QUEUE FREE\n");
-			image_queue_putEmpty(&mcap_bufQue[queueid],infocap);
-			continue;
-			
-			}
-		Mat dst=Mat(Config::getinstance()->getpanoprocessheight(),Config::getinstance()->getpanoprocesswidth(),CV_8UC3,info->virtAddr);
-
-		/********************pre flame  pre angle*********************/
-		int count=image_queue_fullCount(&m_bufQue[SIGNALEQUEUEID]);
-		if(count>0)
-			{
-				setpreframeflag(1);
-				char *data=(char *)m_bufQue[queueid].bufInfo[(info->currentbufid-1+IMAGEQUEUESIZE)%IMAGEQUEUESIZE].virtAddr;
-				unsigned w=m_bufQue[queueid].bufInfo[(info->currentbufid-1+IMAGEQUEUESIZE)%IMAGEQUEUESIZE].width;
-				unsigned h=m_bufQue[queueid].bufInfo[(info->currentbufid-1+IMAGEQUEUESIZE)%IMAGEQUEUESIZE].height;
-				double angle=m_bufQue[queueid].bufInfo[(info->currentbufid-1+IMAGEQUEUESIZE)%IMAGEQUEUESIZE].framegyroyaw*1.0/ANGLESCALE;
-				setpreangle(angle);
-				pre=Mat(h,w,CV_8UC3,data);
-				//imshow("t",pre);
-				//waitKey(2);
-				setpreframe(pre);
-			}
-		else
-			setpreframeflag(0);
-
-
-		#if 0
-		if(infocap->width!=PANO360WIDTH||infocap->height!=PANO360HEIGHT)
-			resize(src,dst,Size(PANO360WIDTH,PANO360HEIGHT),0,0,INTER_LINEAR);
-		else
-		memcpy(info->virtAddr,infocap->virtAddr,infocap->width*infocap->height*infocap->channels);
-		#endif
-		//setSeamPos(rotsita*panowidth/360-getPanoPrepos());
-		/********************zero*********************/
-		
-		setcurrentflame(src);
-
-
-		if(getpanoflagenable()==0)
-			setcurrentangle(0);
-		
-		if(getzeroflameupdate())
-			{
-				//if(getcurrentangle()<Config::getinstance()->getangleinterval()&&getcurrentangle()>0)
-				if(getcurrentangle()>0)
-					{
-						setzeroflameupdate(0);
-						setzeroflame(src);
-						imwrite("zero.jpg",src);
-						//setgyrozero(getcurrentangle());
-						//setcamerazeroossfet(-getcurrentangle());
-						
-						setcamerazeroossfet(-getcurrentangle());
-						setzeroangle(0);
-						///////////////zero angle
-						setgyroangle(0);
-						setcurrentangle(0);
-						zeroptzangle=Plantformpzt::getinstance()->getpanopan();
-						zeroptztiangle=Plantformpzt::getinstance()->getpanotitle();
-						
-						setptzzeroangle(zeroptzangle);
-						setptzzerotitleangle(zeroptztiangle);
-						
-					}
-				else
-					setcurrentangle(0);
-			}
-		
-		zeroprocess();
-		/*****************************************/
-		Panoprocess(src,dst);
-		
-		exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
-	 	//OSA_printf("the %s exec_time=%f MS\n",__func__,exec_time);
-		
-		info->channels = infocap->channels;
-		info->width =Config::getinstance()->getpanoprocesswidth();
-		info->height =Config::getinstance()->getpanoprocessheight();
-		info->timestamp =infocap->timestamp;
-		info->framegyroroll=infocap->framegyroroll;
-		info->framegyropitch=infocap->framegyropitch;
-		info->framegyroyaw=getcurrentangle()*ANGLESCALE;
-	
-		info->tailcut=gettailcut();
-
-		//OSA_printf("the framegyroyaw=%d MS\n",info->framegyroyaw);
-		
-
-		
-		 image_queue_putFull(&m_bufQue[SIGNALEQUEUEID], info);
-		 
-		 image_queue_putEmpty(&mcap_bufQue[queueid],infocap);
-		//OSA_printf("2****************************\n");
-	#endif
 	}
 }
 

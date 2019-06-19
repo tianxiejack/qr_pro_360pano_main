@@ -2506,6 +2506,41 @@ void Render::DrawTime()
 	Glosdhandle.drawunicodeend();
 }
 
+void Render::DrawPlaybackOsd()
+{
+	int dispmode = Status::getinstance()->getdisplaymod();
+	int playclass = RecordManager::getinstance()->getpalyerclass();
+	
+	if(Status::PLAYCALLBACK == dispmode)
+	{
+		wchar_t wbuf[33] = {0};
+		wchar_t wday[3][33] = {L"加速回放:",L"减速回放:",L"倍"};
+
+		if(RecordManager::getinstance()->getableplayer())
+		{
+			if(playclass > 0)
+				swprintf(wbuf, 33, L"%ls%d%ls", wday[0], playclass, wday[2]);
+			else if(playclass < 0)
+				swprintf(wbuf, 33, L"%ls%d%ls", wday[1], abs(playclass), wday[2]);
+			
+			Glosdhandle.drawunicodebegin();
+			Rgba colour=Rgba(0,0,255,255);
+			Glosdhandle.setcolorunicode(0);
+			Glosdhandle.drawunicode(30,80,colour,wbuf);
+			Glosdhandle.drawunicodeend();
+		}
+
+		if(RecordManager::getinstance()->getableclip())
+		{
+			swprintf(wbuf, 33, L"C");
+			Glosdhandle.drawunicodebegin();
+			Rgba colour=Rgba(0,0,255,255);
+			Glosdhandle.setcolorunicode(0);
+			Glosdhandle.drawunicode(5,35,colour,wbuf);
+			Glosdhandle.drawunicodeend();
+		}
+	}
+}
 void Render::Drawlines()
 {
 	glViewport(0,0,renderwidth,renderheight);
@@ -3031,6 +3066,7 @@ void Render::Drawosd()
 		}
 
 	DrawSelectrect();
+	DrawPlaybackOsd();
 
 }
 
@@ -5497,7 +5533,7 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_DeldevConfig,deldevcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEVIDEO,livevideo,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEPHOTO,livephoto,0);
-	
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_VIDEOCLIP,videoclip,0);
 
 	
 	//MSGID_EXT_INPUT_WorkModeCTRL
@@ -6039,7 +6075,11 @@ void Render::livephoto(long lparam)
 {
 
 }
-
+void Render::videoclip(long lparam)
+{
+	int videoclipflg = Status::getinstance()->videoclipflg;
+	RecordManager::getinstance()->enableclip(videoclipflg);
+}
 void Render::CheckArea(int x,int y)
 {
 	if(displayMode==SELECT_FULL_SCREEN_A

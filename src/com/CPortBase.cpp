@@ -192,7 +192,15 @@ void CPortBase::livephoto()
 {
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEPHOTO, 0);
 }
+void CPortBase::videoclip()
+{
+	if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->videoclipflg)
+	{
+		Status::getinstance()->videoclipflg=_globalDate->rcvBufQue.at(5);
+	}
 
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_VIDEOCLIP, 0);
+}
 void CPortBase::panoenable()
 {
 	if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->mvconfigenable)
@@ -202,7 +210,6 @@ void CPortBase::panoenable()
 	//printf("Status::getinstance()->mvconfigenable=%d\n",Status::getinstance()->mvconfigenable);
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_MVCONFIGENABLE, 0);
 }
-
 void CPortBase::scan_plantformconfig()
 {
 	int configchange=0;
@@ -1257,6 +1264,9 @@ int CPortBase::prcRcvFrameBufQue(int method)
 			break;
 		case 0x65:
 			panoenable();
+			break;
+		case 0x66:
+			videoclip();
 			break;
 		case 0x77:
 			sensortvconfig();

@@ -44,11 +44,14 @@ public:
 	int createplayertimeid;
 	int playertimer;
 	int enableplay;
+	int videoclip = 0;
 public:
 	void create();
 	typedef  struct statfs DISK,*pDISK;
 	void enableplayer(int enable){enableplay=enable;};
 	int getableplayer(){return enableplay;};
+	void enableclip(int enable){videoclip=enable;};
+	int getableclip(){return videoclip;};
 	
 	void createplayertimer();
 	void findrecordnames();

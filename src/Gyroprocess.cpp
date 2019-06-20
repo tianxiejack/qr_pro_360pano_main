@@ -68,13 +68,12 @@ void proptotocal(Mat& frame)
 	if(numpacket==7)
 	{
 
-	//OSA_printf("THE num PACKET=%d numpacket%d\n",numpacket,nintcount);
-	nintcount=0;
+		//OSA_printf("THE num PACKET=%d numpacket%d\n",numpacket,nintcount);
+		nintcount=0;
 	}
 	else
 		nintcount++;
 
-	
 	//OSA_printf("THE num PACKET=%d numpacket%d\n",numpacket,nintcount);
 	/////////////////
 	//numpacket=1;
@@ -85,107 +84,104 @@ void proptotocal(Mat& frame)
 	//////////////////
 	gyrofram.packetnum=0;
 	for(int i=0;i<numpacket;i++)
+	{
+		memcpy(buffdata,&dataptr[width*(height-1)*2+2+40*i],40);
+		#if 1
+		//OSA_printf("THE ONE=%d TWO=%d three=%d for=%d\n",buffdata[0],buffdata[1],buffdata[2],buffdata[3]);
+		if(buffdata[0]!=HEAD1_FF_NEED||buffdata[1]!=HEAD1_00_NEED||buffdata[2]!=HEAD1_55_NEED)
+			continue;
+		if(!checksum(buffdata,buffdata[39]))
+			continue;
+		#endif
+		
+		GYRO_NINEAXIS* niaxis=&gyrofram.gyrof[gyrofram.packetnum];
+		
+		niaxis->gyro_ax=buffdata[3]<<8 | buffdata[4];
+		niaxis->gyro_ay=buffdata[7]<<8 | buffdata[8];
+		niaxis->gyro_az=buffdata[11]<<8 | buffdata[12];
+		if(BUTTERFLY)
 		{
-			memcpy(buffdata,&dataptr[width*(height-1)*2+2+40*i],40);
-			#if 1
-			//OSA_printf("THE ONE=%d TWO=%d three=%d for=%d\n",buffdata[0],buffdata[1],buffdata[2],buffdata[3]);
-			if(buffdata[0]!=HEAD1_FF_NEED||buffdata[1]!=HEAD1_00_NEED||buffdata[2]!=HEAD1_55_NEED)
-				continue;
-			if(!checksum(buffdata,buffdata[39]))
-				continue;
-			#endif
-			
-			GYRO_NINEAXIS* niaxis=&gyrofram.gyrof[gyrofram.packetnum];
-			
-			niaxis->gyro_ax=buffdata[3]<<8 | buffdata[4];
-			niaxis->gyro_ay=buffdata[7]<<8 | buffdata[8];
-			niaxis->gyro_az=buffdata[11]<<8 | buffdata[12];
-			if(BUTTERFLY)
-			{
-				gyro=0xe1234567;
-				pdata=(char *)&gyro;
-				pdata[2]=buffdata[17];
-				pdata[1]=buffdata[16];
-				pdata[0]=buffdata[15];
-				pdata[3]=0x00;
-				if((buffdata[17]&0x80)==0x80)
-					{
-						pdata[3]=0xff;
-					}
-				
-				niaxis->gyro_gx=gyro;
-				
-				gyro=0xe1234567;
-				pdata=(char *)&gyro;
-				pdata[2]=buffdata[21];
-				pdata[1]=buffdata[20];
-				pdata[0]=buffdata[19];
-				pdata[3]=0x00;
-				if((buffdata[21]&0x80)==0x80)
-					{
-						pdata[3]=0xff;
-					}
-				niaxis->gyro_gy=gyro;
-				gyro=0xe1234567;
-				pdata=(char *)&gyro;
-				pdata[2]=buffdata[25];
-				pdata[1]=buffdata[24];
-				pdata[0]=buffdata[23];
-				pdata[3]=0x00;
-				if((buffdata[25]&0x80)==0x80)
-					{
-						pdata[3]=0xff;
-					}
-				niaxis->gyro_gz=gyro;
-			}
-		else
-			{
-				niaxis->gyro_gx=buffdata[15]<<8 | buffdata[16];
-				niaxis->gyro_gy=buffdata[19]<<8 | buffdata[20];
-				niaxis->gyro_gz=buffdata[23]<<8 | buffdata[24];
-		
-			}
-
-
-			niaxis->gyro_mx=buffdata[27]<<8 | buffdata[28];
-			niaxis->gyro_my=buffdata[29]<<8 | buffdata[30];
-			niaxis->gyro_mz=buffdata[31]<<8 | buffdata[32];
-
-			niaxis->gyro_pretimestamp=pretimestamp;
-
-
-		
-
-			niaxis->preset=buffdata[34];
-			
-			//buffdata[35]=0xff;
-			niaxis->gyro_timestamp=buffdata[35]<<24 | buffdata[36]<<16 | buffdata[37]<<8 | buffdata[38];
-			timeinterval=niaxis->gyro_timestamp-pretimestamp;
-			
-			if(abs(timeinterval)>33*1000)
+			gyro=0xe1234567;
+			pdata=(char *)&gyro;
+			pdata[2]=buffdata[17];
+			pdata[1]=buffdata[16];
+			pdata[0]=buffdata[15];
+			pdata[3]=0x00;
+			if((buffdata[17]&0x80)==0x80)
 				{
-					pretimestamp=niaxis->gyro_timestamp;
-					printf("*****timeinterval=%f************error \n",timeinterval);
-					continue;
+					pdata[3]=0xff;
 				}
-		
-
-			oddeven=oddenven;
-			pretimestamp=niaxis->gyro_timestamp;
-			gyrofram.packetnum++;
-
-
-			/*
-			OSA_printf("_________________________________________________________________\n");
-			OSA_printf("THE time=%u\n",niaxis->gyro_timestamp);
-			OSA_printf("ax=%d ay=%d az=%d gx=%d gy=%d gz=%d mx=%d my=%d mz=%d \n",niaxis->gyro_ax,niaxis->gyro_ay,niaxis->gyro_az,niaxis->gyro_gx,niaxis->gyro_gy,niaxis->gyro_gz,niaxis->gyro_mx,niaxis->gyro_my,niaxis->gyro_mz);
-			OSA_printf("_________________________________________________________________\n");
-			*/
-		
+			
+			niaxis->gyro_gx=gyro;
+			
+			gyro=0xe1234567;
+			pdata=(char *)&gyro;
+			pdata[2]=buffdata[21];
+			pdata[1]=buffdata[20];
+			pdata[0]=buffdata[19];
+			pdata[3]=0x00;
+			if((buffdata[21]&0x80)==0x80)
+				{
+					pdata[3]=0xff;
+				}
+			niaxis->gyro_gy=gyro;
+			gyro=0xe1234567;
+			pdata=(char *)&gyro;
+			pdata[2]=buffdata[25];
+			pdata[1]=buffdata[24];
+			pdata[0]=buffdata[23];
+			pdata[3]=0x00;
+			if((buffdata[25]&0x80)==0x80)
+				{
+					pdata[3]=0xff;
+				}
+			niaxis->gyro_gz=gyro;
 		}
+	else
+		{
+			niaxis->gyro_gx=buffdata[15]<<8 | buffdata[16];
+			niaxis->gyro_gy=buffdata[19]<<8 | buffdata[20];
+			niaxis->gyro_gz=buffdata[23]<<8 | buffdata[24];
 	
+		}
+
+
+		niaxis->gyro_mx=buffdata[27]<<8 | buffdata[28];
+		niaxis->gyro_my=buffdata[29]<<8 | buffdata[30];
+		niaxis->gyro_mz=buffdata[31]<<8 | buffdata[32];
+
+		niaxis->gyro_pretimestamp=pretimestamp;
+
+
 	
+
+		niaxis->preset=buffdata[34];
+		
+		//buffdata[35]=0xff;
+		niaxis->gyro_timestamp=buffdata[35]<<24 | buffdata[36]<<16 | buffdata[37]<<8 | buffdata[38];
+		timeinterval=niaxis->gyro_timestamp-pretimestamp;
+		
+		if(abs(timeinterval)>33*1000)
+			{
+				pretimestamp=niaxis->gyro_timestamp;
+				printf("*****timeinterval=%f************error \n",timeinterval);
+				continue;
+			}
 	
+
+		oddeven=oddenven;
+		pretimestamp=niaxis->gyro_timestamp;
+		gyrofram.packetnum++;
+
+
+		/*
+		OSA_printf("_________________________________________________________________\n");
+		OSA_printf("THE time=%u\n",niaxis->gyro_timestamp);
+		OSA_printf("ax=%d ay=%d az=%d gx=%d gy=%d gz=%d mx=%d my=%d mz=%d \n",niaxis->gyro_ax,niaxis->gyro_ay,niaxis->gyro_az,niaxis->gyro_gx,niaxis->gyro_gy,niaxis->gyro_gz,niaxis->gyro_mx,niaxis->gyro_my,niaxis->gyro_mz);
+		OSA_printf("_________________________________________________________________\n");
+		*/
+	
+	}
 
 }
 
@@ -212,34 +208,31 @@ int  GyroCalibration()
 	GYRO_MPU mpu;
 	memset(&mpu,0,sizeof(mpu));
 	for(int i=0;i<gyrofram.packetnum;i++)
-		{
-			mpu.gyro_axi=gyrofram.gyrof[i].gyro_ax;
-			mpu.gyro_ayi=gyrofram.gyrof[i].gyro_ay;
-			mpu.gyro_azi=gyrofram.gyrof[i].gyro_az;
-			
-			mpu.gyro_gxi=gyrofram.gyrof[i].gyro_gx;
-			mpu.gyro_gyi=gyrofram.gyrof[i].gyro_gy;
-			mpu.gyro_gzi=gyrofram.gyrof[i].gyro_gz;
-			
-			mpu.gyro_mxi=gyrofram.gyrof[i].gyro_mx;
-			mpu.gyro_myi=gyrofram.gyrof[i].gyro_my;
-			mpu.gyro_mzi=gyrofram.gyrof[i].gyro_mz;
-			mpu.gyro_timestamp=gyrofram.gyrof[i].gyro_timestamp;
-			mpu.gyro_pretimestamp=gyrofram.gyrof[i].gyro_pretimestamp;
-			
-			mpu.preset=gyrofram.gyrof[i].preset;
-			if(BUTTERFLY)
-				ret=calibrateint(&mpu.gyro_gxi,&mpu.gyro_gyi,&mpu.gyro_gzi);
-			else
-				ret=calibrate(&mpu.gyro_gxi,&mpu.gyro_gyi,&mpu.gyro_gzi);
+	{
+		mpu.gyro_axi=gyrofram.gyrof[i].gyro_ax;
+		mpu.gyro_ayi=gyrofram.gyrof[i].gyro_ay;
+		mpu.gyro_azi=gyrofram.gyrof[i].gyro_az;
+		
+		mpu.gyro_gxi=gyrofram.gyrof[i].gyro_gx;
+		mpu.gyro_gyi=gyrofram.gyrof[i].gyro_gy;
+		mpu.gyro_gzi=gyrofram.gyrof[i].gyro_gz;
+		
+		mpu.gyro_mxi=gyrofram.gyrof[i].gyro_mx;
+		mpu.gyro_myi=gyrofram.gyrof[i].gyro_my;
+		mpu.gyro_mzi=gyrofram.gyrof[i].gyro_mz;
+		mpu.gyro_timestamp=gyrofram.gyrof[i].gyro_timestamp;
+		mpu.gyro_pretimestamp=gyrofram.gyrof[i].gyro_pretimestamp;
+		
+		mpu.preset=gyrofram.gyrof[i].preset;
+		if(BUTTERFLY)
+			ret=calibrateint(&mpu.gyro_gxi,&mpu.gyro_gyi,&mpu.gyro_gzi);
+		else
+			ret=calibrate(&mpu.gyro_gxi,&mpu.gyro_gyi,&mpu.gyro_gzi);
 
-			//CalibrateToZero(&mpu);
+		//CalibrateToZero(&mpu);
 
-		}
-	
-	
+	}
 	return ret;
-
 }
 
 
@@ -316,17 +309,18 @@ int getGyroprocess(Mat& frame,GYRO_DATA_T *gyro)
 	//GYRO_NINEAXIS nineaxia;
 	proptotocal(frame);
 
-
 	if(getgyrostart()==0)
-		{
-			//printf("the getgyrostart error\n ");
+	{
+		//printf("the getgyrostart error\n ");
 		return 0;
-		}
+	}
+	#if 0
 	if(GyroCalibration()==0)
-		{
-			//printf("the GyroCalibration error\n ");
+	{
+		printf("the GyroCalibration error\n ");
 		return 0;
-		}
+	}
+	#endif
 	GyrogetRPY();
 	//CalibrateToZero(&gyrofram);
 

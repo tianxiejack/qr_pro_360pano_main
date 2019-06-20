@@ -805,27 +805,26 @@ unsigned char  calibrate(void *gx1, void *gy1, void *gz1)
 	short *gx=(short *)gx1;
 	short *gy=(short *)gy1;
 	short *gz=(short *)gz1;
-	
+
 	if(calibreatetimes>=CALIBREATIONTIME)
 		return 1;
 	//for (t=0;t<100;t++)
 	{
 		MPU_Get_Gyroscope(gx,gy,gz);
 		if(calibreatetimes>CALIBREATIONTIME/2)
-			{
-				sumx=sumx+*gx;
-				sumy=sumy+*gy;
-				sumz=sumz+*gz;
-			}
+		{
+			sumx=sumx+*gx;
+			sumy=sumy+*gy;
+			sumz=sumz+*gz;
+		}
 	}
 	if(calibreatetimes==CALIBREATIONTIME-1)
-		{
-			gyro_offsetx=-sumx*2/CALIBREATIONTIME;
-			gyro_offsety=-sumy*2/CALIBREATIONTIME;
-			gyro_offsetz=-sumz*2/CALIBREATIONTIME;
-		}
+	{
+		gyro_offsetx=-sumx*2/CALIBREATIONTIME;
+		gyro_offsety=-sumy*2/CALIBREATIONTIME;
+		gyro_offsetz=-sumz*2/CALIBREATIONTIME;
+	}
 	calibreatetimes++;
-	
 	return 0;
 
 }

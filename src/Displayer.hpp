@@ -145,7 +145,6 @@ protected:
 	bool gltLoadShaderFile(const char *szFile, GLuint shader);
 	GLuint gltLoadShaderPairWithAttributes(const char *szVertexProg, const char *szFragmentProg, ...);
 
-
 private:
 	OSA_MutexHndl m_mutex;
 

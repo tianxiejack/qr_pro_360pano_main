@@ -32,7 +32,7 @@ void Store::addstore()
 	parm.ptzpan=Plantformpzt::getinstance()->getpanangle();
 	parm.ptztitle=Plantformpzt::getinstance()->gettitleangle();
 	parm.value=1;
-	//printf("the pan=%f tile=%f\n",parm.ptzpan,parm.ptztitle);
+	printf("%s  LINE:%d    the pan=%f tile=%f\n",__func__,__LINE__,parm.ptzpan,parm.ptztitle);
 	store.push_back(parm);
 }
 		
@@ -138,23 +138,23 @@ void Store::erase()
 	
 
 }
+
+
 void Store::gostore(int num)
 {
 	list<storepam>::iterator iter;
 	storepam parm;
-	//iter=store.begin()+4;//+id;
 	int count=0;
+	
 	for(iter=store.begin();iter!=store.end();iter++)
-		{
-			//parm=*iter;
-			if(count==num)
-				break;
-			count++;
-		}
+	{
+		if(count==num)
+			break;
+		count++;
+	}
 	if(count>=store.size())
 		return;
 	parm=*iter;
-
 
 	Plantformpzt::getinstance()->setpanopanpos(parm.ptzpan);
 
@@ -164,10 +164,10 @@ void Store::gostore(int num)
 	
 	Plantformpzt::getinstance()->Enbalecallback(Plantformpzt::PRESETGO,parm.ptzpan,parm.ptztitle);
 	
-	
-	//store.erase(iter);
-
+	return;
 }
+
+
 void Store::reload()
 {
 	save();

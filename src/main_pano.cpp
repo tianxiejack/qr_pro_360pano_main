@@ -38,6 +38,8 @@
 #include"RTSPCaptureGroup/RTSPCaptureGroup.h"
 #include "opencvCapIP.h"
 #include "ptzProxyMsg.h"
+#include "Displayer.hpp"
+
 extern ptzProxyMsg ptzmsg;
 static GLMain render;
 

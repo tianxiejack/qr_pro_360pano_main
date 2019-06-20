@@ -266,12 +266,14 @@ void Plantformpzt::main_Recv_func()
 							{
 								pana=platformcom.recvBuf[4]<<8|platformcom.recvBuf[5];
 								panangle=pana*1.0/100;
+								printf("***plantformpan=%f****************\n",plantformpan);
+
 							}
 						else if(platformcom.recvBuf[3]==0x5b)
 							{
 								titlea=platformcom.recvBuf[4]<<8|platformcom.recvBuf[5];
 								titleangle=titlea*1.0/100;
-
+								printf("***plantformtitle=%f****************\n",plantformtitle);
 							}
 						plantformpan=panangle;
 						plantformtitle=titleangle;
@@ -408,7 +410,7 @@ void Plantformpzt::main_contrl_func()
 					angleoffet=angleoffet-360;
 				if(angleoffet<-300)
 					angleoffet=angleoffet+360;
-				if(abs(angleoffet)<0.2)
+				if(fabs(angleoffet)<0.2)
 					{
 						timeoutflag[PLANTFORMINITPAN]=0;
 						continue;
@@ -432,7 +434,7 @@ void Plantformpzt::main_contrl_func()
 					angleoffet=angleoffet-360;
 				if(angleoffet<-300)
 					angleoffet=angleoffet+360;
-				if(abs(angleoffet)<0.2)
+				if(fabs(angleoffet)<0.2)
 					{
 						timeoutflag[PLANTFORMINITTITLE]=0;
 						continue;
@@ -459,7 +461,7 @@ void Plantformpzt::main_contrl_func()
 				if(angleoffetpan<-300)
 					angleoffetpan=angleoffetpan+360;
 				
-				if(abs(angleoffetpan)<0.1)
+				if(fabs(angleoffetpan)<0.1)
 					{
 						timeoutflag[PLANTFORMPANFOREVER]=0;			
 					}
@@ -478,7 +480,7 @@ void Plantformpzt::main_contrl_func()
 					angleoffettitle=angleoffettitle-360;
 				if(angleoffettitle<-300)
 					angleoffettitle=angleoffettitle+360;
-				if(abs(angleoffettitle)<0.1)
+				if(fabs(angleoffettitle)<0.1)
 					{
 						timeoutflag[PLANTFORMTITLEFOREVER]=0;	
 						
@@ -513,12 +515,12 @@ void Plantformpzt::main_contrl_func()
 						if(angleoffetpan<-300)
 							angleoffetpan=angleoffetpan+360;
 						
-						if(abs(angleoffetpan)>0.1)
+						if(fabs(angleoffetpan)>0.1)
 							setpanopanpos(callbackpan[RENDERPANO]);
-						else if(abs(angleoffettitle)>0.1)
+						else if(fabs(angleoffettitle)>0.1)
 							setpanotitlepos(callbacktitle[RENDERPANO]);
 						
-						if(abs(angleoffetpan)<0.1&&abs(angleoffettitle)<0.1)
+						if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
 							{
 								callbackeable[RENDERPANO]=0;
 								//timeoutflag[PLANTFORMGETCALLBACK]=0;
@@ -550,12 +552,12 @@ void Plantformpzt::main_contrl_func()
 						if(angleoffetpan<-300)
 							angleoffetpan=angleoffetpan+360;
 						
-						if(abs(angleoffetpan)>0.1)
+						if(fabs(angleoffetpan)>0.1)
 							setpanopanpos(callbackpan[RENDERSIGNALPANO]);
-						else if(abs(angleoffettitle)>0.1)
+						else if(fabs(angleoffettitle)>0.1)
 							setpanotitlepos(callbacktitle[RENDERSIGNALPANO]);
 						
-						if(abs(angleoffetpan)<0.1&&abs(angleoffettitle)<0.1)
+						if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
 							{
 								callbackeable[RENDERSIGNALPANO]=0;
 								//timeoutflag[PLANTFORMGETCALLBACK]=0;
@@ -569,39 +571,39 @@ void Plantformpzt::main_contrl_func()
 
 
 				if(callbackeable[PRESETGO]==1)
+				{
+					double angle=0;
+					getpanopanpos();
+					getpanotitlepos();
+					angle=gettitleangle();
+					double angleoffettitle=angle-callbacktitle[PRESETGO];
+					if(angleoffettitle>300)
+						angleoffettitle=angleoffettitle-360;
+					if(angleoffettitle<-300)
+						angleoffettitle=angleoffettitle+360;
+					angle=getpanangle();
+					double angleoffetpan=angle-callbackpan[PRESETGO];
+					if(angleoffetpan>300)
+						angleoffetpan=angleoffetpan-360;
+					if(angleoffetpan<-300)
+						angleoffetpan=angleoffetpan+360;
+					
+					if(fabs(angleoffetpan)>0.1)
+						setpanopanpos(callbackpan[PRESETGO]);
+					else if(fabs(angleoffettitle)>0.1)
+						setpanotitlepos(callbacktitle[PRESETGO]);
+					
+					if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
 					{
-						double angle=0;
-						getpanopanpos();
-						getpanotitlepos();
-						angle=gettitleangle();
-						double angleoffettitle=angle-callbacktitle[PRESETGO];
-						if(angleoffettitle>300)
-							angleoffettitle=angleoffettitle-360;
-						if(angleoffettitle<-300)
-							angleoffettitle=angleoffettitle+360;
-						angle=getpanangle();
-						double angleoffetpan=angle-callbackpan[PRESETGO];
-						if(angleoffetpan>300)
-							angleoffetpan=angleoffetpan-360;
-						if(angleoffetpan<-300)
-							angleoffetpan=angleoffetpan+360;
+						callbackeable[PRESETGO]=0;
+						//timeoutflag[PLANTFORMGETCALLBACK]=0;
+						if(callback[PRESETGO]!=NULL)
+							callback[PRESETGO](NULL);
 						
-						if(abs(angleoffetpan)>0.1)
-							setpanopanpos(callbackpan[PRESETGO]);
-						else if(abs(angleoffettitle)>0.1)
-							setpanotitlepos(callbacktitle[PRESETGO]);
-						
-						if(abs(angleoffetpan)<0.1&&abs(angleoffettitle)<0.1)
-							{
-								callbackeable[PRESETGO]=0;
-								//timeoutflag[PLANTFORMGETCALLBACK]=0;
-								if(callback[PRESETGO]!=NULL)
-									callback[PRESETGO](NULL);
-								
-							}
-						
-
 					}
+					
+
+				}
 
 
 				if(callbackeable[MVDETECTGO]==1)
@@ -622,12 +624,12 @@ void Plantformpzt::main_contrl_func()
 						if(angleoffetpan<-300)
 							angleoffetpan=angleoffetpan+360;
 						
-						if(abs(angleoffetpan)>0.1)
+						if(fabs(angleoffetpan)>0.1)
 							setpanopanpos(callbackpan[MVDETECTGO]);
-						else if(abs(angleoffettitle)>0.1)
+						else if(fabs(angleoffettitle)>0.1)
 							setpanotitlepos(callbacktitle[MVDETECTGO]);
 						
-						if(abs(angleoffetpan)<0.1&&abs(angleoffettitle)<0.1)
+						if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
 							{
 								callbackeable[MVDETECTGO]=0;
 
@@ -877,9 +879,8 @@ void Plantformpzt::Enbalecallback(int index,double pan,double title)
 void Plantformpzt::setpanopanpos(double value)
 {
 	if(Config::getinstance()->getptzpaninverse())
-		{
-			value=-value;
-		}
+		value=-value;
+	
 	if(value>360)
 		value=value-360;
 	if(value<0)
@@ -889,24 +890,24 @@ void Plantformpzt::setpanopanpos(double value)
 		return ;
 
 	//printf("*****************************\n");
-	//printf("******%s******value=%f*****************\n",__func__,value);
+	printf("******%s******value=%f*****************\n",__func__,value);
 	unsigned short panvalue=value*100;
 	PlantformContrl->MakeSetPanPos(&PELCO_D, panvalue,address);
 	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *)& PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
+	{
+		GPIO_set(GPIP485S,UART485SEND);
+		GPIO_set(GPIP485R,UART485SEND);
+		Uart.UartSend(fd,( unsigned char *)& PELCO_D, SENDLEN);
+		OSA_waitMsecs(SENDDELAY);
+		GPIO_set(GPIP485S,UART485RECV);
+		GPIO_set(GPIP485R,UART485RECV);
+	}
 	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *)& PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-		}
+	{
+		OSA_mutexLock(&instance->lock);
+		Uart.UartSend(fd,( unsigned char *)& PELCO_D, SENDLEN);
+		OSA_mutexUnlock(&instance->lock);
+	}
 	
 	OSA_waitMsecs(50);
 	
@@ -1161,24 +1162,23 @@ void Plantformpzt::getpanopanpos()
 	pelcodbuf[5]=0x00;
 	pelcodbuf[6]=0x52;
 	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
+	{
+		GPIO_set(GPIP485S,UART485SEND);
+		GPIO_set(GPIP485R,UART485SEND);
+		Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
+		OSA_waitMsecs(SENDDELAY);
+		GPIO_set(GPIP485S,UART485RECV);
+		GPIO_set(GPIP485R,UART485RECV);
+	}
 	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-
-		}
+	{
+		OSA_mutexLock(&instance->lock);
+		Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
+		OSA_mutexUnlock(&instance->lock);
+	}
 	//printf("*******%s*******\n",__func__);
 	OSA_waitMsecs(10);
-
+	return ;
 }
 
 void Plantformpzt::getpanotitlepos()

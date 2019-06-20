@@ -1019,46 +1019,39 @@ void CPortBase::Preset_Mtd()
 }
 
 void CPortBase::StoreMode(int mod)
+{
+	if(mod==Status::STOREGO)
 	{
-		if(mod==Status::STOREGO)
-			{
-				if(Status::getinstance()->getstoremod()!=mod)
-					Status::getinstance()->setstoremod(mod);
+		if(Status::getinstance()->getstoremod()!=mod)
+			Status::getinstance()->setstoremod(mod);
 
-				if(Status::getinstance()->storegonum!=_globalDate->rcvBufQue.at(5))
-					{
-						
-						Status::getinstance()->storegonum=_globalDate->rcvBufQue.at(5);
-					}
-				
-				OSA_printf("the mod=%d storegonum=%d \n ",Status::getinstance()->getstoremod(),Status::getinstance()->storegonum);
-				
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_StoreMod, (void *)(Status::STOREGO));
-			}
-		else if(mod==Status::STORESAVE)
-			{
-				
-				if(Status::getinstance()->getstoremod()!=mod)
-					Status::getinstance()->setstoremod(mod);
-				
-				if(Status::getinstance()->storesavenum!=_globalDate->rcvBufQue.at(5))
-					{
-						Status::getinstance()->storesavenum=_globalDate->rcvBufQue.at(5);
-					}
-				
-				if(Status::getinstance()->storesavemod!=_globalDate->rcvBufQue.at(6))
-					{
-						Status::getinstance()->storesavemod=_globalDate->rcvBufQue.at(6);
-					}
-				
-				OSA_printf("the mod=%d savenum=%d mod=%d\n ",Status::getinstance()->getstoremod(),Status::getinstance()->storesavenum,Status::getinstance()->storesavemod);
-
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_StoreMod, (void *)(Status::STORESAVE));
-			}
+		if(Status::getinstance()->storegonum!=_globalDate->rcvBufQue.at(5))
+			Status::getinstance()->storegonum=_globalDate->rcvBufQue.at(5);
 		
 		
+		OSA_printf("the mod=%d storegonum=%d \n ",Status::getinstance()->getstoremod(),Status::getinstance()->storegonum);
+		
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_StoreMod, (void *)(Status::STOREGO));
+	}
+	else if(mod==Status::STORESAVE)
+	{
+		if(Status::getinstance()->getstoremod()!=mod)
+			Status::getinstance()->setstoremod(mod);
+		
+		if(Status::getinstance()->storesavenum!=_globalDate->rcvBufQue.at(5))
+			Status::getinstance()->storesavenum=_globalDate->rcvBufQue.at(5);
+		
+		if(Status::getinstance()->storesavemod!=_globalDate->rcvBufQue.at(6))
+			Status::getinstance()->storesavemod=_globalDate->rcvBufQue.at(6);
+		
+		OSA_printf("the mod=%d savenum=%d mod=%d\n ",Status::getinstance()->getstoremod(),Status::getinstance()->storesavenum,Status::getinstance()->storesavemod);
 
-	};
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_StoreMod, (void *)(Status::STORESAVE));
+	}
+	
+	
+
+};
 
 void CPortBase::workMode()
 {
@@ -1154,9 +1147,6 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		   StoreMode(Status::STOREGO);
 		   break;
             case 0x08:
-		//_globalDate->feedback=ACK_mainVideoStatus;
-		//   OSA_semSignal(&_globalDate->m_semHndl_socket);
-		//   printf("the_globalDate->feedback =%d\n",_globalDate->feedback);
                 StoreMode(Status::STORESAVE);
                 break;
             case 0x09:

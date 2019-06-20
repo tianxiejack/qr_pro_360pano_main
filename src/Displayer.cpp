@@ -17,6 +17,8 @@
 #include "osa_image_queue.h"
 #include "Displayer.hpp"
 #include "cuda_mem.cpp"
+#include "plantformcontrl.hpp"
+
 
 #ifdef _WIN32
 #pragma comment (lib, "glew32.lib")
@@ -981,4 +983,4 @@ GLuint CRender::gltLoadShaderPairWithAttributes(const char *szVertexProg, const 
 
 	// All done, return our ready to use shader program
 	return hReturn;  
-}   
+}  

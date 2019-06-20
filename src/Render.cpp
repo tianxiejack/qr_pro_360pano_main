@@ -717,9 +717,25 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 
 void Render::ProcessOitKeys(unsigned char key, int x, int y)
 {
-	printf("the x=%d y=%d\n",x,y);
+	//printf("the x=%d y=%d\n",x,y);
+	static int posa = 0 , posb = 100;
 	switch(key)
 		{
+			#if 1
+			case 'a':
+				{
+					Plantformpzt::getinstance()->getpanopanpos();
+					Plantformpzt::getinstance()->getpanotitlepos();
+					
+				}
+
+				break;
+
+
+				
+
+			#else
+		
 			case 's':
 				//DISPLAYMODE_SWITCH_TO(SINGLE_VIDEO_VIEW_MODE);
 				displayMode=SINGLE_VIDEO_VIEW_MODE;
@@ -911,6 +927,9 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 			case 'c':
 				SaveAllPic();
 				break;
+
+			#endif
+			
 			default:
 				break;
 
@@ -5825,7 +5844,7 @@ void Render::callbackmvdetectgo(void *contex)
 			double diss=(panangle-angle+360);
 			if(diss>=360)
 				diss=diss-360;
-			if(abs(diss)<1.0)
+			if(fabs(diss)<1.0)
 				{
 					id=i;
 					break;

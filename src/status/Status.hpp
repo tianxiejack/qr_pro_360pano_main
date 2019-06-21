@@ -227,6 +227,7 @@ public:
 
 	int storesavemod;
 	int livevideoflg;
+	int videoclipflg;
 	/******jiaozhun*******/
 	int calibration;
 	/******player*******/

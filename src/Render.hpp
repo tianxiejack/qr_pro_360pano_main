@@ -300,6 +300,8 @@ public:
 	void draw180Luler();
 	void draw360Luler();
 	void drawradar(int x,int y,int w,int h);
+	void DrawTime();
+	void DrawPlaybackOsd();
 	void initTgaTexture();
 
 	MENU *Menu;
@@ -669,6 +671,7 @@ public:
 	static void deldevcfg(long lparam);
 	static void livevideo(long lparam);
 	static void livephoto(long lparam);
+	static void videoclip(long lparam);
 	void CheckArea(int x,int y);
 	void configloadtoglobal();
 	void mousemotion(int button, int x, int y);

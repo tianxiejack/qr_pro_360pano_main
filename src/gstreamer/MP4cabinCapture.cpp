@@ -36,6 +36,7 @@ typedef struct _CustomData
   	GstElement *pipeline, *source, *videoconvert0, *tee0, *queue0, *fakesink0;
   	GstElement *queue1, *nvvidconv0, *omxh264enc, *h264parse, *tee1, *queue2, *splitmuxsink1, *mp4mux1, *filesink1;
   	GstElement *queue3, *filesink2;
+	GstElement *clockoverlay;
 
 	GstBus *bus;
 	GMainLoop *loop;
@@ -430,6 +431,7 @@ int gstlinkInit_appsrc_mp4(RecordHandle *recordHandle)
 							"framerate", GST_TYPE_FRACTION, pData->framerate, 1,
 							 NULL);
 	pData->videoconvert0 = gst_element_factory_make ("nvvidconv", NULL);
+	pData->clockoverlay = gst_element_factory_make ("clockoverlay", "clockoverlay");
 	pData->omxh264enc = gst_element_factory_make ("omxh264enc", NULL);
 	pData->splitmuxsink1 = gst_element_factory_make("splitmuxsink", NULL);
 	pData->h264parse = gst_element_factory_make("h264parse", NULL);
@@ -455,14 +457,15 @@ int gstlinkInit_appsrc_mp4(RecordHandle *recordHandle)
     }
 
 
-	gst_bin_add_many (GST_BIN(pData->pipeline), pData->source,	pData->videoconvert0, pData->omxh264enc,pData->h264parse, pData->splitmuxsink1,  NULL);
-	if(!gst_element_link_many(pData->source,
-			pData->videoconvert0,pData->omxh264enc,pData->h264parse, pData->splitmuxsink1,NULL))
+	gst_bin_add_many (GST_BIN(pData->pipeline), pData->source,pData->clockoverlay,pData->videoconvert0, pData->omxh264enc,pData->h264parse, pData->splitmuxsink1,  NULL);
+	if(!gst_element_link_many(pData->source,pData->clockoverlay,pData->videoconvert0,pData->omxh264enc,pData->h264parse, pData->splitmuxsink1,NULL))
 	{
 		g_printerr ("Elements could not be linked:data.source->data0.videoconvert0.\n");
 		gst_object_unref (pData->pipeline);
 		return -1;
 	}
+
+	g_object_set (pData->clockoverlay, "time-format", "%Y/%m/%d %a %H:%M:%S", NULL); // 2019/06/18  Tue 18:47:35
     g_object_set (pData->omxh264enc, "iframeinterval", pData->framerate, NULL);
     g_object_set (pData->omxh264enc, "insert-sps-pps", 1, NULL);
     g_object_set (pData->splitmuxsink1, "max-size-time", MAX_SIZE_TIME, NULL); //10s

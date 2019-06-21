@@ -142,6 +142,7 @@ public:
     void deletedevconfig();
     void livevideo();
     void livephoto();
+    void videoclip();
 
 protected:
     int prcRcvFrameBufQue(int method);

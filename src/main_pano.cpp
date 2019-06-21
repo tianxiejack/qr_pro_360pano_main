@@ -39,6 +39,8 @@
 #include "opencvCapIP.h"
 #include "ptzProxyMsg.h"
 #include "Displayer.hpp"
+#include "ipc_custom_head.hpp"
+#include "ipcProc.h"
 
 extern ptzProxyMsg ptzmsg;
 static GLMain render;
@@ -409,6 +411,14 @@ int main_pano(int argc, char **argv)
       p2->getpM();
       p2->create();
       p2->run();
+
+
+	/*
+	OSA_ThrHndl ipctest;
+
+	CIPCProc ipchandle;
+	OSA_thrCreate(&ipctest, ipchandle.thread_ipcEvent, 0, 0, NULL);
+	 */
 	  
 	/*main loop*/
 	render.mainloop();

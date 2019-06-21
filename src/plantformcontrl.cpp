@@ -40,9 +40,7 @@ curPtzId(0)
 Plantformpzt::~Plantformpzt()
 {
 	GPIO_close(GPIP485S);
-	
 	GPIO_close(GPIP485R);
-
 	OSA_mutexDelete(&lock);
 }
 
@@ -59,12 +57,12 @@ void Plantformpzt::create()
 {
 	memset(timeout,0,sizeof(timeout));
 	if(HALFUSE)
-		{
-			GPIO_create(GPIP485S,GPIO_DIRECTION_OUT);
-			GPIO_create(GPIP485R,GPIO_DIRECTION_OUT);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
+	{
+		GPIO_create(GPIP485S,GPIO_DIRECTION_OUT);
+		GPIO_create(GPIP485R,GPIO_DIRECTION_OUT);
+		GPIO_set(GPIP485S,UART485RECV);
+		GPIO_set(GPIP485R,UART485RECV);
+	}
 	platformcom.recvBuf=recvbuf;
 	platformcom.recvBuf=sendbuf;
 	titlpanangle=Config::getinstance()->getpanozeroptztitle();
@@ -75,8 +73,7 @@ void Plantformpzt::create()
 	MAIN_threadRecvCreate();
 	MAIN_contrlthreadCreate();
 	registorfun();
-	
-
+	return;
 }
 
 void Plantformpzt::destery()
@@ -84,7 +81,7 @@ void Plantformpzt::destery()
 	MAIN_threadRecvDestroy();
 	MAIN_contrlthreadDestroy();
 	plantformcontrluninit();
-
+	return;
 }
 
 
@@ -97,8 +94,6 @@ int Plantformpzt::MAIN_threadRecvCreate(void)
 	mainRecvThrObj.initFlag = true;
 	mainRecvThrObj.pParent = (void*)this;
 	iRet = OSA_thrCreate(&mainRecvThrObj.thrHandleProc, mainRecvTsk, 0, 0, &mainRecvThrObj);
-	
-
 	return iRet;
 }
 
@@ -106,15 +101,11 @@ int Plantformpzt::MAIN_threadRecvCreate(void)
 int Plantformpzt::MAIN_threadRecvDestroy(void)
 {
 	int iRet = OSA_SOK;
-
 	mainRecvThrObj.exitProcThread = true;
 	OSA_semSignal(&mainRecvThrObj.procNotifySem);
-
 	iRet = OSA_thrDelete(&mainRecvThrObj.thrHandleProc);
-
 	mainRecvThrObj.initFlag = false;
 	OSA_semDelete(&mainRecvThrObj.procNotifySem);
-
 	return iRet;
 }
 
@@ -123,17 +114,10 @@ int Plantformpzt::MAIN_contrlthreadCreate(void)
 	int iRet = OSA_SOK;
 	iRet = OSA_semCreate(&mainContrlThrdetectObj.procNotifySem ,1,0) ;
 	OSA_assert(iRet == OSA_SOK);
-
-
 	mainContrlThrdetectObj.exitProcThread = false;
-
 	mainContrlThrdetectObj.initFlag = true;
-
 	mainContrlThrdetectObj.pParent = (void*)this;
-	
 	iRet = OSA_thrCreate(&mainContrlThrdetectObj.thrHandleProc, maincontrlTsk, 0, 0, &mainContrlThrdetectObj);
-	
-
 	return iRet;
 }
 
@@ -141,15 +125,11 @@ int Plantformpzt::MAIN_contrlthreadCreate(void)
 int Plantformpzt::MAIN_contrlthreadDestroy(void)
 {
 	int iRet = OSA_SOK;
-
 	mainContrlThrdetectObj.exitProcThread = true;
 	OSA_semSignal(&mainContrlThrdetectObj.procNotifySem);
-
 	iRet = OSA_thrDelete(&mainContrlThrdetectObj.thrHandleProc);
-
 	mainContrlThrdetectObj.initFlag = false;
 	OSA_semDelete(&mainContrlThrdetectObj.procNotifySem);
-
 	return iRet;
 }
 int Plantformpzt::COMCTRL_lookupSync(ComObj*pObj)
@@ -209,7 +189,6 @@ void Plantformpzt::main_Recv_func()
 	unsigned short pana=0;
 	unsigned short titlea=0;
 
-
 	int headLenNetMsg=3;
 	int LenNetMsg =7;
 	char *pMsgHead=NULL;
@@ -219,139 +198,86 @@ void Plantformpzt::main_Recv_func()
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{
 
-			buflen=Uart.UartRecv( fd,  platformcom.recvBuf, MAX_RECV_BUF_LEN-platformcom.recvLen);
-			/*
-			for(int i=0;i<buflen;i++)
-			OSA_printf("[%d]=%x\t",i,platformcom.recvBuf[i]);
-			OSA_printf("buflen=%d\n",buflen);
-			*/
+		buflen=Uart.UartRecv( fd,  platformcom.recvBuf, MAX_RECV_BUF_LEN-platformcom.recvLen);
 
-			if(buflen<=0)
-				continue;
+		if(buflen<=0)
+			continue;
 
-			platformcom.recvLen += buflen;
-			if(platformcom.recvLen == MAX_RECV_BUF_LEN)
+		platformcom.recvLen += buflen;
+		if(platformcom.recvLen == MAX_RECV_BUF_LEN)
+		{
+			//printf(" [DEBUG:] %s recv buf is full, clean !!!\n",__func__);
+		}
+		//OSA_printf("platformcom.recvLen=%d headLenNetMsg=%d\n",platformcom.recvLen,headLenNetMsg);
+		while(platformcom.recvLen >= headLenNetMsg)
+		{
+			// check msg head and data len
+			if(nWait == 0)
 			{
-				//printf(" [DEBUG:] %s recv buf is full, clean !!!\n",__func__);
-				//platformcom.recvLen = 0;
-			}
-
-
-			//OSA_printf("platformcom.recvLen=%d headLenNetMsg=%d\n",platformcom.recvLen,headLenNetMsg);
-			while(platformcom.recvLen >= headLenNetMsg)
-			{
-				// check msg head and data len
-				if(nWait == 0)
+				stat = COMCTRL_lookupSync(&platformcom);
+				if(stat==SDK_SOK)
 				{
-					stat = COMCTRL_lookupSync(&platformcom);
-					if(stat==SDK_SOK)
-					{
-						nWait = platformcom.recvLen - LenNetMsg;
-						iLen = LenNetMsg;
-						//printf(" [DEBUG:] %s lookup head ok type=%02x size=%02x\r\n", 
-						//		__func__, pMsgHead->eCmdType, pMsgHead->uiSize);
-					}
-					else
-						break;
-				}
-				// deal data part
-
-				
-				//printf("********LINE=%d*****nWait=%d******************\n",__LINE__,nWait);
-				if(nWait >= 0)
-				{
-						if(COMCTRL_checkSum(&platformcom) == SDK_SOK)
-				                {
-									if(platformcom.recvBuf[3]==0x59)
-							{
-								pana=platformcom.recvBuf[4]<<8|platformcom.recvBuf[5];
-								panangle=pana*1.0/100;
-								printf("***plantformpan=%f****************\n",plantformpan);
-
-							}
-						else if(platformcom.recvBuf[3]==0x5b)
-							{
-								titlea=platformcom.recvBuf[4]<<8|platformcom.recvBuf[5];
-								titleangle=titlea*1.0/100;
-								printf("***plantformtitle=%f****************\n",plantformtitle);
-							}
-						plantformpan=panangle;
-						plantformtitle=titleangle;
-						
-						//printf("***plantformpan=%f**plantformtitle=%f******************\n",plantformpan,plantformtitle);
-						
-						if(timeoutflag[PLANTFORMGETTITLE]==1||timeoutflag[PLANTFORMGETPAN]==1)
-							{
-								printf("*****************ptz OSA_semSignal********************\n");
-								if(timeoutflag[PLANTFORMGETTITLE]==1)
-									timeoutflag[PLANTFORMGETTITLE]=0;
-								if(timeoutflag[PLANTFORMGETPAN]==1)
-									timeoutflag[PLANTFORMGETPAN]=0;
-								OSA_semSignal(&mainRecvThrObj.procNotifySem);
-								printf("timeoutflag[PLANTFORMGETTITLE]=%d  timeoutflag[PLANTFORMGETPAN]=%d\n",timeoutflag[PLANTFORMGETTITLE],timeoutflag[PLANTFORMGETPAN]);
-							}
-		                }
-				else
-						;
-							//printf(" [DEBUG:] %s check sum error type\n", __func__);
-	                    
-					platformcom.recvLen = nWait;
-					if(platformcom.recvLen > 0)
-					{
-						memcpy(platformcom.recvBuf, platformcom.recvBuf+iLen, platformcom.recvLen);
-						nWait = 0;
-					}
+					nWait = platformcom.recvLen - LenNetMsg;
+					iLen = LenNetMsg;
+					//printf(" [DEBUG:] %s lookup head ok type=%02x size=%02x\r\n", 
+					//		__func__, pMsgHead->eCmdType, pMsgHead->uiSize);
 				}
 				else
-				{
-					nWait = 0;
 					break;
-				}
-			}// while(packet - recvbuf <= buffLen)     
-
-
-
-
-/*
-			
-			if(buflen!=SENDLEN)
+			}
+			// deal data part
+			//printf("********LINE=%d*****nWait=%d******************\n",__LINE__,nWait);
+			if(nWait >= 0)
+			{
+				if(COMCTRL_checkSum(&platformcom) == SDK_SOK)
 				{
-				
-					continue;
-				}
-			if(recvbuff[6]!=chechsum(recvbuff))
-				{
-				
-					continue ;
-				}
-			if(recvbuff[0]==0xff&&recvbuff[1]==0x01&&recvbuff[2]==0x00)
-				{
-					if(recvbuff[3]==0x59)
-						{
-							pana=recvbuff[4]<<8|recvbuff[5];
-							panangle=pana*1.0/100;
-						}
-					else if(recvbuff[3]==0x5b)
-						{
-							titlea=recvbuff[4]<<8|recvbuff[5];
-							titleangle=titlea*1.0/100;
-
-						}
+					if(platformcom.recvBuf[3]==0x59)
+					{
+						pana=platformcom.recvBuf[4]<<8|platformcom.recvBuf[5];
+						panangle=pana*1.0/100;
+						printf("***plantformpan=%f****************\n",plantformpan);
+					}
+					else if(platformcom.recvBuf[3]==0x5b)
+					{
+						titlea=platformcom.recvBuf[4]<<8|platformcom.recvBuf[5];
+						titleangle=titlea*1.0/100;
+						printf("***plantformtitle=%f****************\n",plantformtitle);
+					}
 					plantformpan=panangle;
 					plantformtitle=titleangle;
-					printf("*****************ptz OSA_semSignal********************\n");
+
+					//printf("***plantformpan=%f**plantformtitle=%f******************\n",plantformpan,plantformtitle);
+
 					if(timeoutflag[PLANTFORMGETTITLE]==1||timeoutflag[PLANTFORMGETPAN]==1)
+					{
+						printf("*****************ptz OSA_semSignal********************\n");
+						if(timeoutflag[PLANTFORMGETTITLE]==1)
+						timeoutflag[PLANTFORMGETTITLE]=0;
+						if(timeoutflag[PLANTFORMGETPAN]==1)
+						timeoutflag[PLANTFORMGETPAN]=0;
 						OSA_semSignal(&mainRecvThrObj.procNotifySem);
+						printf("timeoutflag[PLANTFORMGETTITLE]=%d  timeoutflag[PLANTFORMGETPAN]=%d\n",timeoutflag[PLANTFORMGETTITLE],timeoutflag[PLANTFORMGETPAN]);
+					}
 				}
-			
-			
-			*/
-			//puts(recvbuff);
-		}
-
-
-
+	                
+				platformcom.recvLen = nWait;
+				if(platformcom.recvLen > 0)
+				{
+					memcpy(platformcom.recvBuf, platformcom.recvBuf+iLen, platformcom.recvLen);
+					nWait = 0;
+				}
+			}
+			else
+			{
+				nWait = 0;
+				break;
+			}
+		}// while(packet - recvbuf <= buffLen)     
+	}
+	return ;
 }
+
+
 void Plantformpzt::milliseconds_sleep(unsigned long mSec)
 {
     struct timeval tv;
@@ -365,286 +291,59 @@ void Plantformpzt::milliseconds_sleep(unsigned long mSec)
 void Plantformpzt::main_contrl_func()
 {
 	OSA_printf("%s: Main Proc Tsk Is Entering...\n",__func__);
-
-
-	double anglepan=0;
-	double angletitle=0;
-	angletitle=360+titlpanangle;
-	if(angletitle>=360)
-		angletitle=angletitle-360;
-	else if(angletitle<0)
-		angletitle=angletitle+360;
-	anglepan=Config::getinstance()->getpanozeroptz();
-
 	while(mainContrlThrdetectObj.exitProcThread ==  false)
 	{
 		milliseconds_sleep(330);
 		if(timeoutflag[PLANTFORMGETPAN])
-			{
-				timeout[PLANTFORMGETPAN]++;
-				if(timeout[PLANTFORMGETPAN]>TIMEOUT)
-					OSA_semSignal(&mainRecvThrObj.procNotifySem);
+		{
+			timeout[PLANTFORMGETPAN]++;
+			if(timeout[PLANTFORMGETPAN]>TIMEOUT)
+				OSA_semSignal(&mainRecvThrObj.procNotifySem);
 
-			}
+		}
 		else
 			timeout[PLANTFORMGETPAN]=0;
 
 
 		if(timeoutflag[PLANTFORMGETTITLE])
-			{
-				timeout[PLANTFORMGETTITLE]++;
-				if(timeout[PLANTFORMGETTITLE]>TIMEOUT)
-					OSA_semSignal(&mainRecvThrObj.procNotifySem);
+		{
+			timeout[PLANTFORMGETTITLE]++;
+			if(timeout[PLANTFORMGETTITLE]>TIMEOUT)
+				OSA_semSignal(&mainRecvThrObj.procNotifySem);
 
-			}
+		}
 		else
 			timeout[PLANTFORMGETTITLE]=0;
 
 
 		if(timeoutflag[PLANTFORMINITPAN]==1)
-			{
-				double angle=0;
-				angle=getpanangle();
-				double angleoffet=angle-anglepan;
-				if(angleoffet>300)
-					angleoffet=angleoffet-360;
-				if(angleoffet<-300)
-					angleoffet=angleoffet+360;
-				if(fabs(angleoffet)<0.2)
-					{
-						timeoutflag[PLANTFORMINITPAN]=0;
-						continue;
-					}
-				printf("angle=%f anglepan=%f\n",angle,anglepan);
-				
-				OSA_waitMsecs(1000);
-				//initptzpos(anglepan,angletitle);
-			//	printf("anglepan=%f\n",anglepan);
-				setpanopanpos(anglepan);
-				getpanopanpos();
-
-			}
+			if(callbackFuncPlantforminitpan())
+				continue;
 
 		if(timeoutflag[PLANTFORMINITTITLE]==1)
-			{
-				double angle=0;
-				angle=gettitleangle();
-				double angleoffet=angle-angletitle;
-				if(angleoffet>300)
-					angleoffet=angleoffet-360;
-				if(angleoffet<-300)
-					angleoffet=angleoffet+360;
-				if(fabs(angleoffet)<0.2)
-					{
-						timeoutflag[PLANTFORMINITTITLE]=0;
-						continue;
-					}
-				
-				printf("angle=%f angletitle=%f\n",angle,angletitle);
-				
-				OSA_waitMsecs(1000);
-				//initptzpos(anglepan,angletitle);
-				setpanotitlepos(angletitle);
-				getpanotitlepos();
-				
-
-			}
-////////////////////////
+			if(callbackFuncPlantforinittitle())
+				continue;
+			
 		if(timeoutflag[PLANTFORMPANFOREVER]==1)
-			{
-				double angle=0;
-				getpanopanpos();
-				angle=getpanangle();
-				double angleoffetpan=angle-plantformpanforever;
-				if(angleoffetpan>300)
-					angleoffetpan=angleoffetpan-360;
-				if(angleoffetpan<-300)
-					angleoffetpan=angleoffetpan+360;
-				
-				if(fabs(angleoffetpan)<0.1)
-					{
-						timeoutflag[PLANTFORMPANFOREVER]=0;			
-					}
-				setpanopanpos(plantformpanforever);
-
-				//printf("***********PLANTFORMPANFOREVER******************\n");
-
-			}
+			callbackFuncPlantformPanForever();
+		
 		if(timeoutflag[PLANTFORMTITLEFOREVER]==1)
-			{
-				double angle=0;
-				getpanotitlepos();
-				angle=gettitleangle();
-				double angleoffettitle=angle-plantformtitleforever;
-				if(angleoffettitle>300)
-					angleoffettitle=angleoffettitle-360;
-				if(angleoffettitle<-300)
-					angleoffettitle=angleoffettitle+360;
-				if(fabs(angleoffettitle)<0.1)
-					{
-						timeoutflag[PLANTFORMTITLEFOREVER]=0;	
-						
-					}
-				setpanotitlepos(plantformtitleforever);
-
-				//printf("***********PLANTFORMTITLEFOREVER******************\n");
-			}
-
-
-
-/////////////////////////////
-
+			callbackFuncPlantformTitleForever();
 
 		//if(timeoutflag[PLANTFORMGETCALLBACK]==1)
-			{
-				if(callbackeable[RENDERPANO]==1)
-					{
-						double angle=0;
-						getpanopanpos();
-						getpanotitlepos();
-						angle=gettitleangle();
-						double angleoffettitle=angle-callbacktitle[RENDERPANO];
-						if(angleoffettitle>300)
-							angleoffettitle=angleoffettitle-360;
-						if(angleoffettitle<-300)
-							angleoffettitle=angleoffettitle+360;
-						angle=getpanangle();
-						double angleoffetpan=angle-callbackpan[RENDERPANO];
-						if(angleoffetpan>300)
-							angleoffetpan=angleoffetpan-360;
-						if(angleoffetpan<-300)
-							angleoffetpan=angleoffetpan+360;
-						
-						if(fabs(angleoffetpan)>0.1)
-							setpanopanpos(callbackpan[RENDERPANO]);
-						else if(fabs(angleoffettitle)>0.1)
-							setpanotitlepos(callbacktitle[RENDERPANO]);
-						
-						if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
-							{
-								callbackeable[RENDERPANO]=0;
-								//timeoutflag[PLANTFORMGETCALLBACK]=0;
-								if(callback[RENDERPANO]!=NULL)
-									callback[RENDERPANO](NULL);
-								
-							}
-						
+		{
+			if(callbackeable[RENDERPANO]==1)
+				callbackFuncRenderpano();
 
-					}
+			if(callbackeable[RENDERSIGNALPANO]==1)
+				callbackFuncRendersignalpano();
 
+			if(callbackeable[PRESETGO]==1)
+				callbackFuncPresetgo();
 
-
-				if(callbackeable[RENDERSIGNALPANO]==1)
-					{
-						double angle=0;
-						getpanopanpos();
-						getpanotitlepos();
-						angle=gettitleangle();
-						double angleoffettitle=angle-callbacktitle[RENDERSIGNALPANO];
-						if(angleoffettitle>300)
-							angleoffettitle=angleoffettitle-360;
-						if(angleoffettitle<-300)
-							angleoffettitle=angleoffettitle+360;
-						angle=getpanangle();
-						double angleoffetpan=angle-callbackpan[RENDERSIGNALPANO];
-						if(angleoffetpan>300)
-							angleoffetpan=angleoffetpan-360;
-						if(angleoffetpan<-300)
-							angleoffetpan=angleoffetpan+360;
-						
-						if(fabs(angleoffetpan)>0.1)
-							setpanopanpos(callbackpan[RENDERSIGNALPANO]);
-						else if(fabs(angleoffettitle)>0.1)
-							setpanotitlepos(callbacktitle[RENDERSIGNALPANO]);
-						
-						if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
-							{
-								callbackeable[RENDERSIGNALPANO]=0;
-								//timeoutflag[PLANTFORMGETCALLBACK]=0;
-								if(callback[RENDERSIGNALPANO]!=NULL)
-									callback[RENDERSIGNALPANO](NULL);
-								
-							}
-						
-
-					}
-
-
-				if(callbackeable[PRESETGO]==1)
-				{
-					double angle=0;
-					getpanopanpos();
-					getpanotitlepos();
-					angle=gettitleangle();
-					double angleoffettitle=angle-callbacktitle[PRESETGO];
-					if(angleoffettitle>300)
-						angleoffettitle=angleoffettitle-360;
-					if(angleoffettitle<-300)
-						angleoffettitle=angleoffettitle+360;
-					angle=getpanangle();
-					double angleoffetpan=angle-callbackpan[PRESETGO];
-					if(angleoffetpan>300)
-						angleoffetpan=angleoffetpan-360;
-					if(angleoffetpan<-300)
-						angleoffetpan=angleoffetpan+360;
-					
-					if(fabs(angleoffetpan)>0.1)
-						setpanopanpos(callbackpan[PRESETGO]);
-					else if(fabs(angleoffettitle)>0.1)
-						setpanotitlepos(callbacktitle[PRESETGO]);
-					
-					if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
-					{
-						callbackeable[PRESETGO]=0;
-						//timeoutflag[PLANTFORMGETCALLBACK]=0;
-						if(callback[PRESETGO]!=NULL)
-							callback[PRESETGO](NULL);
-						
-					}
-					
-
-				}
-
-
-				if(callbackeable[MVDETECTGO]==1)
-					{
-						double angle=0;
-						getpanopanpos();
-						getpanotitlepos();
-						angle=gettitleangle();
-						double angleoffettitle=angle-callbacktitle[MVDETECTGO];
-						if(angleoffettitle>300)
-							angleoffettitle=angleoffettitle-360;
-						if(angleoffettitle<-300)
-							angleoffettitle=angleoffettitle+360;
-						angle=getpanangle();
-						double angleoffetpan=angle-callbackpan[MVDETECTGO];
-						if(angleoffetpan>300)
-							angleoffetpan=angleoffetpan-360;
-						if(angleoffetpan<-300)
-							angleoffetpan=angleoffetpan+360;
-						
-						if(fabs(angleoffetpan)>0.1)
-							setpanopanpos(callbackpan[MVDETECTGO]);
-						else if(fabs(angleoffettitle)>0.1)
-							setpanotitlepos(callbacktitle[MVDETECTGO]);
-						
-						if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
-							{
-								callbackeable[MVDETECTGO]=0;
-
-								testangle=angle;
-								//timeoutflag[PLANTFORMGETCALLBACK]=0;
-								if(callback[MVDETECTGO]!=NULL)
-									callback[MVDETECTGO](&testangle);
-								
-							}
-						
-
-					}
-
-
-			}
+			if(callbackeable[MVDETECTGO]==1)
+				callbackFuncMvdetectgo();
+		}
 
 		if(timeoutflag[PLANTFORMINITTITLE]==0&&timeoutflag[PLANTFORMINITPAN]==0)
 			plantinitflag=1;
@@ -654,34 +353,272 @@ void Plantformpzt::main_contrl_func()
 
 		timeout[PLANTFORMGETPAN]++;
 		if(timeout[PLANTFORMGETPAN]%5000==0)
+		{
+			if((timeoutflag[PLANTFORMGETTITLE]==0)&&(timeoutflag[PLANTFORMGETPAN]==0))
 			{
-				if((timeoutflag[PLANTFORMGETTITLE]==0)&&(timeoutflag[PLANTFORMGETPAN]==0))
-					{
-						getpanotitlepos();
-						getpanopanpos();
-					}
+				getpanotitlepos();
+				getpanopanpos();
 			}
+		}
 		timeout[PLANTSCAN]++;
 		if(timeout[PLANTSCAN]%5==0)
+		{
+			if(scanflag)
 			{
-				if(scanflag)
-					{
-						if(timeout[PLANTSCAN]==100)
-							scanflag=0;
-						setpanoscan();
-					}
+				if(timeout[PLANTSCAN]==100)
+					scanflag=0;
+				setpanoscan();
 			}
-		
-		
-		
-		
+		}
 	}
-
-
-
+	return;
 }
 
 
+void Plantformpzt::callbackFuncPlantformTitleForever()
+{
+	double angle=0;
+	getpanotitlepos();
+	angle=gettitleangle();
+	double angleoffettitle=angle-plantformtitleforever;
+	if(angleoffettitle>300)
+	angleoffettitle=angleoffettitle-360;
+	if(angleoffettitle<-300)
+	angleoffettitle=angleoffettitle+360;
+	if(fabs(angleoffettitle)<0.1)
+	{
+		timeoutflag[PLANTFORMTITLEFOREVER]=0;	
+		
+	}
+	setpanotitlepos(plantformtitleforever);
+
+	//printf("***********PLANTFORMTITLEFOREVER******************\n");
+	return;
+}
+
+
+void Plantformpzt::callbackFuncPlantformPanForever()
+{
+	double angle=0;
+	getpanopanpos();
+	angle=getpanangle();
+	double angleoffetpan=angle-plantformpanforever;
+	if(angleoffetpan>300)
+		angleoffetpan=angleoffetpan-360;
+	if(angleoffetpan<-300)
+		angleoffetpan=angleoffetpan+360;
+
+	if(fabs(angleoffetpan)<0.1)
+	{
+		timeoutflag[PLANTFORMPANFOREVER]=0;			
+	}
+	setpanopanpos(plantformpanforever);
+
+	//printf("***********PLANTFORMPANFOREVER******************\n");
+	return;
+}
+
+
+bool Plantformpzt::callbackFuncPlantforinittitle()
+{
+	double angletitle=0;
+	angletitle=360+titlpanangle;
+	if(angletitle>=360)
+		angletitle=angletitle-360;
+	else if(angletitle<0)
+		angletitle=angletitle+360;
+
+	double angle=0;
+	angle=gettitleangle();
+	double angleoffet=angle-angletitle;
+	if(angleoffet>300)
+	angleoffet=angleoffet-360;
+	if(angleoffet<-300)
+	angleoffet=angleoffet+360;
+	if(fabs(angleoffet)<0.2)
+	{
+		timeoutflag[PLANTFORMINITTITLE]=0;
+		return true;
+	}
+
+	printf("angle=%f angletitle=%f\n",angle,angletitle);
+
+	OSA_waitMsecs(1000);
+	//initptzpos(anglepan,angletitle);
+	setpanotitlepos(angletitle);
+	getpanotitlepos();
+
+	return false;
+}
+
+
+bool Plantformpzt::callbackFuncPlantforminitpan()
+{
+	static double anglepan=Config::getinstance()->getpanozeroptz();;
+	
+	double angle=0;
+	angle=getpanangle();
+	double angleoffet=angle-anglepan;
+	if(angleoffet>300)
+	angleoffet=angleoffet-360;
+	if(angleoffet<-300)
+	angleoffet=angleoffet+360;
+	if(fabs(angleoffet)<0.2)
+	{
+		timeoutflag[PLANTFORMINITPAN]=0;
+		return true;
+	}
+	printf("angle=%f anglepan=%f\n",angle,anglepan);
+
+	OSA_waitMsecs(1000);
+	//initptzpos(anglepan,angletitle);
+	//	printf("anglepan=%f\n",anglepan);
+	setpanopanpos(anglepan);
+	getpanopanpos();
+	return false;
+}
+
+
+void Plantformpzt::callbackFuncRenderpano()
+{
+	double angle=0;
+	getpanopanpos();
+	getpanotitlepos();
+	angle=gettitleangle();
+	double angleoffettitle=angle-callbacktitle[RENDERPANO];
+	if(angleoffettitle>300)
+		angleoffettitle=angleoffettitle-360;
+	if(angleoffettitle<-300)
+		angleoffettitle=angleoffettitle+360;
+	angle=getpanangle();
+	double angleoffetpan=angle-callbackpan[RENDERPANO];
+	if(angleoffetpan>300)
+		angleoffetpan=angleoffetpan-360;
+	if(angleoffetpan<-300)
+		angleoffetpan=angleoffetpan+360;
+	
+	if(fabs(angleoffetpan)>0.1)
+		setpanopanpos(callbackpan[RENDERPANO]);
+	else if(fabs(angleoffettitle)>0.1)
+		setpanotitlepos(callbacktitle[RENDERPANO]);
+	
+	if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
+	{
+		callbackeable[RENDERPANO]=0;
+		//timeoutflag[PLANTFORMGETCALLBACK]=0;
+		if(callback[RENDERPANO]!=NULL)
+			callback[RENDERPANO](NULL);	
+	}
+	return ;
+}
+
+
+void Plantformpzt::callbackFuncRendersignalpano()
+{
+	double angle=0;
+	getpanopanpos();
+	getpanotitlepos();
+	angle=gettitleangle();
+	double angleoffettitle=angle-callbacktitle[RENDERSIGNALPANO];
+	if(angleoffettitle>300)
+		angleoffettitle=angleoffettitle-360;
+	if(angleoffettitle<-300)
+		angleoffettitle=angleoffettitle+360;
+	angle=getpanangle();
+	double angleoffetpan=angle-callbackpan[RENDERSIGNALPANO];
+	if(angleoffetpan>300)
+		angleoffetpan=angleoffetpan-360;
+	if(angleoffetpan<-300)
+		angleoffetpan=angleoffetpan+360;
+	
+	if(fabs(angleoffetpan)>0.1)
+		setpanopanpos(callbackpan[RENDERSIGNALPANO]);
+	else if(fabs(angleoffettitle)>0.1)
+		setpanotitlepos(callbacktitle[RENDERSIGNALPANO]);
+	
+	if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
+	{
+		callbackeable[RENDERSIGNALPANO]=0;
+		//timeoutflag[PLANTFORMGETCALLBACK]=0;
+		if(callback[RENDERSIGNALPANO]!=NULL)
+			callback[RENDERSIGNALPANO](NULL);
+		
+	}
+	return ;
+}
+
+
+void Plantformpzt::callbackFuncPresetgo()
+{
+	double angle=0;
+	getpanopanpos();
+	getpanotitlepos();
+	angle=gettitleangle();
+	double angleoffettitle=angle-callbacktitle[PRESETGO];
+	if(angleoffettitle>300)
+		angleoffettitle=angleoffettitle-360;
+	if(angleoffettitle<-300)
+		angleoffettitle=angleoffettitle+360;
+	angle=getpanangle();
+	double angleoffetpan=angle-callbackpan[PRESETGO];
+	if(angleoffetpan>300)
+		angleoffetpan=angleoffetpan-360;
+	if(angleoffetpan<-300)
+		angleoffetpan=angleoffetpan+360;
+	
+	if(fabs(angleoffetpan)>0.1)
+		setpanopanpos(callbackpan[PRESETGO]);
+	else if(fabs(angleoffettitle)>0.1)
+		setpanotitlepos(callbacktitle[PRESETGO]);
+	
+	if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
+	{
+		callbackeable[PRESETGO]=0;
+		//timeoutflag[PLANTFORMGETCALLBACK]=0;
+		if(callback[PRESETGO]!=NULL)
+			callback[PRESETGO](NULL);
+		
+	}
+	return ;
+}
+
+
+void Plantformpzt::callbackFuncMvdetectgo()
+{
+	double angle=0;
+	getpanopanpos();
+	getpanotitlepos();
+	angle=gettitleangle();
+	double angleoffettitle=angle-callbacktitle[MVDETECTGO];
+	if(angleoffettitle>300)
+		angleoffettitle=angleoffettitle-360;
+	if(angleoffettitle<-300)
+		angleoffettitle=angleoffettitle+360;
+	angle=getpanangle();
+	double angleoffetpan=angle-callbackpan[MVDETECTGO];
+	if(angleoffetpan>300)
+		angleoffetpan=angleoffetpan-360;
+	if(angleoffetpan<-300)
+		angleoffetpan=angleoffetpan+360;
+
+	if(fabs(angleoffetpan)>0.1)
+		setpanopanpos(callbackpan[MVDETECTGO]);
+	else if(fabs(angleoffettitle)>0.1)
+		setpanotitlepos(callbacktitle[MVDETECTGO]);
+
+	if(fabs(angleoffetpan)<0.1&&fabs(angleoffettitle)<0.1)
+	{
+		callbackeable[MVDETECTGO]=0;
+		testangle=angle;
+		//timeoutflag[PLANTFORMGETCALLBACK]=0;
+		if(callback[MVDETECTGO]!=NULL)
+			callback[MVDETECTGO](&testangle);	
+	}
+
+	return ;
+}
+
+	
 void Plantformpzt::setplantformcalibration(int flag)
 {
 	calibration=flag;

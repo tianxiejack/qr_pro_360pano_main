@@ -28,6 +28,9 @@ typedef enum
 {
     IPC_1 = 0,  	// SERVER TO CLIENT
     IPC_2,		// CLIENT TO SERCER
+	IPC_IMG_SHA,
+	IPC_USER_SHA,
+	IPC_SEM,
     IPC_MAX
 }IPC_MTYPE;
 
@@ -51,7 +54,7 @@ static void Ipc_init()
 	char tmp[256] = {"/home/"};
 	tmpIpc[0].IPCID = IPC_MAX;
 	
-	memcpy(tmpIpc[IPC_TOIMG_MSG].name,tmp,sizeof(tmp));
+	memcpy(tmpIpc[IPC_1].name,tmp,sizeof(tmp));
 	tmpIpc[IPC_1].Identify = IPC_1;
 	tmpIpc[IPC_1].Class = IPC_Class_MSG;
 	tmpIpc[IPC_1].IPCID = IPC_MAX;

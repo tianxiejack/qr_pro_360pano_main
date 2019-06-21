@@ -244,5 +244,17 @@ enum{
 		void setpanopanforever(double value);
 		void setpanotitleforever(double value);
 		unsigned char chechsum(unsigned char *pelcodbuf);
+
+	public:
+		void callbackFuncPresetgo();
+		void callbackFuncMvdetectgo();
+		void callbackFuncRenderpano();
+		void callbackFuncRendersignalpano();
+		bool callbackFuncPlantforinittitle();
+		bool callbackFuncPlantforminitpan();
+		void	callbackFuncPlantformPanForever();
+		void callbackFuncPlantformTitleForever();
+		
+		
 };
 #endif /* PLANTFORMCONTRL_HPP_ */

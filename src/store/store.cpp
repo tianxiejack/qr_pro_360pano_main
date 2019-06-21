@@ -24,6 +24,14 @@ void Store::create()
 
 void Store::addstore()
 {
+	list<storepam>::iterator iter;
+	int count = 0;
+	for(iter=store.begin();iter!=store.end();iter++)
+	{	
+		printf("index = %d ,   x,y = (%f , %f)  \n" , count , iter->ptzpan , iter->ptztitle);
+		count++;
+	}
+		count = 0;
 	storepam parm;
 	Plantformpzt::getinstance()->getpanopanpos();
 	OSA_waitMsecs(200);
@@ -34,15 +42,30 @@ void Store::addstore()
 	parm.value=1;
 	printf("%s  LINE:%d    the pan=%f tile=%f\n",__func__,__LINE__,parm.ptzpan,parm.ptztitle);
 	store.push_back(parm);
+	putchar(10);
+	putchar(10);
+	putchar(10);
+			
+	for(iter=store.begin();iter!=store.end();iter++)
+	{	
+		printf("index = %d ,   x,y = (%f , %f)  \n" , count , iter->ptzpan , iter->ptztitle);
+		count++;
+	}
+		
 }
 		
 void Store::erasestore(int id)
 {
 	list<storepam>::iterator iter;
-	//iter=store.begin()+4;//+id;
-	
 	
 	int count=0;
+
+	for(iter=store.begin();iter!=store.end();iter++)
+	{	
+		printf("index = %d ,   x,y = (%f , %f)  \n" , count , iter->ptzpan , iter->ptztitle);
+		count++;
+	}
+		count = 0;
 	for(iter=store.begin();iter!=store.end();iter++)
 		{
 			//parm=*iter;
@@ -52,7 +75,15 @@ void Store::erasestore(int id)
 		}
 	if(count>=store.size())
 		return;
+printf("id = %d ,count = %d \n" , id , count );
+
 	store.erase(iter);
+
+	for(iter=store.begin();iter!=store.end();iter++)
+	{	
+		printf("index = %d ,   x,y = (%f , %f)  \n" , count , iter->ptzpan , iter->ptztitle);
+		count++;
+	}
 
 }
 
@@ -68,27 +99,34 @@ void Store::load()
 	//OSA_mutexLock(&filelock);
 	filefp=fopen(DIRRECTDIR,"r");
 	if (filefp==NULL)			
-		{
-			printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Open Failed.\n");
-			return;
-		}
+	{
+		printf("%s  LINE:%d  Open Failed.\n" , __func__ ,__LINE__);
+		return;
+	}
 
 	if(filefp!=NULL)
+	{
+		while(fgets(buffer, MAXSTORE_LINE, filefp) != NULL)
 		{
-		
-			while(!feof(filefp))
-				{
-					fgets(buffer,MAXSTORE_LINE,filefp);
-					sscanf(buffer,"valid:%d_pan:%lf_title:%lf",&parm.value,&parm.ptzpan,&parm.ptztitle);
-					//puts(buffer);
-					//printf("valid:%d_pan:%f_title:%f",parm.value,parm.ptzpan,parm.ptztitle);
-					//printf("***********************\n");
-					store.push_back(parm);
-				}
-		
+			sscanf(buffer,"valid:%d_pan:%lf_title:%lf",&parm.value,&parm.ptzpan,&parm.ptztitle);
+			//puts(buffer);
+			printf("valid:%d_pan:%f_title:%f \n",parm.value,parm.ptzpan,parm.ptztitle);
+			//printf("***********************\n");
+			store.push_back(parm);
 		}
+	}
 
+list<storepam>::iterator iter;
+	
+	int count=0;
 
+	for(iter=store.begin();iter!=store.end();iter++)
+	{	
+		printf("index = %d ,   x,y = (%f , %f)  \n" , count , iter->ptzpan , iter->ptztitle);
+		count++;
+	}
+		count = 0;
+		
 	if(filefp!=NULL)
 		fclose(filefp);
 }
@@ -145,15 +183,28 @@ void Store::gostore(int num)
 	list<storepam>::iterator iter;
 	storepam parm;
 	int count=0;
-	
+
+	for(iter=store.begin();iter!=store.end();iter++)
+	{	
+		parm=*iter;
+		printf("index = %d ,   x,y = (%f , %f)  \n" , count , parm.ptzpan , parm.ptztitle);
+		count++;
+	}
+
+	count = 0;
+
 	for(iter=store.begin();iter!=store.end();iter++)
 	{
+		printf("111111  iter = %x \n" , iter);
 		if(count==num)
 			break;
 		count++;
 	}
+	printf("22222222   iter = %x \n" , iter);
 	if(count>=store.size())
 		return;
+
+	printf("%s  count = %d , num = %d \n",__func__, count , num);
 	parm=*iter;
 
 	Plantformpzt::getinstance()->setpanopanpos(parm.ptzpan);

@@ -65,6 +65,9 @@ typedef struct{
 }adddevcfg_t;
 
 typedef struct{
+	int year;
+	int mon;
+	int day;
 	int hour;
 	int min;
 	int sec;

@@ -591,13 +591,23 @@ void VideoLoad::main_Recv_func()
 					Recordmantime2 data;
 					sscanf(aviname.c_str()+strlen("/home/nvidia/calib/video/"),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
 						,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
-					//printf("start hour min sec(%d:%d:%d)\n",data.starthour,data.startmin,data.startsec);
-					int sec_start = data.starthour * 3600 + data.startmin * 60 + data.startsec;
-					sec_start += msec/1000;
+
+					char strT3[64] = {0};
+					sprintf(strT3, "%04d/%02d/%02d %02d:%02d:%02d",data.startyear,data.startmon,data.startday,data.starthour,data.startmin,data.startsec);
+					struct tm nowTm3;
+					strptime(strT3,"%Y/%m/%d %H:%M:%S",&nowTm3);
+					time_t longT = mktime(&nowTm3);
+					
+					longT += msec/1000;
+
+					struct tm *info = localtime(&longT);
 					playertime_t playertime_tmp;
-					playertime_tmp.hour = sec_start/3600;
-					playertime_tmp.min = (sec_start - (playertime_tmp.hour*3600))/60;
-					playertime_tmp.sec = sec_start - (playertime_tmp.hour*3600) - (playertime_tmp.min*60);
+					playertime_tmp.year = info->tm_year+1900;
+					playertime_tmp.mon = info->tm_mon+1;
+					playertime_tmp.day = info->tm_mday;
+					playertime_tmp.hour = info->tm_hour;
+					playertime_tmp.min = info->tm_min;
+					playertime_tmp.sec = info->tm_sec;
 					ACK_response_playertime(playertime_tmp);
 					
 					callfun(fileframe.data,&loaddata);

@@ -1,5 +1,5 @@
 #include "CPortBase.hpp"
-#include"Status.hpp"
+#include "Status.hpp"
 
 CPortBase::CPortBase()
 {
@@ -29,6 +29,26 @@ CStatusManager* CPortBase::getStatus()
 {
 	_StateManager = CStatusManager::Instance();
 	return _StateManager;
+}
+
+void CPortBase::ConfigCurrentSave()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 1)
+		return ;
+
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_configSave, 0);
+}
+
+void CPortBase::ConfigLoadDefault()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 1)
+		return ;
+
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_configRead, 0);
 }
 
 void CPortBase::EnableSelfTest()
@@ -212,6 +232,11 @@ void CPortBase::panoenable()
 }
 void CPortBase::scan_plantformconfig()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 6)
+		return ;
+
 	int configchange=0;
 	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->scan_platformcfg.address)
 	{
@@ -238,18 +263,26 @@ void CPortBase::scan_plantformconfig()
 		Status::getinstance()->scan_platformcfg.pt_check=_globalDate->rcvBufQue.at(9);
 		configchange=1;
 	}
-	
-	
+
 	if(configchange)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_ScanPlantfromConfig, 0);
 }
 
 void CPortBase::radarconfig()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 9)
+		return ;
+
 	int configchange=0;
+	int sensor = _globalDate->rcvBufQue.at(5);
 	int offset50 = _globalDate->rcvBufQue.at(7) | (_globalDate->rcvBufQue.at(8) << 8);
 	int offset100 = _globalDate->rcvBufQue.at(9) | (_globalDate->rcvBufQue.at(10) << 10);
 	int offset300 = _globalDate->rcvBufQue.at(11) | (_globalDate->rcvBufQue.at(12) << 12);
+	if(sensor != 0 && sensor != 1)
+		return ;
+	
 	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->radarcfg.sensor)
 	{
 		Status::getinstance()->radarcfg.sensor=_globalDate->rcvBufQue.at(5);
@@ -260,43 +293,55 @@ void CPortBase::radarconfig()
 		Status::getinstance()->radarcfg.hideline=_globalDate->rcvBufQue.at(6);
 		configchange=1;
 	}
-	if(offset50!=Status::getinstance()->radarcfg.offset50m)
+	if(offset50!=Status::getinstance()->radarcfg.offset50m[sensor])
 	{
-		Status::getinstance()->radarcfg.offset50m=offset50;
+		Status::getinstance()->radarcfg.offset50m[sensor]=offset50;
 		configchange=1;
 	}
-	if(offset100!=Status::getinstance()->radarcfg.offset100m)
+	if(offset100!=Status::getinstance()->radarcfg.offset100m[sensor])
 	{
-		Status::getinstance()->radarcfg.offset100m=offset100;
+		Status::getinstance()->radarcfg.offset100m[sensor]=offset100;
 		configchange=1;
 	}
-	if(offset300!=Status::getinstance()->radarcfg.offset300m)
+	if(offset300!=Status::getinstance()->radarcfg.offset300m[sensor])
 	{
-		Status::getinstance()->radarcfg.offset300m=offset300;
+		Status::getinstance()->radarcfg.offset300m[sensor]=offset300;
 		configchange=1;
 	}
-	
-	
+
 	if(configchange)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_RadarConfig, 0);
 }
 
 void CPortBase::trackconfig()
 {
-	int configchange=0;
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 5)
+		return ;
 
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->trackcfg.trkprio)
+	int configchange=0;
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->trackcfg.trkpriodis)
 	{
-		Status::getinstance()->trackcfg.trkprio=_globalDate->rcvBufQue.at(5);
+		Status::getinstance()->trackcfg.trkpriodis=_globalDate->rcvBufQue.at(5);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->trackcfg.trktime)
+	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->trackcfg.trkpriobright)
 	{
-		Status::getinstance()->trackcfg.trktime=_globalDate->rcvBufQue.at(6);
+		Status::getinstance()->trackcfg.trkpriobright=_globalDate->rcvBufQue.at(6);
 		configchange=1;
 	}
-	
-	
+	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->trackcfg.trkpriosize)
+	{
+		Status::getinstance()->trackcfg.trkpriosize=_globalDate->rcvBufQue.at(7);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->trackcfg.trktime)
+	{
+		Status::getinstance()->trackcfg.trktime=_globalDate->rcvBufQue.at(8);
+		configchange=1;
+	}
+
 	if(configchange)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_TrackConfig, 0);
 }
@@ -351,198 +396,211 @@ void CPortBase::plantformconfig()
 
 void CPortBase::sensortvconfig()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 13)
+		return ;
+
 	int configchange=0;
 	int time;
-	
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->sensortvcfg.outputresol)
+	sensorcfg_t *pSenCfg = &(Status::getinstance()->sensorcfg[0]);
+	if(_globalDate->rcvBufQue.at(5)!=pSenCfg->outputresol)
 	{
-		Status::getinstance()->sensortvcfg.outputresol=_globalDate->rcvBufQue.at(5);
+		pSenCfg->outputresol=_globalDate->rcvBufQue.at(5);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->sensortvcfg.brightness)
+	if(_globalDate->rcvBufQue.at(6)!=pSenCfg->brightness)
 	{
-		Status::getinstance()->sensortvcfg.brightness=_globalDate->rcvBufQue.at(6);
+		pSenCfg->brightness=_globalDate->rcvBufQue.at(6);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->sensortvcfg.contract)
+	if(_globalDate->rcvBufQue.at(7)!=pSenCfg->contract)
 	{
-		Status::getinstance()->sensortvcfg.contract=_globalDate->rcvBufQue.at(7);
+		pSenCfg->contract=_globalDate->rcvBufQue.at(7);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->sensortvcfg.autobright)
+	if(_globalDate->rcvBufQue.at(8)!=pSenCfg->autobright)
 	{
-		Status::getinstance()->sensortvcfg.autobright=_globalDate->rcvBufQue.at(8);
+		pSenCfg->autobright=_globalDate->rcvBufQue.at(8);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->sensortvcfg.backlight)
+	if(_globalDate->rcvBufQue.at(9)!=pSenCfg->backlight)
 	{
-		Status::getinstance()->sensortvcfg.backlight=_globalDate->rcvBufQue.at(9);
+		pSenCfg->backlight=_globalDate->rcvBufQue.at(9);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(10)!=Status::getinstance()->sensortvcfg.whitebalance)
+	if(_globalDate->rcvBufQue.at(10)!=pSenCfg->whitebalance)
 	{
-		Status::getinstance()->sensortvcfg.whitebalance=_globalDate->rcvBufQue.at(10);
+		pSenCfg->whitebalance=_globalDate->rcvBufQue.at(10);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(11)!=Status::getinstance()->sensortvcfg.gain)
+	if(_globalDate->rcvBufQue.at(11)!=pSenCfg->gain)
 	{
-		Status::getinstance()->sensortvcfg.gain=_globalDate->rcvBufQue.at(11);
+		pSenCfg->gain=_globalDate->rcvBufQue.at(11);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(12)!=Status::getinstance()->sensortvcfg.daynight)
+	if(_globalDate->rcvBufQue.at(12)!=pSenCfg->daynight)
 	{
-		Status::getinstance()->sensortvcfg.daynight=_globalDate->rcvBufQue.at(12);
+		pSenCfg->daynight=_globalDate->rcvBufQue.at(12);
 		configchange=1;
 	}
 
-	if(_globalDate->rcvBufQue.at(13)!=Status::getinstance()->sensortvcfg.stronglightsup)
+	if(_globalDate->rcvBufQue.at(13)!=pSenCfg->stronglightsup)
 	{
-		Status::getinstance()->sensortvcfg.stronglightsup=_globalDate->rcvBufQue.at(13);
+		pSenCfg->stronglightsup=_globalDate->rcvBufQue.at(13);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(14)!=Status::getinstance()->sensortvcfg.exposuremode)
+	if(_globalDate->rcvBufQue.at(14)!=pSenCfg->exposuremode)
 	{
-		Status::getinstance()->sensortvcfg.exposuremode=_globalDate->rcvBufQue.at(14);
+		pSenCfg->exposuremode=_globalDate->rcvBufQue.at(14);
 		configchange=1;
 	}
 
 	time = _globalDate->rcvBufQue.at(15) | (_globalDate->rcvBufQue.at(16) << 8);
-	if(time!=Status::getinstance()->sensortvcfg.elecshutter_time)
+	if(time!=pSenCfg->elecshutter_time)
 	{
-		Status::getinstance()->sensortvcfg.elecshutter_time=time;
+		pSenCfg->elecshutter_time=time;
 		configchange=1;
 	}
 
-
 	if(configchange)
-			pM->MSGDRIV_send(MSGID_EXT_INPUT_SensorTVConfig, 0);
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_SensorTVConfig, 0);
 }
 
 void CPortBase::sensortrkconfig()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 13)
+		return ;
+
 	int configchange=0;
 	int time;
-	
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->sensortrkcfg.outputresol)
+	sensorcfg_t *pSenCfg = &(Status::getinstance()->sensorcfg[2]);
+	if(_globalDate->rcvBufQue.at(5)!=pSenCfg->outputresol)
 	{
-		Status::getinstance()->sensortrkcfg.outputresol=_globalDate->rcvBufQue.at(5);
+		pSenCfg->outputresol=_globalDate->rcvBufQue.at(5);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->sensortrkcfg.brightness)
+	if(_globalDate->rcvBufQue.at(6)!=pSenCfg->brightness)
 	{
-		Status::getinstance()->sensortrkcfg.brightness=_globalDate->rcvBufQue.at(6);
+		pSenCfg->brightness=_globalDate->rcvBufQue.at(6);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->sensortrkcfg.contract)
+	if(_globalDate->rcvBufQue.at(7)!=pSenCfg->contract)
 	{
-		Status::getinstance()->sensortrkcfg.contract=_globalDate->rcvBufQue.at(7);
+		pSenCfg->contract=_globalDate->rcvBufQue.at(7);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->sensortrkcfg.autobright)
+	if(_globalDate->rcvBufQue.at(8)!=pSenCfg->autobright)
 	{
-		Status::getinstance()->sensortrkcfg.autobright=_globalDate->rcvBufQue.at(8);
+		pSenCfg->autobright=_globalDate->rcvBufQue.at(8);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->sensortrkcfg.backlight)
+	if(_globalDate->rcvBufQue.at(9)!=pSenCfg->backlight)
 	{
-		Status::getinstance()->sensortrkcfg.backlight=_globalDate->rcvBufQue.at(9);
+		pSenCfg->backlight=_globalDate->rcvBufQue.at(9);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(10)!=Status::getinstance()->sensortrkcfg.whitebalance)
+	if(_globalDate->rcvBufQue.at(10)!=pSenCfg->whitebalance)
 	{
-		Status::getinstance()->sensortrkcfg.whitebalance=_globalDate->rcvBufQue.at(10);
+		pSenCfg->whitebalance=_globalDate->rcvBufQue.at(10);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(11)!=Status::getinstance()->sensortrkcfg.gain)
+	if(_globalDate->rcvBufQue.at(11)!=pSenCfg->gain)
 	{
-		Status::getinstance()->sensortrkcfg.gain=_globalDate->rcvBufQue.at(11);
+		pSenCfg->gain=_globalDate->rcvBufQue.at(11);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(12)!=Status::getinstance()->sensortrkcfg.daynight)
+	if(_globalDate->rcvBufQue.at(12)!=pSenCfg->daynight)
 	{
-		Status::getinstance()->sensortrkcfg.daynight=_globalDate->rcvBufQue.at(12);
+		pSenCfg->daynight=_globalDate->rcvBufQue.at(12);
 		configchange=1;
 	}
 
-	if(_globalDate->rcvBufQue.at(13)!=Status::getinstance()->sensortrkcfg.stronglightsup)
+	if(_globalDate->rcvBufQue.at(13)!=pSenCfg->stronglightsup)
 	{
-		Status::getinstance()->sensortrkcfg.stronglightsup=_globalDate->rcvBufQue.at(13);
+		pSenCfg->stronglightsup=_globalDate->rcvBufQue.at(13);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(14)!=Status::getinstance()->sensortrkcfg.exposuremode)
+	if(_globalDate->rcvBufQue.at(14)!=pSenCfg->exposuremode)
 	{
-		Status::getinstance()->sensortrkcfg.exposuremode=_globalDate->rcvBufQue.at(14);
+		pSenCfg->exposuremode=_globalDate->rcvBufQue.at(14);
 		configchange=1;
 	}
 
 	time = _globalDate->rcvBufQue.at(15) | (_globalDate->rcvBufQue.at(16) << 8);
-	if(time!=Status::getinstance()->sensortrkcfg.elecshutter_time)
+	if(time!=pSenCfg->elecshutter_time)
 	{
-		Status::getinstance()->sensortrkcfg.elecshutter_time=time;
+		pSenCfg->elecshutter_time=time;
 		configchange=1;
 	}
 
-
 	if(configchange)
-			pM->MSGDRIV_send(MSGID_EXT_INPUT_SensorTRKConfig, 0);
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_SensorTRKConfig, 0);
+
 }
 
- void CPortBase::sensorconfig()
- 	{
- 		int configchange=0;
-		if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->brightness)
-			{
-				Status::getinstance()->brightness=_globalDate->rcvBufQue.at(5);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->contract)
-			{
-				Status::getinstance()->contract=_globalDate->rcvBufQue.at(6);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->autobright)
-			{
-				Status::getinstance()->autobright=_globalDate->rcvBufQue.at(7);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->backandwrite)
-			{
-				
-				Status::getinstance()->backandwrite=_globalDate->rcvBufQue.at(8);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->correct)
-			{
-				Status::getinstance()->correct=_globalDate->rcvBufQue.at(9);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(10)!=Status::getinstance()->digitfilter)
-			{
-				Status::getinstance()->digitfilter=_globalDate->rcvBufQue.at(10);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(11)!=Status::getinstance()->digitenhance)
-			{
-				Status::getinstance()->digitenhance=_globalDate->rcvBufQue.at(11);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(12)!=Status::getinstance()->mirror)
-			{
-				Status::getinstance()->mirror=_globalDate->rcvBufQue.at(12);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(13)!=Status::getinstance()->outputresol)
-			{
-				Status::getinstance()->outputresol=_globalDate->rcvBufQue.at(13);
-				configchange=1;
-			}
-		
-		
-		if(configchange)
-			pM->MSGDRIV_send(MSGID_EXT_INPUT_SensorConfig, 0);
+void CPortBase::sensorfrconfig()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 10)
+		return ;
 
+	int configchange=0;
+	sensorcfg_t *pSenCfg = &(Status::getinstance()->sensorcfg[1]);
+	if(_globalDate->rcvBufQue.at(5)!=pSenCfg->brightness)
+	{
+		pSenCfg->brightness=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(6)!=pSenCfg->contract)
+	{
+		pSenCfg->contract=_globalDate->rcvBufQue.at(6);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(7)!=pSenCfg->autobright)
+	{
+		pSenCfg->autobright=_globalDate->rcvBufQue.at(7);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(8)!=pSenCfg->backandwrite)
+	{
+		pSenCfg->backandwrite=_globalDate->rcvBufQue.at(8);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(9)!=pSenCfg->correct)
+	{
+		pSenCfg->correct=_globalDate->rcvBufQue.at(9);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(10)!=pSenCfg->digitfilter)
+	{
+		pSenCfg->digitfilter=_globalDate->rcvBufQue.at(10);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(11)!=pSenCfg->digitenhance)
+	{
+		pSenCfg->digitenhance=_globalDate->rcvBufQue.at(11);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(12)!=pSenCfg->mirror)
+	{
+		pSenCfg->mirror=_globalDate->rcvBufQue.at(12);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(13)!=pSenCfg->outputresol)
+	{
+		pSenCfg->outputresol=_globalDate->rcvBufQue.at(13);
+		configchange=1;
+	}
 
- 	};
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_SensorFRConfig, 0);
+
+}
+ 
  void CPortBase::zeroconfig()
  	{
  		int configchange=0;
@@ -724,48 +782,51 @@ void CPortBase::recordconfig()
 			pM->MSGDRIV_send(MSGID_EXT_INPUT_DisplayConfig,0);
 
  	};
- void CPortBase::correcttimeconfig()
- 	{
- 		int configchange=0;
-		if((_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6))!=Status::getinstance()->correctyear)
-			{
-				Status::getinstance()->correctyear=_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6);
-				configchange=1;
-			}
-		if((_globalDate->rcvBufQue.at(7))!=Status::getinstance()->correctmonth)
-			{
-				Status::getinstance()->correctmonth=_globalDate->rcvBufQue.at(7);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->correctday)
-			{
-				Status::getinstance()->correctday=_globalDate->rcvBufQue.at(8);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->correcthour)
-			{
-				Status::getinstance()->correcthour=_globalDate->rcvBufQue.at(9);
-				configchange=1;
-			}
 
-		
-		if(_globalDate->rcvBufQue.at(10)!=Status::getinstance()->correctmin)
-			{
-				Status::getinstance()->correctmin=_globalDate->rcvBufQue.at(10);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(11)!=Status::getinstance()->correctsec)
-			{
-				Status::getinstance()->correctsec=_globalDate->rcvBufQue.at(11);
-				configchange=1;
-			}
-		
+void CPortBase::correcttimeconfig()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 8)
+		return ;
 
-		if(configchange)
-			pM->MSGDRIV_send(MSGID_EXT_INPUT_CorrectTimeConfig,0);
- 		
+	int configchange=0;
+	if((_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6))!=Status::getinstance()->correctyear)
+	{
+		Status::getinstance()->correctyear=_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6);
+		configchange=1;
+	}
+	if((_globalDate->rcvBufQue.at(7))!=Status::getinstance()->correctmonth)
+	{
+		Status::getinstance()->correctmonth=_globalDate->rcvBufQue.at(7);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->correctday)
+	{
+		Status::getinstance()->correctday=_globalDate->rcvBufQue.at(8);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->correcthour)
+	{
+		Status::getinstance()->correcthour=_globalDate->rcvBufQue.at(9);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(10)!=Status::getinstance()->correctmin)
+	{
+		Status::getinstance()->correctmin=_globalDate->rcvBufQue.at(10);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(11)!=Status::getinstance()->correctsec)
+	{
+		Status::getinstance()->correctsec=_globalDate->rcvBufQue.at(11);
+		configchange=1;
+	}
 
- 	};
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_CorrectTimeConfig,0);
+
+}
+
  void CPortBase::panoconfig()
  	{
  			int configchange=0;
@@ -820,7 +881,7 @@ void CPortBase::recordconfig()
 					break;
 
 				case Status::CFG_SENSORFR:
-					CGlobalDate::Instance()->feedback=ACK_sensorconfig;
+					CGlobalDate::Instance()->feedback=ACK_sensorfrconfig;
 					OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 					break;
 				case Status::CFG_PLAYBACK:
@@ -1222,9 +1283,14 @@ int CPortBase::prcRcvFrameBufQue(int method)
                 plantctl();
                // AXIS_Y();
                 break;
-            case 0x41:
-            		Preset_Mtd();
+
+            case 0x40:
+            		ConfigCurrentSave();
             		break;
+            case 0x41:
+            		ConfigLoadDefault();
+            		break;
+
             case 0x42:
                	 workMode();
             		break;
@@ -1283,7 +1349,7 @@ int CPortBase::prcRcvFrameBufQue(int method)
 			plantformconfig();
 			break;
 		case 0x81:
-			sensorconfig();
+			sensorfrconfig();
 			break;
 		case 0x82:
 			zeroconfig();
@@ -1426,8 +1492,8 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 		case ACK_sensortrkconfig:
 			acksensortrkconfig(psendBuf);
 			break;
-		case ACK_sensorconfig:
-			acksensorconfig(psendBuf);
+		case ACK_sensorfrconfig:
+			acksensorfrconfig(psendBuf);
 			break;
 		case ACK_zeroconfig:
 			//recordquerry(psendBuf);
@@ -1924,19 +1990,15 @@ void  CPortBase:: recordquerry(sendInfo * spBuf)
 void  CPortBase::ackplayertime(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=8;
+	int infosize=4;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_playertime;
-	spBuf->sendBuff[5]=(Status::getinstance()->playertime.year>>8)&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->playertime.year&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->playertime.mon&0xff;
-	spBuf->sendBuff[8]=Status::getinstance()->playertime.day&0xff;
-	spBuf->sendBuff[9]=Status::getinstance()->playertime.hour&0xff;
-	spBuf->sendBuff[10]=Status::getinstance()->playertime.min&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->playertime.sec&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->playertime.hour&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->playertime.min&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->playertime.sec&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
@@ -1969,6 +2031,7 @@ void CPortBase::ackradarconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
 	int infosize=9;
+	int senId=Status::getinstance()->radarcfg.sensor;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
@@ -1976,12 +2039,12 @@ void CPortBase::ackradarconfig(sendInfo * spBuf)
 	spBuf->sendBuff[4]=ACK_radarconfig;
 	spBuf->sendBuff[5]=Status::getinstance()->radarcfg.sensor&0xff;
 	spBuf->sendBuff[6]=Status::getinstance()->radarcfg.hideline&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->radarcfg.offset50m&0xff;
-	spBuf->sendBuff[8]=(Status::getinstance()->radarcfg.offset50m>>8)&0xff;
-	spBuf->sendBuff[9]=Status::getinstance()->radarcfg.offset100m&0xff;
-	spBuf->sendBuff[10]=(Status::getinstance()->radarcfg.offset100m>>8)&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->radarcfg.offset300m&0xff;
-	spBuf->sendBuff[12]=(Status::getinstance()->radarcfg.offset300m>>8)&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->radarcfg.offset50m[senId]&0xff;
+	spBuf->sendBuff[8]=(Status::getinstance()->radarcfg.offset50m[senId]>>8)&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->radarcfg.offset100m[senId]&0xff;
+	spBuf->sendBuff[10]=(Status::getinstance()->radarcfg.offset100m[senId]>>8)&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->radarcfg.offset300m[senId]&0xff;
+	spBuf->sendBuff[12]=(Status::getinstance()->radarcfg.offset300m[senId]>>8)&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
@@ -1992,14 +2055,16 @@ void CPortBase::ackradarconfig(sendInfo * spBuf)
 void CPortBase::acktrackconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=3;
+	int infosize=5;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_trackconfig;
-	spBuf->sendBuff[5]=Status::getinstance()->trackcfg.trkprio&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->trackcfg.trktime&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->trackcfg.trkpriodis&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->trackcfg.trkpriobright&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->trackcfg.trkpriosize&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->trackcfg.trktime&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
@@ -2032,6 +2097,7 @@ void  CPortBase::acksensortvconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
 	int infosize=13;
+	int senId=0;
 	
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
@@ -2039,19 +2105,19 @@ void  CPortBase::acksensortvconfig(sendInfo * spBuf)
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_sensortvconfig;
 
-	spBuf->sendBuff[5]=Status::getinstance()->sensortvcfg.outputresol&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->sensortvcfg.brightness&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->sensortvcfg.contract&0xff;
-	spBuf->sendBuff[8]=Status::getinstance()->sensortvcfg.autobright&0xff;
-	spBuf->sendBuff[9]=Status::getinstance()->sensortvcfg.backlight&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->sensorcfg[senId].outputresol&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->sensorcfg[senId].brightness&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->sensorcfg[senId].contract&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->sensorcfg[senId].autobright&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->sensorcfg[senId].backlight&0xff;
 	
-	spBuf->sendBuff[10]=Status::getinstance()->sensortvcfg.whitebalance&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->sensortvcfg.gain&0xff;
-	spBuf->sendBuff[12]=Status::getinstance()->sensortvcfg.daynight&0xff;
-	spBuf->sendBuff[13]=Status::getinstance()->sensortvcfg.stronglightsup&0xff;
-	spBuf->sendBuff[14]=Status::getinstance()->sensortvcfg.exposuremode&0xff;
-	spBuf->sendBuff[15]=Status::getinstance()->sensortvcfg.elecshutter_time&0xff;
-	spBuf->sendBuff[16]=(Status::getinstance()->sensortvcfg.elecshutter_time>>8)&0xff;
+	spBuf->sendBuff[10]=Status::getinstance()->sensorcfg[senId].whitebalance&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->sensorcfg[senId].gain&0xff;
+	spBuf->sendBuff[12]=Status::getinstance()->sensorcfg[senId].daynight&0xff;
+	spBuf->sendBuff[13]=Status::getinstance()->sensorcfg[senId].stronglightsup&0xff;
+	spBuf->sendBuff[14]=Status::getinstance()->sensorcfg[senId].exposuremode&0xff;
+	spBuf->sendBuff[15]=Status::getinstance()->sensorcfg[senId].elecshutter_time&0xff;
+	spBuf->sendBuff[16]=(Status::getinstance()->sensorcfg[senId].elecshutter_time>>8)&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
@@ -2063,6 +2129,7 @@ void  CPortBase::acksensortrkconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
 	int infosize=13;
+	int senId=2;
 	
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
@@ -2070,19 +2137,19 @@ void  CPortBase::acksensortrkconfig(sendInfo * spBuf)
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_sensortrkconfig;
 
-	spBuf->sendBuff[5]=Status::getinstance()->sensortrkcfg.outputresol&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->sensortrkcfg.brightness&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->sensortrkcfg.contract&0xff;
-	spBuf->sendBuff[8]=Status::getinstance()->sensortrkcfg.autobright&0xff;
-	spBuf->sendBuff[9]=Status::getinstance()->sensortrkcfg.backlight&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->sensorcfg[senId].outputresol&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->sensorcfg[senId].brightness&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->sensorcfg[senId].contract&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->sensorcfg[senId].autobright&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->sensorcfg[senId].backlight&0xff;
 	
-	spBuf->sendBuff[10]=Status::getinstance()->sensortrkcfg.whitebalance&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->sensortrkcfg.gain&0xff;
-	spBuf->sendBuff[12]=Status::getinstance()->sensortrkcfg.daynight&0xff;
-	spBuf->sendBuff[13]=Status::getinstance()->sensortrkcfg.stronglightsup&0xff;
-	spBuf->sendBuff[14]=Status::getinstance()->sensortrkcfg.exposuremode&0xff;
-	spBuf->sendBuff[15]=Status::getinstance()->sensortrkcfg.elecshutter_time&0xff;
-	spBuf->sendBuff[16]=(Status::getinstance()->sensortrkcfg.elecshutter_time>>8)&0xff;
+	spBuf->sendBuff[10]=Status::getinstance()->sensorcfg[senId].whitebalance&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->sensorcfg[senId].gain&0xff;
+	spBuf->sendBuff[12]=Status::getinstance()->sensorcfg[senId].daynight&0xff;
+	spBuf->sendBuff[13]=Status::getinstance()->sensorcfg[senId].stronglightsup&0xff;
+	spBuf->sendBuff[14]=Status::getinstance()->sensorcfg[senId].exposuremode&0xff;
+	spBuf->sendBuff[15]=Status::getinstance()->sensorcfg[senId].elecshutter_time&0xff;
+	spBuf->sendBuff[16]=(Status::getinstance()->sensorcfg[senId].elecshutter_time>>8)&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
@@ -2090,27 +2157,28 @@ void  CPortBase::acksensortrkconfig(sendInfo * spBuf)
 	spBuf->byteSizeSend=infosize+5;
 }
 
-void  CPortBase:: acksensorconfig(sendInfo * spBuf)
+void  CPortBase:: acksensorfrconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
 	int infosize=10;
+	int senId=1;
 	
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
-	spBuf->sendBuff[4]=ACK_sensorconfig;
+	spBuf->sendBuff[4]=ACK_sensorfrconfig;
 	
-	spBuf->sendBuff[5]=Status::getinstance()->brightness&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->contract&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->autobright&0xff;
-	spBuf->sendBuff[8]=Status::getinstance()->backandwrite&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->sensorcfg[senId].brightness&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->sensorcfg[senId].contract&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->sensorcfg[senId].autobright&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->sensorcfg[senId].backandwrite&0xff;
 	
-	spBuf->sendBuff[9]=Status::getinstance()->correct&0xff;
-	spBuf->sendBuff[10]=Status::getinstance()->digitfilter&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->digitenhance&0xff;
-	spBuf->sendBuff[12]=Status::getinstance()->mirror&0xff;
-	spBuf->sendBuff[13]=Status::getinstance()->outputresol&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->sensorcfg[senId].correct&0xff;
+	spBuf->sendBuff[10]=Status::getinstance()->sensorcfg[senId].digitfilter&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->sensorcfg[senId].digitenhance&0xff;
+	spBuf->sendBuff[12]=Status::getinstance()->sensorcfg[senId].mirror&0xff;
+	spBuf->sendBuff[13]=Status::getinstance()->sensorcfg[senId].outputresol&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	

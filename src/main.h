@@ -23,5 +23,4 @@ void processFrame_osd(int cap_chid,unsigned char *src, struct v4l2_buffer capInf
 void processFrame_process(int cap_chid,unsigned char *src, struct v4l2_buffer capInfo, int format);
 void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capInfo, int format);
 
-
 #endif /* MAIN_H_ */

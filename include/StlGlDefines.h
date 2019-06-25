@@ -78,5 +78,83 @@ enum CCT_COUNT {
 #define T360_TGA			"360.tga"
 #define RADAR_TGA "radar.tga"
 
+typedef struct{
+	int address;
+	int protocol;
+	int baudrate;
+	int start_signal;
+	int pt_check;
+}scan_platformcfg_t;
+
+typedef struct{
+	int outputresol;
+	int brightness;
+	int contract;
+	int autobright;
+	// tv part
+	int backlight;
+	int whitebalance;
+	int gain;
+	int daynight;
+	int stronglightsup;
+	int exposuremode;
+	int elecshutter_time;
+	// fr part
+	int backandwrite;
+	int correct;
+	int digitfilter;
+	int digitenhance;
+	int mirror;
+}sensorcfg_t;
+
+typedef struct{
+	int movedetectalgenable;
+	int sensitivity;
+	int speedpriority;
+	int movmaxwidth;
+	int movmaxheight;
+	int movminwidth;
+	int movminheight;
+	int moverecordtime;
+}mtdcfg_t;
+
+typedef struct{
+	int sensor;
+	int hideline;
+	int offset50m[2];// 0-tv 1-fr
+	int offset100m[2];// 0-tv 1-fr
+	int offset300m[2];// 0-tv 1-fr
+}radarcfg_t;
+
+typedef struct{
+	int trkpriodis;
+	int trkpriobright;
+	int trkpriosize;
+	int trktime;
+}trackcfg_t;
+
+typedef struct{
+	int devid;
+	char ip[16];
+}adddevcfg_t;
+
+typedef struct{
+	int year;
+	int mon;
+	int day;
+	int hour;
+	int min;
+	int sec;
+}playertime_t;
+
+typedef struct
+{
+	int year;
+	int mon;
+	int day;
+	int hour;
+	int min;
+	int sec;
+}playerdate_t;
 
 #endif /* STLGLDEFINES_H_ */

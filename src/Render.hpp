@@ -642,6 +642,8 @@ public:
 public:
 	void registorfun();
 	//static MsgApiFun displaymod();
+	static void ConfigCurrentSave(long lParam);
+	static void ConfigLoadDefault(long lParam);
 	static void displaymod(long lParam);
 	static void workmod(long lParam);
 	static void singlecircle(long lParam);

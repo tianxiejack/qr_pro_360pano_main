@@ -8,81 +8,12 @@
 #ifndef STATUS_HPP_
 #define STATUS_HPP_
 
+#include "StlGlDefines.h"
 
 #define HELDNUM  2
 #define HELDWEEK  7
 #define HELDHOUR  24
 
-typedef struct{
-	int address;
-	int protocol;
-	int baudrate;
-	int start_signal;
-	int pt_check;
-}scan_platformcfg_t;
-
-typedef struct{
-	int outputresol;
-	int brightness;
-	int contract;
-	int autobright;
-	int backlight;
-	int whitebalance;
-	int gain;
-	int daynight;
-	int stronglightsup;
-	int exposuremode;
-	int elecshutter_time;
-}sensortvcfg_t;
-
-typedef struct{
-	int movedetectalgenable;
-	int sensitivity;
-	int speedpriority;
-	int movmaxwidth;
-	int movmaxheight;
-	int movminwidth;
-	int movminheight;
-	int moverecordtime;
-}mtdcfg_t;
-
-typedef struct{
-	int sensor;
-	int hideline;
-	int offset50m;
-	int offset100m;
-	int offset300m;
-}radarcfg_t;
-
-typedef struct{
-	int trkprio;
-	int trktime;
-}trackcfg_t;
-
-typedef struct{
-	int devid;
-	char ip[16];
-}adddevcfg_t;
-
-typedef struct{
-	int year;
-	int mon;
-	int day;
-	int hour;
-	int min;
-	int sec;
-}playertime_t;
-
-typedef struct
-{
-	int year;
-	int mon;
-	int day;
-	int hour;
-	int min;
-	int sec;
-}playerdate_t;
-	
 class Status{
 public:
 	typedef enum {
@@ -260,29 +191,11 @@ public:
 	/******scan plantform config*******/
 	scan_platformcfg_t scan_platformcfg;
 
-	/******sensor TV config*******/
-	sensortvcfg_t sensortvcfg;
+	/******sensors config*******/
+	sensorcfg_t sensorcfg[3];	// 0-tvin 1-frin 2-netin
 
-	/******sensor TRK config*******/
-	sensortvcfg_t sensortrkcfg;
-	
-	/******sensor FR config*******/
-	unsigned char brightness;
-	unsigned char contract;
-	unsigned char autobright;
-	unsigned char backandwrite;
-	
-	unsigned char correct;
-	unsigned char digitfilter;
-	unsigned char digitenhance;
-	unsigned char mirror;
-	unsigned char outputresol;
-
-	
 	/******zero config*******/
-
 	unsigned char zeromod;
-
 
 	/******record config*******/
 	int recordpositionheld[HELDNUM][HELDWEEK][HELDHOUR];
@@ -297,7 +210,6 @@ public:
 
 
 	/******display config*******/
-
 	int displayresolution;
 
 	/******time config*******/
@@ -402,11 +314,10 @@ private:
 	Status();
 	~Status();
 	static Status*instance;
-	void init_scan_platformcfg();
-	void init_mtdcfg();
 
 public:
 	static Status* getinstance();
+	void loadconfig();
 
 };
 

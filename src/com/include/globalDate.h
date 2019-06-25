@@ -11,7 +11,6 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
-//#include "app_status.h"
 #include "CMessage.hpp"
 #include "osa_sem.h"
 #include <errno.h>

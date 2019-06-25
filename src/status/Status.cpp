@@ -1,5 +1,7 @@
-#include"Status.hpp"
-#include "stdio.h"
+#include <stdio.h>
+#include <string.h>
+#include "Status.hpp"
+#include "config.hpp"
 Status* Status::instance=NULL;
 
 Status::Status():devid(0),displaymod(0),displaysensor(0),ptzpanspeed(0),ptztitlespeed(0),ptzpanodirection(0),ptztitledirection(0),workmode(-1),mouseevent(-1),mousex(-1),mousey(-1),mousemod(-1),
@@ -7,8 +9,11 @@ Status::Status():devid(0),displaymod(0),displaysensor(0),ptzpanspeed(0),ptztitle
 	correctday(-1),correcthour(-1),correctmin(-1),correctsec(-1),panoptzspeed(-1),panopiexfocus(-1),panopicturerate(-1),detectareanum(-1),detectareaenable(-1),movdetectenable(1),
 	panodetectenable(1),researchangle(0),mvdetectresearch(0),usestepdetect(0),mvconfigenable(0),zeromod(0),calibration(0)
 {
-	init_scan_platformcfg();
-	init_mtdcfg();
+
+	mtdcfg.movedetectalgenable = -1;
+	mtdcfg.speedpriority = -1;
+	mtdcfg.sensitivity = -1;
+	mtdcfg.moverecordtime = -1;
 
 }
 Status::~Status()
@@ -24,19 +29,13 @@ Status* Status::getinstance()
 
 }
 
-void Status::init_scan_platformcfg()
+void Status::loadconfig()
 {
-	scan_platformcfg.address = -1;
-	scan_platformcfg.protocol = -1;
-	scan_platformcfg.baudrate = -1;
-	scan_platformcfg.start_signal = -1;
-	scan_platformcfg.pt_check = -1;
+	memcpy(&scan_platformcfg, &(Config::getinstance()->scan_platformcfg), sizeof(scan_platformcfg_t));
+	memcpy(&sensorcfg[0], &(Config::getinstance()->sensorcfg[0]), sizeof(sensorcfg_t)*3);
+	memcpy(&radarcfg, &(Config::getinstance()->radarcfg), sizeof(radarcfg_t));
+	memcpy(&trackcfg, &(Config::getinstance()->trackcfg) , sizeof(trackcfg_t));
+	printf("%s load status form config\r\n",__func__);
 }
 
-void Status::init_mtdcfg()
-{
-	mtdcfg.movedetectalgenable = -1;
-	mtdcfg.speedpriority = -1;
-	mtdcfg.sensitivity = -1;
-	mtdcfg.moverecordtime = -1;
-}
+

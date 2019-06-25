@@ -29,6 +29,9 @@ public:
     CStatusManager* _StateManager;
     CStatusManager* getStatus();
 
+	void ConfigCurrentSave();
+	void ConfigLoadDefault();
+
     void seconds_sleep(unsigned seconds);
     void EnableSelfTest();
     void EnableswitchVideoChannel();
@@ -102,7 +105,7 @@ public:
 	void  ackpanoconfig(sendInfo * spBuf);
 	void  acksensortvconfig(sendInfo * spBuf);
 	void  acksensortrkconfig(sendInfo * spBuf);
-	void  acksensorconfig(sendInfo * spBuf);
+	void  acksensorfrconfig(sendInfo * spBuf);
 	void  ackrecordconfig(sendInfo * spBuf,int classid);
 	int fw_update_runtar(void);
 	int update_startsh(void);
@@ -124,7 +127,7 @@ public:
     void plantformconfig();
     void sensortvconfig();
     void sensortrkconfig();
-    void sensorconfig();
+    void sensorfrconfig();
     void zeroconfig();
     void recordconfig();
     void movedetectconfig();

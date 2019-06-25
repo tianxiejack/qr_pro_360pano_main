@@ -198,7 +198,7 @@ int CConnect::expconfig(unsigned char *swap_data_buf, unsigned int swap_data_len
 		return -1;
 	}
 	
-	if(NULL ==(fp = fopen("/home/nvidia/Release/config.xml","r")))
+	if(NULL ==(fp = fopen("/home/nvidia/config/config.xml","r")))
 	{
 		perror("fopen\r\n");
 		return -1;

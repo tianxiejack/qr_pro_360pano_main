@@ -5545,7 +5545,7 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_CHOOSEDEV,choosedev,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorTVConfig,sensortvcfg,0);  
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorTRKConfig,sensortrkcfg,0);
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorConfig,sensorfrcfg,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_SensorFRConfig,sensorfrcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_DisplayConfig,displaycfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_RadarConfig,radarcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_TrackConfig,trackcfg,0);
@@ -5555,9 +5555,28 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEPHOTO,livephoto,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_VIDEOCLIP,videoclip,0);
 
-	
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_configSave,ConfigCurrentSave,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_configRead,ConfigLoadDefault,0);
+
 	//MSGID_EXT_INPUT_WorkModeCTRL
 }
+
+void Render::ConfigCurrentSave(long lParam)
+{
+	memcpy(&(Config::getinstance()->scan_platformcfg), &(Status::getinstance()->scan_platformcfg), sizeof(scan_platformcfg_t));
+	memcpy(&(Config::getinstance()->sensorcfg[0]), &(Status::getinstance()->sensorcfg[0]), sizeof(sensorcfg_t)*3);
+	memcpy(&(Config::getinstance()->radarcfg), &(Status::getinstance()->radarcfg), sizeof(radarcfg_t));
+	memcpy(&(Config::getinstance()->trackcfg), &(Status::getinstance()->trackcfg), sizeof(trackcfg_t));
+	printf("%s sync status to config\r\n",__func__);
+
+	Config::getinstance()->SaveConfig();
+}
+
+void Render::ConfigLoadDefault(long lParam)
+{
+	//Config::getinstance()->DefaultConfig();
+}
+
 void Render::displaymod(long lParam)
 {
 	int dispmode = Status::getinstance()->getdisplaymod();
@@ -5965,7 +5984,6 @@ void Render::detectconfig(long lparam)
 
 void Render::correcttimeconfig(long lparam)
 {	
-	
 	int year=Status::getinstance()->correctyear;
 	int mon=Status::getinstance()->correctmonth;
 	int day=Status::getinstance()->correctday;
@@ -6026,25 +6044,23 @@ void Render::choosedev(long lparam)
 
 void Render::sensortvcfg(long lparam)
 {
-	sensortvcfg_t sensortvcfg_tmp = Status::getinstance()->sensortvcfg;
+	sensorcfg_t *pSenCfg_tmp = &(Status::getinstance()->sensorcfg[0]);
+	//printf("%s update config\r\n",__func__);
+
 }
 
 void Render::sensortrkcfg(long lparam)
 {
-	sensortvcfg_t sensortrkcfg_tmp = Status::getinstance()->sensortrkcfg;
+	sensorcfg_t *pSenCfg_tmp = &(Status::getinstance()->sensorcfg[2]);
+	//printf("%s update config\r\n",__func__);
+
 }
 
 void Render::sensorfrcfg(long lparam)
 {
-	int brightness = Status::getinstance()->brightness;
-	int contract = Status::getinstance()->contract;
-	int autobright = Status::getinstance()->autobright;
-	int backandwrite = Status::getinstance()->backandwrite;
-	int correct = Status::getinstance()->correct;
-	int digitfilter = Status::getinstance()->digitfilter;
-	int digitenhance = Status::getinstance()->digitenhance;
-	int mirror = Status::getinstance()->mirror;
-	int outputresol = Status::getinstance()->outputresol;
+	sensorcfg_t *pSenCfg_tmp = &(Status::getinstance()->sensorcfg[1]);
+	//printf("%s update config\r\n",__func__);
+
 }
 
 void Render::displaycfg(long lparam)
@@ -6054,12 +6070,14 @@ void Render::displaycfg(long lparam)
 
 void Render::radarcfg(long lparam)
 {
-	radarcfg_t radarcfg_tmp =  Status::getinstance()->radarcfg;
+	radarcfg_t *pRadarCfg_tmp = &(Status::getinstance()->radarcfg);
+	//printf("%s update config\r\n",__func__);
 }
 
 void Render::trackcfg(long lparam)
 {
-	trackcfg_t trackcfg_tmp = Status::getinstance()->trackcfg;
+	trackcfg_t *pTrkCfg_tmp = &(Status::getinstance()->trackcfg);
+	//printf("%s update config\r\n",__func__);
 }
 
 void Render::adddevcfg(long lparam)

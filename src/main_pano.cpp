@@ -329,6 +329,8 @@ int main_pano(int argc, char **argv)
 	CGlobalDate::Instance();
 	config=Config::getinstance();
 	config->loadconfig();
+	/*dynamic status*/
+	Status::getinstance()->loadconfig();
 	/*video queue*/
 	Queue::getinstance()->create();
 	/*message queue*/

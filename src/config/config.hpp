@@ -7,6 +7,9 @@
 
 #ifndef __CONFIG_HPP_
 #define __CONFIG_HPP_
+
+#include "StlGlDefines.h"
+
 class Config{
 
 	public:
@@ -104,6 +107,7 @@ class Config{
 	 inline  int getmvprocessheight(){return mvprocessheight;};
 	 inline  int getmvdownup(){return mvdownup;};
 
+	 /*ptz*/
 	 int ptzwait;
 	 int ptzbroad;
 	 int ptzaddres;
@@ -125,16 +129,19 @@ class Config{
 	 inline int getptzspeed(){return ptzspeed;};
 	 void setptzspeed(int speed){ ptzspeed=speed;};
 
-
-
-
-
 	 int intergralenable;
 	 inline int getintergralenable(){return intergralenable;};
 	 void setintergralenable(int enable){ intergralenable=enable;};
 
+	/*input sensor */
+	sensorcfg_t sensorcfg[3];	// 0-tvin 1-frin 2-netin
+	/*scan plantform */
+	scan_platformcfg_t scan_platformcfg;
+	/*track*/
+	trackcfg_t trackcfg;
+	/*radar*/
+	radarcfg_t radarcfg;
 
-	 
 
 	static Config *getinstance();
 	void saveconfig();

@@ -194,6 +194,7 @@ class VideoLoad{
 
 		void playvideo();
 		void ACK_response_playertime(playertime_t param);
+		time_t date2sec(int year, int mon, int day, int hour, int min, int sec);
 	private:
 		VideoLoad();
 		~VideoLoad();

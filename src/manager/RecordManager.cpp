@@ -331,15 +331,16 @@ void RecordManager::setpalyervide(int num)
 	int count=recordvideonames.size();
 	if(num>=count)
 		return ;
+
+	nextvideoid = num;
 	
 	string videname=recordvideonames[num];
 	string directory = videname.substr(7, 8);
 	videname = directory + "/" + videname;
-
 		
 	cout<<"zzq will play:"<<videname<<endl;
 	VideoLoad::getinstance()->setreadavi(videname);
-	cout<<videname<<endl;
+	cout<<"[setpalyervide]"<<videname<<endl;
 	string::iterator begin=videname.end()-4;
 	string::iterator end=videname.end();
 	videname.erase(begin,end);//+FILETAIL;
@@ -349,7 +350,7 @@ void RecordManager::setpalyervide(int num)
 	VideoLoad::getinstance()->setreadnewfile(1);
 
 
-	cout<<videname<<endl;
+	cout<<"[setpalyervide]"<<videname<<endl;
 	
 
 
@@ -363,8 +364,12 @@ void RecordManager::getnexvideo()
 	nextvideoid=nextvideoid%num;
 
 	string videname=recordvideonames[nextvideoid];
+	string directory = videname.substr(7, 8);
+	videname = directory + "/" + videname;
+
+
 	VideoLoad::getinstance()->setreadavi(videname);
-	cout<<videname<<endl;
+	cout<<"[getnexvideo]"<<videname<<endl;
 	string::iterator begin=videname.end()-4;
 	string::iterator end=videname.end();
 	videname.erase(begin,end);//+FILETAIL;
@@ -373,7 +378,7 @@ void RecordManager::getnexvideo()
 	VideoLoad::getinstance()->setreadname(videname);
 	VideoLoad::getinstance()->setreadnewfile(1);
 
-	cout<<videname<<endl;
+	cout<<"[getnexvideo]"<<videname<<endl;
 
 }
 

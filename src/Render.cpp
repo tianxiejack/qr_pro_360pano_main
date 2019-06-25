@@ -31,6 +31,7 @@
 #include "DxTimer.hpp"
 #include "store.hpp"
 #include "StlGlDefines.h"
+#include "videoload.hpp"
 
 //#include"Gyroprocess.hpp"
 
@@ -5791,10 +5792,8 @@ void Render::playerselect(long lParam)
 	selecttime.min=Status::getinstance()->playermin;
 	selecttime.sec=Status::getinstance()->playersec;
 
-	unsigned int time=selecttime.day*24*60+selecttime.hour*60+selecttime.min;
+	time_t time = VideoLoad::getinstance()->date2sec(selecttime.year,selecttime.mon,selecttime.day,selecttime.hour,selecttime.min,selecttime.sec);
 
-	printf("time=%d\n",time);
-	
 	//RecordManager::getinstance()->findrecordnames();
 	
 	Recordmantime recorddate;
@@ -5802,33 +5801,22 @@ void Render::playerselect(long lParam)
 	for(int i=0;i<RecordManager::getinstance()->recordtime.size();i++)
 		{
 			recorddate=RecordManager::getinstance()->recordtime[i];
-			
-			if(((recorddate.startyear==selecttime.year)&&(recorddate.startmon==selecttime.mon)&&(recorddate.startday==selecttime.day))||
-				((recorddate.endyear==selecttime.year)&&(recorddate.endmon==selecttime.mon)&&(recorddate.endday==selecttime.day)))
-				{
 
-					unsigned int starttime=recorddate.startday*24*60+recorddate.starthour*60+recorddate.startmin;
-					unsigned int endtime=recorddate.endday*24*60+recorddate.endhour*60+recorddate.endtmin;
-					//printf("starttime=%d  endtime=%d\n",starttime,endtime);
-					if((starttime<=time)&&(endtime>time))
-						{	
+			time_t starttime = VideoLoad::getinstance()->date2sec(recorddate.startyear,recorddate.startmon,recorddate.startday,recorddate.starthour,recorddate.startmin,recorddate.startsec);
+			time_t endtime = VideoLoad::getinstance()->date2sec(recorddate.endyear,recorddate.endmon,recorddate.endday,recorddate.endhour,recorddate.endtmin,recorddate.endsec);
 
-							starttime2.year = recorddate.startyear;
-							starttime2.mon = recorddate.startmon;
-							starttime2.day = recorddate.startday;
-							starttime2.hour = recorddate.starthour;
-							starttime2.min = recorddate.startmin;
-							starttime2.sec = recorddate.startsec;
-							findok=i;
-							break;
+			if((starttime<=time)&&(endtime>=time))
+			{	
 
-						}
-
-					
-					
-					
-				}
-
+				starttime2.year = recorddate.startyear;
+				starttime2.mon = recorddate.startmon;
+				starttime2.day = recorddate.startday;
+				starttime2.hour = recorddate.starthour;
+				starttime2.min = recorddate.startmin;
+				starttime2.sec = recorddate.startsec;
+				findok=i;
+				break;
+			}
 		}
 
 	if(findok>=0)
@@ -5836,7 +5824,6 @@ void Render::playerselect(long lParam)
 			RecordManager::getinstance()->setselecttime(starttime2, selecttime);
 			RecordManager::getinstance()->setpalyervide(findok);
 			RecordManager::getinstance()->enableplayer(1);
-
 		}
 
 	//CGlobalDate::Instance()->->feedback=ACK_playerquerry;

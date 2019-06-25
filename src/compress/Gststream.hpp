@@ -9,8 +9,8 @@
 #define GSTREAMER_HPP_
 
 #include <opencv2/opencv.hpp>
-#include "osa_buf.h"
-#include "osa_sem.h"
+//#include "osa_buf.h"
+//#include "osa_sem.h"
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <gst/app/gstappsink.h>

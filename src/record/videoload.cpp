@@ -3,6 +3,7 @@
 #include"Queuebuffer.hpp"
 #include "CMessage.hpp"
 #include "globalDate.h"
+#include"RecordManager.hpp"
 
 VideoLoad* VideoLoad::instance=NULL;
 #define DIRRECTDIR  "/home/nvidia/calib/video/"
@@ -493,112 +494,64 @@ void VideoLoad::main_Recv_func()
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{	
 		int capangle=0;
-		//OSA_waitMsecs(30);
+
 		OSA_semWait(&loadsem,OSA_TIMEOUT_FOREVER);
-		//printf("********%s bengin******\n",__func__);
+
 		if(RTSPURL)
 			return;
 		if(getreadnewfile())
-			{
+		{
 				setreadnewfile(0);
 				aviname=readdir+getreadavi();
 				xmlname=readdir+getreadname();
 
 				playerdate_t startdate = getstarttime();
 				playerdate_t selectdate = getselecttime();
-				unsigned int msec = ((selectdate.hour*3600+selectdate.hour*60+selectdate.sec) - (startdate.hour*3600+startdate.hour*60+startdate.sec))*1000;
+
+				time_t starttime = date2sec(startdate.year,startdate.mon,startdate.day,startdate.hour,startdate.min,startdate.sec);
+				time_t endtime = date2sec(selectdate.year,selectdate.mon,selectdate.day,selectdate.hour,selectdate.min,selectdate.sec);
+			
+				unsigned long msec = (endtime - starttime)*1000;
 
 				if(OPENCVAVI)
 				videocapture.release();
-				else
-				uninitgstreamer();
-				
+
 				mydata.close();
 				if(OPENCVAVI)
 				{
 					videocapture.open(aviname);
 					videocapture.set(CV_CAP_PROP_POS_MSEC, msec);
 				}
-				else
-				initgstreamer();
+
 				mydata.open(xmlname.c_str());
 
-			}
+		}
 		
-		//initvideo();
-		//if(getreadnewfile())
-			{
-				;
-
-			}
 		if(OPENCVAVI)
 		status=videocapture.read(fileframe);
-		else
-			fileframe=getgstframebegin();
+
 		if(!fileframe.empty())
-			{
-				
-				//if()
-				//resize(fileframe,fileframe,Size(config->getpanoprocesswidth(),config->getpanoprocessheight()),0,0,INTER_LINEAR);
-				//printf("********2*file cap ok******\n");
-				//fileframe.copyTo(img);
-
-				
-				//cvtColor(fileframe,img,CV_GRAY2BGR);
-				//printf("********3*file cap ok******\n");
-
-				loaddata=mydata.read();
-				
-				//printf("********loaddata=%f******\n",loaddata.gyroz);
-			}
+		{
+			loaddata=mydata.read();
+		}
 		else
-			{
-				//videocapture.set(CV_CAP_PROP_POS_FRAMES,0);
-				if(OPENCVAVI)
-					{
-				videocapture.release();
-				videocapture.open(aviname);
-					}
-				else
-					{
-						getgstframeend();
-						uninitgstreamer();
-						initgstreamer();
-
-					}
-				mydata.close();
-				mydata.open(xmlname.c_str());
-				if(OPENCVAVI)
-				videocapture.read(fileframe);
-				else
-					{
-						fileframe=getgstframebegin();
-					}
-				loaddata=mydata.read();
-
-			}
-		//printf("********%s end******\n",__func__);
+		{
+			printf("%s, %d, get next video!!!\n", __FILE__,__LINE__);
+			RecordManager::getinstance()->getnexvideo();
+		}
+		
 		if(callfun!=NULL)
-			{
+		{
 				if(RTSPURL==0)
 				{	
 					double msec = videocapture.get(CV_CAP_PROP_POS_MSEC);
-					//double frameindex = videocapture.get(CV_CAP_PROP_POS_FRAMES);
-	
-					//printf("time=%f@@@@@@@@@@\n", msec);
-					//printf("frameindex=%f@@@@@@@@@@\n", frameindex);
-					//printf("aviname=%s\n",aviname.c_str());
+		
 					Recordmantime2 data;
-					sscanf(aviname.c_str()+strlen("/home/nvidia/calib/video/"),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
+					sscanf(aviname.c_str()+strlen("/home/nvidia/calib/video/")+9,"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
 						,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
-
-					char strT3[64] = {0};
-					sprintf(strT3, "%04d/%02d/%02d %02d:%02d:%02d",data.startyear,data.startmon,data.startday,data.starthour,data.startmin,data.startsec);
-					struct tm nowTm3;
-					strptime(strT3,"%Y/%m/%d %H:%M:%S",&nowTm3);
-					time_t longT = mktime(&nowTm3);
 					
-					longT += msec/1000;
+					time_t longT = date2sec(data.startyear,data.startmon,data.startday,data.starthour,data.startmin,data.startsec);	
+					longT += msec /1000;
 
 					struct tm *info = localtime(&longT);
 					playertime_t playertime_tmp;
@@ -612,22 +565,15 @@ void VideoLoad::main_Recv_func()
 					
 					callfun(fileframe.data,&loaddata);
 				}
-			}
+		}
+		
 		if(OPENCVAVI)
 			;
 		else
 		getgstframeend();
-		//OSA_printf("%s: Main Proc Tsk Is Entering. capture ..\n",__func__);
-		/*
-		data=(unsigned char *)readfilepicture(&angle);
-		//capangle=angle*1000;
-		if(capturecallback!=NULL)
-		capturecallback(capture.data,&angle);
-		*/
 	}
-
-
 }
+
 void VideoLoad::main_Recv_funcdata()
 {
 	
@@ -739,3 +685,12 @@ void VideoLoad::ACK_response_playertime(playertime_t param)
 	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
 }
 
+time_t VideoLoad::date2sec(int year, int mon, int day, int hour, int min, int sec)
+{
+	char buf[64] = {0};
+	sprintf(buf, "%04d/%02d/%02d %02d:%02d:%02d",year,mon,day,hour,min,sec);
+	struct tm p;
+	strptime(buf,"%Y/%m/%d %H:%M:%S",&p);
+	time_t seconds = mktime(&p);
+	return seconds;
+}

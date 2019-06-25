@@ -17,7 +17,7 @@
 	 record_handle = CabinInit(1920,1080,30,rgba,1,flip);
 #endif
  }
- void SaveVideoByGST::SetMTime(int Tnm)
+ void SaveVideoByGST::SetMTime(unsigned long Tnm)
  {
 	 SetTime(Tnm,record_handle);
  };

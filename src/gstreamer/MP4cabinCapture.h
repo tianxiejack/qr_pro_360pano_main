@@ -1,6 +1,6 @@
 #ifndef _CABIN_CAPTURE_H
 #define _CABIN_CAPTURE_H
-#define MAX_SIZE_TIME 900000000000
+#define MAX_SIZE_TIME 5000000000
 #if 1
 #ifdef __cplusplus
 #if 0
@@ -68,7 +68,7 @@ int CabinUninit(RecordHandle *handle);
 
 int CabinEnable(RecordHandle *handle, unsigned short bEnable);
 void EOS(RecordHandle *recordHandle);
-void SetTime(int Tnm,RecordHandle *recordHandle);
+void SetTime(unsigned long Tnm,RecordHandle *recordHandle);
 void set_video_cnt(int cnt);
 int get_video_cnt();
 void set_data_cnt(int cnt);

@@ -17,7 +17,7 @@ public:
 	virtual void init()=0;
 	virtual void SaveAsMp4(Mat *pmatSrc)=0;
 	virtual void EndOfStream()=0;
-	virtual void SetMTime(int Tnm)=0;
+	virtual void SetMTime(unsigned long Tnm)=0;
 };
 
 class Pseudo:public IFSaveVideo
@@ -25,7 +25,7 @@ class Pseudo:public IFSaveVideo
 	 void init(){};
 	 void SaveAsMp4(Mat *pmatSrc){};
 	 void EndOfStream(){};
-	 void SetMTime(int Tnm){};
+	 void SetMTime(unsigned long Tnm){};
 };
 
 
@@ -39,7 +39,7 @@ private:
 	 RecordHandle * record_handle;
 #endif
 public:
-	void SetMTime(int Tnm);
+	void SetMTime(unsigned long Tnm);
 };
 
 #endif /* RESPLIC_H_ */

@@ -45,5 +45,5 @@ typedef struct
 
 void demoInterfacesDestroy(void);
 int demoInterfacesPut(DATAHEADER *pPrm, char* pData);
-void demoInterfacesCreate(char *ip_addr, Uint32 port);
+void demoInterfacesCreate(char *ip_addr, unsigned int port);
 #endif

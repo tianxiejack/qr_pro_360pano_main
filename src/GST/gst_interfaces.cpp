@@ -391,7 +391,7 @@ static void* senderTask(void *pPrm)
 /***************************************/
 /* module  API  */
 /***************************************/
-void demoInterfacesCreate(char *ip_addr, Uint32 port)
+void demoInterfacesCreate(char *ip_addr, unsigned int port)
 {
 	if(bInit == TRUE)
 		return ;

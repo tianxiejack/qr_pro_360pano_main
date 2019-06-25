@@ -9,9 +9,9 @@
 #include <gst/gstclock.h>
 #include <X11/Xlib.h>
 #include <sys/time.h>
-#include "osa.h"
-#include "osa_image_queue.h"
-#include "osa_sem.h"
+//#include "osa.h"
+//#include "osa_image_queue.h"
+//#include "osa_sem.h"
 #include "config.h"
 
 #if 0

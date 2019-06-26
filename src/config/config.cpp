@@ -15,20 +15,18 @@ FileStorage configfilestore;
 
 Config *Config::instance=new Config();
 
-Config::Config():panozeroptz(0),intergralenable(1),cam_fov(0),ptzpaninverse(0),ptztitleinverse(0),panoprocessshift(0),panoprocesstailcut(0),ptzspeed(20),angleinterval(10),panocalibration(1),cam_fixcamereafov(0),camsource(0)
-	
+Config::Config():panozeroptz(0),cam_fov(0),ptzpaninverse(0),ptztitleinverse(0),panoprocessshift(0),panoprocesstailcut(0),angleinterval(10),panocalibration(1),cam_fixcamereafov(0),camsource(0)
 {
+	memset(&trk_platformcfg, 0, sizeof(trk_platformcfg));
+	trk_platformcfg.ptzspeed = 20;
+	memset(&scan_platformcfg, 0, sizeof(scan_platformcfg));
+	scan_platformcfg.ptzspeed = 20;
+
 	memset(&sensorcfg, 0, sizeof(sensorcfg));
 
-	scan_platformcfg.address = -1;
-	scan_platformcfg.protocol = -1;
-	scan_platformcfg.baudrate = -1;
-	scan_platformcfg.start_signal = -1;
-	scan_platformcfg.pt_check = -1;
-
-	memset(&trackcfg, 0, sizeof(trackcfg));
-
 	memset(&radarcfg, 0, sizeof(radarcfg));
+	memset(&trackcfg, 0, sizeof(trackcfg));
+	memset(&panocfg, 0, sizeof(panocfg));
 
 	#if CONFIGINIT
 	configfilestore=FileStorage(CONFIGFILENAME, FileStorage::WRITE);
@@ -58,14 +56,14 @@ void Config::saveconfig()
 	configfilestore <<"camera" << "{" << "cam_width" << cam_width << "cam_height" << cam_height << "cam_channel" << cam_channel << "cam_fx" << cam_fx << "cam_fy" << cam_fy<< "cam_ox" \
 		<< cam_ox<< "cam_oy" << cam_oy<< "cam_k1" <<cam_k1 << "cam_k2" << cam_k2<< "cam_k3" << cam_k3<< "cam_k4" << cam_k4<< "cam_readfromfile"<<cam_readfromfile<<"cam_fixcamereafov"<<cam_fixcamereafov<<"}";
 
-	configfilestore <<"display" << "{" << "display_width" << display_width << "display_height" << display_height << "display_channel" << display_channel << "}";
+	configfilestore <<"display" << "{" << "displayresolution" << displayresolution << "display_width" << display_width << "display_height" << display_height << "display_channel" << display_channel << "}";
 
 	configfilestore <<"panoalg" << "{" << "panoprocesswidth" << panoprocesswidth << "panoprocessheight" << panoprocessheight  <<"panozeroptz"<< panozeroptz << "panozeroptztitle"<<panozeroptztitle<<"panoprocessshift"<<panoprocessshift<<"panoprocesstailcut"<<panoprocesstailcut\
 		<<"panocylinder"<<panocylinder<<"panofusion"<<panofusion<<"angleinterval"<<angleinterval<<"panocalibration"<<panocalibration<<"}";
 
 	configfilestore <<"mvdetect" << "{" << "mvprocesswidth" << mvprocesswidth << "mvprocessheight" << mvprocessheight  <<"mvdownup"<<mvdownup<<"minarea"<<minarea<<"maxarea"<<maxarea<<"detectthread"<<detectthread<< "}";
 
-	configfilestore <<"ptz" << "{" << "ptzwait" << ptzwait << "ptzbroad" << ptzbroad  <<"ptzaddres"<<ptzaddres<<"ptzdp"<<ptzdp<<"ptzpaninverse"<< ptzpaninverse<<"ptztitleinverse"<<ptztitleinverse<<"ptzspeed"<<ptzspeed<<"}";
+	configfilestore <<"ptz" << "{" << "ptzpaninverse" << ptzpaninverse << "ptztitleinverse" << ptztitleinverse << "}";
 
 	int senId=0;
 	configfilestore <<"sensor_0" << "{" \
@@ -90,18 +88,27 @@ void Config::saveconfig()
 
 	configfilestore <<"scanplt" << "{" \
 		<< "address" << scan_platformcfg.address << "protocol" << scan_platformcfg.protocol << "baudrate" << scan_platformcfg.baudrate \
-		<< "start_signal" << scan_platformcfg.start_signal << "pt_check" << scan_platformcfg.pt_check \
+		<< "ptzspeed" << scan_platformcfg.ptzspeed << "start_signal" << scan_platformcfg.start_signal << "pt_check" << scan_platformcfg.pt_check \
 		<< "}";
+	configfilestore <<"trkplt" << "{" \
+		<< "address" << trk_platformcfg.address << "protocol" << trk_platformcfg.protocol << "baudrate" << trk_platformcfg.baudrate \
+		<< "ptzspeed" << trk_platformcfg.ptzspeed \
+		<< "}";
+
+	configfilestore <<"radar" << "{" \
+		<< "hideline" << radarcfg.hideline \
+		<< "offset50m_0" << radarcfg.offset50m[0] << "offset100m_0" << radarcfg.offset100m[0]  << "offset300m_0" << radarcfg.offset300m[0] \
+		<< "offset50m_1" << radarcfg.offset50m[1] << "offset100m_1" << radarcfg.offset100m[1]  << "offset300m_1" << radarcfg.offset300m[1] \
+		<<"}";
 
 	configfilestore <<"track" << "{" \
 		<< "priodis" << trackcfg.trkpriodis << "priobright" << trackcfg.trkpriobright << "priosize" << trackcfg.trkpriosize << "trktime" << trackcfg.trktime \
 		<< "}";
 
-	configfilestore <<"radar" << "{" \
-		<< "sensor" << radarcfg.sensor << "hideline" << radarcfg.hideline \
-		<< "offset50m_0" << radarcfg.offset50m[0] << "offset100m_0" << radarcfg.offset100m[0]  << "offset300m_0" << radarcfg.offset300m[0] \
-		<< "offset50m_1" << radarcfg.offset50m[1] << "offset100m_1" << radarcfg.offset100m[1]  << "offset300m_1" << radarcfg.offset300m[1] \
-		<<"}";
+	configfilestore <<"pano" << "{" \
+		<< "ptzspeed_0" << panocfg.ptzspeed[0] << "piexfocus_0" << panocfg.piexfocus[0] << "circlefps_0" << panocfg.circlefps[0] \
+		<< "ptzspeed_1" << panocfg.ptzspeed[1] << "piexfocus_1" << panocfg.piexfocus[1] << "circlefps_1" << panocfg.circlefps[1] \
+		<< "}";
 
 	configfilestore.release();
 	
@@ -124,6 +131,7 @@ void Config::loadconfig()
 	cam_fixcamereafov=(int)struct_node["cam_fixcamereafov"];
 	
 	struct_node = configfilestore["display"];
+	displayresolution=(int )struct_node["displayresolution"];
 	display_width=(int )struct_node["display_width"];
 	display_height=(int )struct_node["display_height"];
 	display_channel=(int )struct_node["display_channel"];
@@ -152,14 +160,10 @@ void Config::loadconfig()
 	maxarea=(int )struct_node["maxarea"];
 	detectthread=(int )struct_node["detectthread"];
 
+	//////////////////////////////////////
 	struct_node = configfilestore["ptz"];
-	ptzwait=(int )struct_node["ptzwait"];
-	ptzbroad=(int )struct_node["ptzbroad"];
-	ptzaddres=(int )struct_node["ptzaddres"];
-	ptzdp=(int )struct_node["ptzdp"];
 	ptzpaninverse=(int )struct_node["ptzpaninverse"];
 	ptztitleinverse=(int )struct_node["ptztitleinverse"];
-	ptzspeed=(int )struct_node["ptzspeed"];
 
 	//////////////////////////////////////
 	for(int senId=0;senId<3;senId++)
@@ -198,14 +202,36 @@ void Config::loadconfig()
 	}
 
 	//////////////////////////////////////
+	struct_node = configfilestore["trkplt"];
+	if(struct_node.empty() != true)
+	{
+		trk_platformcfg.address=(int )struct_node["address"];
+		trk_platformcfg.protocol=(int )struct_node["protocol"];
+		trk_platformcfg.baudrate=(int )struct_node["baudrate"];
+		trk_platformcfg.ptzspeed=(int )struct_node["ptzspeed"];
+	}
 	struct_node = configfilestore["scanplt"];
 	if(struct_node.empty() != true)
 	{
 		scan_platformcfg.address=(int )struct_node["address"];
 		scan_platformcfg.protocol=(int )struct_node["protocol"];
 		scan_platformcfg.baudrate=(int )struct_node["baudrate"];
+		scan_platformcfg.ptzspeed=(int )struct_node["ptzspeed"];
 		scan_platformcfg.start_signal=(int )struct_node["start_signal"];
 		scan_platformcfg.pt_check=(int )struct_node["pt_check"];
+	}
+
+	//////////////////////////////////////
+	struct_node = configfilestore["radar"];
+	if(struct_node.empty() != true)
+	{
+		radarcfg.hideline=(int )struct_node["hideline"];
+		radarcfg.offset50m[0]=(int )struct_node["offset50m_0"];
+		radarcfg.offset100m[0]=(int )struct_node["ffset100m_0"];
+		radarcfg.offset300m[0]=(int )struct_node["offset300m_0"];
+		radarcfg.offset50m[1]=(int )struct_node["offset50m_1"];
+		radarcfg.offset100m[1]=(int )struct_node["offset100m_1"];
+		radarcfg.offset300m[1]=(int )struct_node["offset300m_1"];
 	}
 
 	//////////////////////////////////////
@@ -217,20 +243,18 @@ void Config::loadconfig()
 		trackcfg.trkpriosize=(int )struct_node["priosize"];
 		trackcfg.trktime=(int )struct_node["trktime"];
 	}
-
 	//////////////////////////////////////
-	struct_node = configfilestore["radar"];
+	struct_node = configfilestore["pano"];
 	if(struct_node.empty() != true)
 	{
-		radarcfg.sensor=(int )struct_node["sensor"];
-		radarcfg.hideline=(int )struct_node["hideline"];
-		radarcfg.offset50m[0]=(int )struct_node["offset50m_0"];
-		radarcfg.offset100m[0]=(int )struct_node["ffset100m_0"];
-		radarcfg.offset300m[0]=(int )struct_node["offset300m_0"];
-		radarcfg.offset50m[1]=(int )struct_node["offset50m_1"];
-		radarcfg.offset100m[1]=(int )struct_node["offset100m_1"];
-		radarcfg.offset300m[1]=(int )struct_node["offset300m_1"];
+		panocfg.ptzspeed[0]=(int )struct_node["ptzspeed_0"];
+		panocfg.piexfocus[0]=(int )struct_node["piexfocus_0"];
+		panocfg.circlefps[0]=(int )struct_node["circlefps_0"];
+		panocfg.ptzspeed[1]=(int )struct_node["ptzspeed_1"];
+		panocfg.piexfocus[1]=(int )struct_node["piexfocus_1"];
+		panocfg.circlefps[1]=(int )struct_node["circlefps_1"];
 	}
+
 }
 
 Config *Config::getinstance()

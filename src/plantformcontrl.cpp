@@ -66,7 +66,7 @@ void Plantformpzt::create()
 	platformcom.recvBuf=recvbuf;
 	platformcom.recvBuf=sendbuf;
 	titlpanangle=Config::getinstance()->getpanozeroptztitle();
-	speedtitle=speedpan=Config::getinstance()->getptzspeed();
+	speedtitle=speedpan=Config::getinstance()->scan_platformcfg.ptzspeed;
 	timeoutflag[PLANTFORMINITPAN]=-1;
 	timeoutflag[PLANTFORMINITTITLE]=-1;
 	plantformcontrlinit();
@@ -647,15 +647,16 @@ unsigned char Plantformpzt::chechsum(unsigned char *pelcodbuf)
 void Plantformpzt::plantformcontrlinit()
 {
 	int iRet = OSA_SOK;
-	address=Config::getinstance()->getptzaddres();
-	ptzpd=Config::getinstance()->getptzdp();
+
+	// here user scanplt config
+	int boad=Config::getinstance()->scan_platformcfg.baudrate;
+	address=Config::getinstance()->scan_platformcfg.address;
+	ptzpd=Config::getinstance()->scan_platformcfg.protocol;
 	if(ptzpd==0)
-	PlantformContrl=IPelcoFactory::createIpelco(pelco_D);
+		PlantformContrl=IPelcoFactory::createIpelco(pelco_D);
 	else
-	PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
-	
+		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
 	fd=Uart.UartOpen(UART422NAME);
-	int boad=Config::getinstance()->getptzbroad();
 	Uart.UartSet(fd, boad, 8, 'n', 1);
 
 
@@ -1155,7 +1156,7 @@ void Plantformpzt::registorfun()
 {
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PLATCTRL,ptzcontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_ScanPlantfromConfig,scanplantformcfg,0);
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcontrl,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcfg,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCALLENGTHCTRL,focallencontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_IRISCTRL,iriscontrl,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_FOCUSCTRL,focuscontrl,0);
@@ -1392,22 +1393,19 @@ void Plantformpzt::chooseptz(long lParam)
 }
 void Plantformpzt::scanplantformcfg(long lParam)
 {
-	scan_platformcfg_t scan_platformcfg_temp = Status::getinstance()->scan_platformcfg;
-}
+	platformcfg_t *pScanCfg_tmp = &(Status::getinstance()->scan_platformcfg);
+	//printf("%s update config\r\n",__func__);
+	int ptzaddress=pScanCfg_tmp->address;
+	int protocal=pScanCfg_tmp->protocol;
+	int brudrate=pScanCfg_tmp->baudrate;
+	int speed=pScanCfg_tmp->ptzspeed;
+	OSA_printf("plantform scan address=%d protocal=%d brudrate=%d speed=%d\n",ptzaddress,protocal,brudrate,speed);
 
-void Plantformpzt::plantfromcontrl(long lParam)
-{
-	int ptzaddress=Status::getinstance()->ptzaddress;
-	int protocal=Status::getinstance()->ptzprotocal;
-	int brudrate=Status::getinstance()->ptzbaudrate;
-	int speed=Status::getinstance()->ptzspeed;
-	OSA_printf("the ptzaddress=%d protocal=%d brudrate=%d speed=%d\n",ptzaddress,protocal,brudrate,speed);
-	
-
+	#if 0
 	if(protocal==0)
-	PlantformContrl=IPelcoFactory::createIpelco(pelco_D);
+		PlantformContrl=IPelcoFactory::createIpelco(pelco_D);
 	else
-	PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
+		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
 
 	OSA_mutexLock(&instance->lock);
 	if(instance->fd!=0)
@@ -1416,10 +1414,34 @@ void Plantformpzt::plantfromcontrl(long lParam)
 	instance->Uart.UartSet(instance->fd, instance->Boardrate[brudrate], 8, 'n', 1);
 	instance->address=ptzaddress;
 	OSA_mutexUnlock(&instance->lock);
-	
-	
-	
+	#endif
 
+}
+
+void Plantformpzt::plantfromcfg(long lParam)
+{
+	platformcfg_t *pTrkCfg_tmp = &(Status::getinstance()->trk_platformcfg);
+	//printf("%s update config\r\n",__func__);
+	int ptzaddress=pTrkCfg_tmp->address;
+	int protocal=pTrkCfg_tmp->protocol;
+	int brudrate=pTrkCfg_tmp->baudrate;
+	int speed=pTrkCfg_tmp->ptzspeed;
+	OSA_printf("plantform address=%d protocal=%d brudrate=%d speed=%d\n",ptzaddress,protocal,brudrate,speed);
+
+	#if 0
+	if(protocal==0)
+		PlantformContrl=IPelcoFactory::createIpelco(pelco_D);
+	else
+		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
+
+	OSA_mutexLock(&instance->lock);
+	if(instance->fd!=0)
+		instance->Uart.UartClose(instance->fd);
+	instance->fd=instance->Uart.UartOpen(UART422NAME);
+	instance->Uart.UartSet(instance->fd, instance->Boardrate[brudrate], 8, 'n', 1);
+	instance->address=ptzaddress;
+	OSA_mutexUnlock(&instance->lock);
+	#endif
 }
 
 

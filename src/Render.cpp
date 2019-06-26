@@ -343,40 +343,6 @@ void Render::screenshotinit()
 
 }
 
-void Render::configloadtoglobal()
-{
-	
-	Status::getinstance()->panopiexfocus=Config::getinstance()->getcamfx();
-	Status::getinstance()->panoptzspeed=Config::getinstance()->getptzspeed();
-
-	Status::getinstance()->ptzaddress=Config::getinstance()->getptzaddres();
-	Status::getinstance()->ptzprotocal=Config::getinstance()->getptzdp();
-	
-	int board=Config::getinstance()->getptzbroad();
-	if(board==2400)
-		Status::getinstance()->ptzbaudrate=0;
-	else if(board==4800)
-		Status::getinstance()->ptzbaudrate=1;
-	else if(board==9600)
-		Status::getinstance()->ptzbaudrate=2;
-	else if(board==19200)
-		Status::getinstance()->ptzbaudrate=3;
-	Status::getinstance()->ptzspeed=Config::getinstance()->getptzspeed();
-
-
-	//Status::getinstance()->movmaxwidth=Config::getinstance()->getptzbroad();
-	//Status::getinstance()->movmaxheight=Status::getinstance()->movmaxwidth;
-	//Status::getinstance()->movminwidth=Config::getinstance()->getptzspeed();
-	//Status::getinstance()->movminheight=Status::getinstance()->movminwidth;
-
-
-	
-
-
-	
-	//int framerate=Status::getinstance()->panopicturerate;
-
-}
 void Render::SetupRC(int windowWidth, int windowHeight)
 {
 		// Blue background
@@ -470,7 +436,6 @@ void Render::SetupRC(int windowWidth, int windowHeight)
 
 	loadmvarea();
 	Fullscreen = true;
-	configloadtoglobal();
 	glutFullScreen();
 	registorfun();
 	//
@@ -1098,7 +1063,6 @@ void Render::singlefun()
 			/*
 			if(getPanoAngle()>359)
 				{
-					Config::getinstance()->setintergralenable(0);
 					Plantformpzt::getinstance()->setpanoscanstop();
 					setscanpanflag(0);
 					setsingleenable(0);
@@ -1110,7 +1074,6 @@ void Render::singlefun()
 
 void Render::singleinterupt()
 {
-		Config::getinstance()->setintergralenable(0);
 		Plantformpzt::getinstance()->setpanoscanstop();
 		setscanpanflag(0);
 		setsingleenable(0);
@@ -1127,7 +1090,6 @@ void Render::callbacksignalpanomod(void *contex)
 	//OSA_mutexLock(&pthis->modelock);
 	pthis->setcriticalmode(0);	
 	setforcezeroprocess(1);
-	Config::getinstance()->setintergralenable(1);
 	setpanoflagenable(1);
 	setfusionenalge(1);
 	setscanpanflag(1);
@@ -1154,7 +1116,6 @@ void Render::callbackpanomod(void *contex)
 	printf("******callbackpanomod***************\n");
 	printf("**********************************\n");
 	setforcezeroprocess(1);
-	Config::getinstance()->setintergralenable(1);
 	setpanoflagenable(1);
 	setfusionenalge(1);
 	setscanpanflag(1);
@@ -1170,7 +1131,6 @@ void Render::selectmod()
 {
 	OSA_mutexLock(&modelock);
 	displayMode=PANO_360_MODE;
-	Config::getinstance()->setintergralenable(0);
 	Plantformpzt::getinstance()->setpanoscanstop();
 	setmenumode(SELECTMODE);
 	
@@ -1198,7 +1158,6 @@ void Render::zeromod()
 	OSA_mutexLock(&modelock);
 	
 	displayMode=PANO_360_MODE;
-	Config::getinstance()->setintergralenable(0);
 	Plantformpzt::getinstance()->setpanoscanstop();
 	setmenumode(SELECTZEROMODE);
 	
@@ -1239,7 +1198,6 @@ void Render::signalpanomod()
 	if(enable)
 		{
 			setcriticalmode(0);
-			Config::getinstance()->setintergralenable(1);
 			setpanoflagenable(1);
 			setfusionenalge(Config::getinstance()->getpanofusion());
 			setscanpanflag(1);
@@ -1322,7 +1280,6 @@ void Render::panomod()
 	if(enable)
 		{
 			setcriticalmode(0);
-			Config::getinstance()->setintergralenable(1);
 			setpanoflagenable(1);
 			setfusionenalge(Config::getinstance()->getpanofusion());
 			setscanpanflag(1);
@@ -5555,26 +5512,7 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEPHOTO,livephoto,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_VIDEOCLIP,videoclip,0);
 
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_configSave,ConfigCurrentSave,0);
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_configRead,ConfigLoadDefault,0);
-
 	//MSGID_EXT_INPUT_WorkModeCTRL
-}
-
-void Render::ConfigCurrentSave(long lParam)
-{
-	memcpy(&(Config::getinstance()->scan_platformcfg), &(Status::getinstance()->scan_platformcfg), sizeof(scan_platformcfg_t));
-	memcpy(&(Config::getinstance()->sensorcfg[0]), &(Status::getinstance()->sensorcfg[0]), sizeof(sensorcfg_t)*3);
-	memcpy(&(Config::getinstance()->radarcfg), &(Status::getinstance()->radarcfg), sizeof(radarcfg_t));
-	memcpy(&(Config::getinstance()->trackcfg), &(Status::getinstance()->trackcfg), sizeof(trackcfg_t));
-	printf("%s sync status to config\r\n",__func__);
-
-	Config::getinstance()->SaveConfig();
-}
-
-void Render::ConfigLoadDefault(long lParam)
-{
-	//Config::getinstance()->DefaultConfig();
 }
 
 void Render::displaymod(long lParam)
@@ -5599,9 +5537,6 @@ void Render::displaymod(long lParam)
 			VideoRecord::getinstance()->setforceclose(1);
 		}
 }
-
-
-
 
 void Render::workmod(long lParam)
 {
@@ -6002,18 +5937,11 @@ void Render::correcttimeconfig(long lparam)
 
 void Render::panoconfig(long lparam)
 {
-	int focus=Status::getinstance()->panopiexfocus;
-	int speed=Status::getinstance()->panoptzspeed;
-	int framerate=Status::getinstance()->panopicturerate;
-	int resolution=Status::getinstance()->panoresolution;
-	
+	panocfg_t *pPanoCfg_tmp = &(Status::getinstance()->panocfg);
+	int sensor = Status::getinstance()->getdisplaysensor();
 
-	Config::getinstance()->setptzspeed(speed);
-	Config::getinstance()->setcamfx(focus);
+	Plantformpzt::getinstance()->setspeed(pPanoCfg_tmp->ptzspeed[sensor]);
 
-	Config::getinstance()->SaveConfig();
-	Plantformpzt::getinstance()->setspeed(speed);
-	
 }
 void Render::nvconfigenable(long lparam)
 {

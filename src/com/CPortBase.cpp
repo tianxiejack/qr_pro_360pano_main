@@ -5,7 +5,6 @@ CPortBase::CPortBase()
 {
 	pM = getpM();
 	_globalDate = getDate();
-	_StateManager = getStatus();
 }
 
 CPortBase::~CPortBase()
@@ -25,51 +24,6 @@ CGlobalDate* CPortBase::getDate()
 	return _globalDate;
 }
 
-CStatusManager* CPortBase::getStatus()
-{
-	_StateManager = CStatusManager::Instance();
-	return _StateManager;
-}
-
-void CPortBase::ConfigCurrentSave()
-{
-	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
-	//printf("%s cmdlen=%d\n",__func__,cmdLen);
-	if(cmdLen != 1)
-		return ;
-
-	pM->MSGDRIV_send(MSGID_EXT_INPUT_configSave, 0);
-}
-
-void CPortBase::ConfigLoadDefault()
-{
-	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
-	//printf("%s cmdlen=%d\n",__func__,cmdLen);
-	if(cmdLen != 1)
-		return ;
-
-	pM->MSGDRIV_send(MSGID_EXT_INPUT_configRead, 0);
-}
-
-void CPortBase::EnableSelfTest()
-{
-    printf("send %s msg\n",__FUNCTION__);
-}
-
-void CPortBase::EnableswitchVideoChannel()
-{
-  	
-}
-
-void CPortBase:: selectVideoChannel()
-{
-   
-}
-
-void CPortBase::EnableTrk()
-{
-   
-}
 void CPortBase::mouseevent(int event)
 {
 	if(event==Status::MOUSEBUTTON)
@@ -230,6 +184,7 @@ void CPortBase::panoenable()
 	//printf("Status::getinstance()->mvconfigenable=%d\n",Status::getinstance()->mvconfigenable);
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_MVCONFIGENABLE, 0);
 }
+
 void CPortBase::scan_plantformconfig()
 {
 	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
@@ -272,41 +227,42 @@ void CPortBase::radarconfig()
 {
 	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
 	//printf("%s cmdlen=%d\n",__func__,cmdLen);
-	if(cmdLen != 9)
+	if(cmdLen != 14)
 		return ;
 
 	int configchange=0;
-	int sensor = _globalDate->rcvBufQue.at(5);
-	int offset50 = _globalDate->rcvBufQue.at(7) | (_globalDate->rcvBufQue.at(8) << 8);
-	int offset100 = _globalDate->rcvBufQue.at(9) | (_globalDate->rcvBufQue.at(10) << 10);
-	int offset300 = _globalDate->rcvBufQue.at(11) | (_globalDate->rcvBufQue.at(12) << 12);
-	if(sensor != 0 && sensor != 1)
-		return ;
-	
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->radarcfg.sensor)
+	int offset50[2];
+	int offset100[2];
+	int offset300[2];
+	int sensor=0;
+	offset50[0] = _globalDate->rcvBufQue.at(6) | (_globalDate->rcvBufQue.at(7) << 8);
+	offset100[0] = _globalDate->rcvBufQue.at(8) | (_globalDate->rcvBufQue.at(9) << 8);
+	offset300[0] = _globalDate->rcvBufQue.at(10) | (_globalDate->rcvBufQue.at(11) << 8);
+	offset50[1] = _globalDate->rcvBufQue.at(12) | (_globalDate->rcvBufQue.at(13) << 8);
+	offset100[1] = _globalDate->rcvBufQue.at(14) | (_globalDate->rcvBufQue.at(15) << 8);
+	offset300[1] = _globalDate->rcvBufQue.at(16) | (_globalDate->rcvBufQue.at(17) << 8);
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->radarcfg.hideline)
 	{
-		Status::getinstance()->radarcfg.sensor=_globalDate->rcvBufQue.at(5);
+		Status::getinstance()->radarcfg.hideline=_globalDate->rcvBufQue.at(5);
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->radarcfg.hideline)
+	for(sensor=0; sensor<2; sensor++)
 	{
-		Status::getinstance()->radarcfg.hideline=_globalDate->rcvBufQue.at(6);
-		configchange=1;
-	}
-	if(offset50!=Status::getinstance()->radarcfg.offset50m[sensor])
-	{
-		Status::getinstance()->radarcfg.offset50m[sensor]=offset50;
-		configchange=1;
-	}
-	if(offset100!=Status::getinstance()->radarcfg.offset100m[sensor])
-	{
-		Status::getinstance()->radarcfg.offset100m[sensor]=offset100;
-		configchange=1;
-	}
-	if(offset300!=Status::getinstance()->radarcfg.offset300m[sensor])
-	{
-		Status::getinstance()->radarcfg.offset300m[sensor]=offset300;
-		configchange=1;
+		if(offset50[sensor]!=Status::getinstance()->radarcfg.offset50m[sensor])
+		{
+			Status::getinstance()->radarcfg.offset50m[sensor]=offset50[sensor];
+			configchange=1;
+		}
+		if(offset100[sensor]!=Status::getinstance()->radarcfg.offset100m[sensor])
+		{
+			Status::getinstance()->radarcfg.offset100m[sensor]=offset100[sensor];
+			configchange=1;
+		}
+		if(offset300[sensor]!=Status::getinstance()->radarcfg.offset300m[sensor])
+		{
+			Status::getinstance()->radarcfg.offset300m[sensor]=offset300[sensor];
+			configchange=1;
+		}
 	}
 
 	if(configchange)
@@ -364,31 +320,35 @@ void CPortBase::deletedevconfig()
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_DeldevConfig, 0);
 }
 
-void CPortBase::plantformconfig()
+void CPortBase::trk_plantformconfig()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 5)
+		return ;
+
 	int configchange=0;
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->ptzaddress)
-		{
-			Status::getinstance()->ptzaddress=_globalDate->rcvBufQue.at(5);
-			configchange=1;
-		}
-	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->ptzprotocal)
-		{
-			Status::getinstance()->ptzprotocal=_globalDate->rcvBufQue.at(6);
-			configchange=1;
-		}
-	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->ptzbaudrate)
-		{
-			Status::getinstance()->ptzbaudrate=_globalDate->rcvBufQue.at(7);
-			configchange=1;
-		}
-	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->ptzspeed)
-		{
-			Status::getinstance()->ptzspeed=_globalDate->rcvBufQue.at(8);
-			configchange=1;
-		}
-	
-	
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->trk_platformcfg.address)
+	{
+		Status::getinstance()->trk_platformcfg.address=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(6)!=Status::getinstance()->trk_platformcfg.protocol)
+	{
+		Status::getinstance()->trk_platformcfg.protocol=_globalDate->rcvBufQue.at(6);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->trk_platformcfg.baudrate)
+	{
+		Status::getinstance()->trk_platformcfg.baudrate=_globalDate->rcvBufQue.at(7);
+		configchange=1;
+	}
+	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->trk_platformcfg.ptzspeed)
+	{
+		Status::getinstance()->trk_platformcfg.ptzspeed=_globalDate->rcvBufQue.at(8);
+		configchange=1;
+	}
+
 	if(configchange)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_PlantfromConfig, 0);
 	
@@ -601,29 +561,32 @@ void CPortBase::sensorfrconfig()
 
 }
  
- void CPortBase::zeroconfig()
- 	{
- 		int configchange=0;
-		configchange=0;
- 		if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->zeromod)
-			{
-				Status::getinstance()->zeromod=_globalDate->rcvBufQue.at(5);
-				configchange=1;
-			}
-		OSA_printf("%s zeromod=%d\n",__func__,Status::getinstance()->zeromod);
-		if(configchange)
-			{
-				if(Status::getinstance()->zeromod==0)
-					pM->MSGDRIV_send(MSGID_EXT_INPUT_ZeroConfig, (void *)Status::ZEROSTOP);
-				else if(Status::getinstance()->zeromod==1)
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_ZeroConfig, (void *)Status::ZEROSTART);
-				else if(Status::getinstance()->zeromod==2)
-				pM->MSGDRIV_send(MSGID_EXT_INPUT_ZeroConfig, (void *)Status::ZEROSAVE);
-			}
+void CPortBase::zeroconfig()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
 
-		
- 		
- 	};
+	int configchange=0;
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->zeromod)
+	{
+		Status::getinstance()->zeromod=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+	OSA_printf("%s zeromod=%d\n",__func__,Status::getinstance()->zeromod);
+	if(configchange)
+	{
+		if(Status::getinstance()->zeromod==0)
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_ZeroConfig, (void *)Status::ZEROSTOP);
+		else if(Status::getinstance()->zeromod==1)
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_ZeroConfig, (void *)Status::ZEROSTART);
+		else if(Status::getinstance()->zeromod==2)
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_ZeroConfig, (void *)Status::ZEROSAVE);
+	}
+
+}
+
 void CPortBase::recordconfig()
 	{
 		
@@ -771,22 +734,28 @@ void CPortBase::recordconfig()
  	};
  
  void CPortBase::displayconfig()
- 	{
- 		int configchange=0;
- 		if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->displayresolution)
-			{
-				Status::getinstance()->displayresolution=_globalDate->rcvBufQue.at(5);
-				configchange=1;
-			}
-		if(configchange)
-			pM->MSGDRIV_send(MSGID_EXT_INPUT_DisplayConfig,0);
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
 
- 	};
+	int configchange=0;
+	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->displayresolution)
+	{
+		Status::getinstance()->displayresolution=_globalDate->rcvBufQue.at(5);
+		configchange=1;
+	}
+
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_DisplayConfig,0);
+
+}
 
 void CPortBase::correcttimeconfig()
 {
 	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
-	printf("%s cmdlen=%d\n",__func__,cmdLen);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
 	if(cmdLen != 8)
 		return ;
 
@@ -827,34 +796,47 @@ void CPortBase::correcttimeconfig()
 
 }
 
- void CPortBase::panoconfig()
- 	{
- 			int configchange=0;
-		if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->panoptzspeed)
-			{
-				Status::getinstance()->panoptzspeed=_globalDate->rcvBufQue.at(5);
-				configchange=1;
-			}
-		if((_globalDate->rcvBufQue.at(6)<<8|_globalDate->rcvBufQue.at(7))!=Status::getinstance()->panopiexfocus)
-			{
-				Status::getinstance()->panopiexfocus=_globalDate->rcvBufQue.at(6)<<8|_globalDate->rcvBufQue.at(7);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->panopicturerate)
-			{
-				Status::getinstance()->panopicturerate=_globalDate->rcvBufQue.at(8);
-				configchange=1;
-			}
-		if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->panoresolution)
-			{
-				Status::getinstance()->panoresolution=_globalDate->rcvBufQue.at(9);
-				configchange=1;
-			}
-		OSA_printf("%s:%d panoptzspeed=%d panopiexfocus=%d panopicturerate=%d\n",__func__,__LINE__,Status::getinstance()->panoptzspeed,Status::getinstance()->panopiexfocus,Status::getinstance()->panopicturerate);
-		if(configchange)
-			pM->MSGDRIV_send(MSGID_EXT_INPUT_PanoConfig,0);
+void CPortBase::panoconfig()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 9)
+		return ;
 
- 	};
+	int configchange=0;
+	int ptzspeed[2];
+	int piexfocus[2];
+	int circlefps[2];
+	int sensor=0;
+	ptzspeed[0]=_globalDate->rcvBufQue.at(5);
+	piexfocus[0]=_globalDate->rcvBufQue.at(6)<<8|_globalDate->rcvBufQue.at(7);
+	circlefps[0]=_globalDate->rcvBufQue.at(8);
+	ptzspeed[1]=_globalDate->rcvBufQue.at(9);
+	piexfocus[1]=_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11);
+	circlefps[1]=_globalDate->rcvBufQue.at(12);
+	for(sensor=0; sensor<2; sensor++)
+	{
+		if(ptzspeed[sensor]!=Status::getinstance()->panocfg.ptzspeed[sensor])
+		{
+			Status::getinstance()->panocfg.ptzspeed[sensor]=ptzspeed[sensor];
+			configchange=1;
+		}
+		if(piexfocus[sensor]!=Status::getinstance()->panocfg.piexfocus[sensor])
+		{
+			Status::getinstance()->panocfg.piexfocus[sensor]=piexfocus[sensor];
+			configchange=1;
+		}
+		if(circlefps[sensor]!=Status::getinstance()->panocfg.circlefps[sensor])
+		{
+			Status::getinstance()->panocfg.circlefps[sensor]=circlefps[sensor];
+			configchange=1;
+		}
+	}
+
+	if(configchange)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_PanoConfig,0);
+
+}
 
  void  CPortBase::rebootconfig()
  	{
@@ -935,49 +917,13 @@ void CPortBase::correcttimeconfig()
 
  	};
     
-void CPortBase::SetResolution()
-{
-
-}
-void CPortBase::AIMPOS_X()
-{
-
-}
-
-void CPortBase::AIMPOS_Y()
-{
-
-}
-
-void CPortBase::EnableParamBackToDefault()
-{
-}
 void CPortBase::updatepano()
 {
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_Updatapano, 0);
 
 }
-void CPortBase::AxisMove()
-{
 
-}
-
-void CPortBase::EnableTrkSearch()
-{
-
-}
-
-void CPortBase::Enablealgosdrect()
-{
-
-}
-
-void CPortBase::ZoomSpeedCtrl()
-{
-
-}
-
-int CPortBase::ZoomCtrl()
+void CPortBase::ZoomCtrl()
 {
 	int focallength = _globalDate->rcvBufQue.at(5);
 
@@ -988,7 +934,7 @@ int CPortBase::ZoomCtrl()
 	else if(2 == focallength)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCALLENGTHCTRL, (void *)(Status::PTZFOCUSLENGTHUP));
 	
-    return 0;
+    return ;
 }
 
 void CPortBase::IrisCtrl()
@@ -1017,35 +963,6 @@ void CPortBase::FocusCtrl()
 
 }
 
-void  CPortBase::AvtAxisCtrl()
-{
-	
-}
-
-void CPortBase::EnableOsdbuffer()
-{
-
-}
-
-void CPortBase::EnablewordType()
-{
-
-}
-
-void CPortBase::EnablewordSize()
-{
- 
-}
-
-void CPortBase::Config_Write_Save()
-{
-	
-}
-
-void CPortBase::Config_Read()
-{
-
-}
 void CPortBase::GetsoftVersion()
 {
 	GetSoftWareBuildTargetTime();
@@ -1055,9 +972,24 @@ void CPortBase::GetsoftVersion()
 
 }
 
-void CPortBase::EnableSavePro()
+void CPortBase::ConfigCurrentSave()
 {
-  
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 1)
+		return ;
+
+	Status::getinstance()->saveCurrentConfig(0);
+}
+
+void CPortBase::ConfigLoadDefault()
+{
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 1)
+		return ;
+
+	Status::getinstance()->resetDefaultConfig(0);
 }
 
 void CPortBase::plantctl()
@@ -1073,17 +1005,6 @@ void CPortBase::plantctl()
 	
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_PLATCTRL, 0);
 	
-}
-
-void CPortBase::AXIS_Y()
-{
-	
-	
-}
-
-void CPortBase::Preset_Mtd()
-{
-
 }
 
 void CPortBase::StoreMode(int mod)
@@ -1140,10 +1061,6 @@ void CPortBase::workMode()
 	//PANOAUTO
 
 }
-void CPortBase::targetCaptureMode()
-{
-	
-}
 
 void CPortBase::choosedev()
 {
@@ -1173,136 +1090,89 @@ void CPortBase::chooseptz()
 
 int CPortBase::prcRcvFrameBufQue(int method)
 {
-    int ret =  -1;
-    int cmdLength= (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8)+5;
+	int ret =  -1;
+	int cmdLength= (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8)+5;
 
-    if(cmdLength<6){
-        printf("Warning::Invaild frame\r\n");
-        _globalDate->rcvBufQue.erase(_globalDate->rcvBufQue.begin(),_globalDate->rcvBufQue.begin()+cmdLength);
-        return ret;
-    }
-    unsigned char checkSum = check_sum(cmdLength);
+	if(cmdLength<6){
+		printf("Warning::Invaild frame\r\n");
+		_globalDate->rcvBufQue.erase(_globalDate->rcvBufQue.begin(),_globalDate->rcvBufQue.begin()+cmdLength);
+		return ret;
+	}
+	unsigned char checkSum = check_sum(cmdLength);
+	if(checkSum != _globalDate->rcvBufQue.at(cmdLength-1)){
+		printf("%s,%d, checksum error:,cal is %02x,recv is %02x\n",__FILE__,__LINE__,checkSum,_globalDate->rcvBufQue.at(cmdLength-1));
+		_globalDate->rcvBufQue.erase(_globalDate->rcvBufQue.begin(),_globalDate->rcvBufQue.begin()+cmdLength);
+		return ret;
+	}
 
-    if(checkSum== _globalDate->rcvBufQue.at(cmdLength-1))
-    {	
-    	_globalDate->commode = method;
+	_globalDate->commode = method;
 	printf("the id=%d \n",_globalDate->rcvBufQue.at(4));
 	int cmdid=_globalDate->rcvBufQue.at(4);
 	if(Status::getinstance()==0)
 		cmdid=0;
 		
-        switch(cmdid)
-        {
-            case 0x01:
-                //startSelfCheak();
-                break;
-            case 0x02:
-                EnableswitchVideoChannel();
-                break;
-            case 0x03:
-                mouseevent(Status::MOUSEBUTTON);
-                break;
-            case 0x04:
-                mouseevent(Status::MOUSEROLLER);
-                break;
-            case 0x05:
-                displaymod();
-                break;
-            case 0x06:
-                workMode();
-                break;
+	switch(cmdid)
+	{
+		case 0x03:
+			mouseevent(Status::MOUSEBUTTON);
+			break;
+		case 0x04:
+			mouseevent(Status::MOUSEROLLER);
+			break;
+		case 0x05:
+			displaymod();
+			break;
+		case 0x06:
+			workMode();
+			break;
 		case 0x07:
-		   StoreMode(Status::STOREGO);
-		   break;
-            case 0x08:
-                StoreMode(Status::STORESAVE);
-                break;
-            case 0x09:
-                updatepano();
-                break;
-            case 0x0a:
-                AxisMove();
-                break;
-            case 0x0b:
-                EnableTrkSearch();
-                break;
-            case 0x0d:
-                Enablealgosdrect();
-                break;
-            case 0x11:                             
-                ZoomSpeedCtrl();
-                break;
-            case 0x12:
-                ZoomCtrl();
-                break;
-            case 0x13:
-                IrisCtrl();
-                break;
-            case 0x14:
-                FocusCtrl();
-                break;
-            case 0x15:
-                plantctl();
-                //AXIS_Y();
-                break;
-            case 0x16:
-                //wait to finish
-                break;
-            case 0x17:
-                //wait to finish
-                break;
-            case 0x18:
-                AvtAxisCtrl();
-                break;
-            case 0x20:
-                EnableOsdbuffer();
-                break;
-            case 0x21:
-                EnablewordType();
-                EnablewordSize();
-                break;
-            case 0x30:
-                GetsoftVersion();
-                break;
-            case 0x31:
-                //Config_Read();
-                break;
-            case 0x32:
-                //provided by a single server
-                break;
-            case 0x33:
-                //provided by a single server
-                break;
-            case 0x34:
-                EnableSavePro();
-                break;
-            case 0x35:
-                //provided by a single server
-                break;
-            case 0x36:
-                plantctl();
-               // AXIS_Y();
-                break;
+			StoreMode(Status::STOREGO);
+			break;
+		case 0x08:
+			StoreMode(Status::STORESAVE);
+			break;
+		case 0x09:
+			updatepano();
+			break;
+		case 0x12:
+			ZoomCtrl();
+			break;
+		case 0x13:
+			IrisCtrl();
+			break;
+		case 0x14:
+			FocusCtrl();
+			break;
+		case 0x15:
+			plantctl();
+			break;
 
-            case 0x40:
-            		ConfigCurrentSave();
-            		break;
-            case 0x41:
-            		ConfigLoadDefault();
-            		break;
+		case 0x30:
+			GetsoftVersion();
+			break;
+		case 0x32:
+			//provided by a single server
+			break;
+		case 0x33:
+			//provided by a single server
+			break;
+		case 0x35:
+			//provided by a single server
+			break;
 
-            case 0x42:
-               	 workMode();
-            		break;
-            case 0x43:
-            		targetCaptureMode();
-            		break;
+		case 0x40:
+			ConfigCurrentSave();
+			break;
+		case 0x41:
+			ConfigLoadDefault();
+			break;
 		case 0x45:
 			choosedev();
 			break;
 		case 0x46:
 			chooseptz();
 			break;
+
 		case 0x60:
 			playercontrl();
 			break;
@@ -1318,12 +1188,14 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		case 0x64:
 			livephoto();
 			break;
+
 		case 0x65:
 			panoenable();
 			break;
 		case 0x66:
 			videoclip();
 			break;
+
 		case 0x77:
 			sensortvconfig();
 			break;
@@ -1339,6 +1211,7 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		case 0x7b:
 			trackconfig();
 			break;
+
 		case 0x7c:
 			adddevconfig();
 			break;
@@ -1346,7 +1219,7 @@ int CPortBase::prcRcvFrameBufQue(int method)
 			deletedevconfig();
 			break;
 		case 0x80:
-			plantformconfig();
+			trk_plantformconfig();
 			break;
 		case 0x81:
 			sensorfrconfig();
@@ -1354,6 +1227,7 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		case 0x82:
 			zeroconfig();
 			break;
+
 		case 0x83:
 			recordconfig();
 			break;
@@ -1378,37 +1252,21 @@ int CPortBase::prcRcvFrameBufQue(int method)
 		case 0x90:
 			querryconfig();
 			break;
-            default:
-                printf("INFO: Unknow  Control Command, please check!!!\r\n ");
-                ret =0;
-                break;
-        }
-    }
-    else
-        printf("%s,%d, checksum error:,cal is %02x,recv is %02x\n",__FILE__,__LINE__,checkSum,_globalDate->rcvBufQue.at(cmdLength-1));
-    _globalDate->rcvBufQue.erase(_globalDate->rcvBufQue.begin(),_globalDate->rcvBufQue.begin()+cmdLength);
-    return 1;
+
+		default:
+			printf("INFO: Unknow  Control Command, please check!!!\r\n ");
+			ret = 0;
+		break;
+	}
+
+	_globalDate->rcvBufQue.erase(_globalDate->rcvBufQue.begin(),_globalDate->rcvBufQue.begin()+cmdLength);
+	return 1;
 }
 
-int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
+int CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 {
 	//printf("respondId = %d\n", respondId);
 	switch(respondId){
-		case ACK_selfTest:
-			//startCheckAnswer(psendBuf);
-			break;
-		case ACK_wordColor:
-			break;
-		case ACK_wordType:
-			break;
-		case ACK_wordSize:
-			break;
-		case NAK_wordColor:
-			break;
-		case NAK_wordType:
-			break;
-		case NAK_wordSize:
-			break;
 		case ACK_softVersion:
 			softVersion(psendBuf);
 			break;
@@ -1420,9 +1278,6 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 			break;
 		case ACK_fullscreenmode:
 			ack_fullscreenmode(psendBuf);
-			break;
-		case ACK_avtTrkType:
-			trackTypes(psendBuf);
 			break;
 		case ACK_avtErrorOutput:
 			trackErrOutput(psendBuf);
@@ -1452,10 +1307,8 @@ int  CPortBase::getSendInfo(int  respondId, sendInfo * psendBuf)
 			ElectronicZoomStat(psendBuf);
 			break;
 		case ACK_picpStatus:
-			pictureInPictureStat(psendBuf);
 			break;
 		case ACK_VideoChannelStatus:
-			vedioTransChannelStat(psendBuf);
 			break;
 		case ACK_frameCtrlStatus:
 			break;
@@ -1679,11 +1532,6 @@ void  CPortBase:: ack_fullscreenmode(sendInfo * spBuf)
 	memcpy(spBuf->sendBuff,retrackStatus,msg_length+5);
 }
 
-void  CPortBase:: trackTypes(sendInfo * spBuf)
-{
-
-}
-
 void  CPortBase:: trackErrOutput(sendInfo * spBuf)
 {
 	int msg_length = 5;
@@ -1826,17 +1674,6 @@ void CPortBase::moveTargetDetectedStat(sendInfo * spBuf)
 	package_frame(msg_length, tmpbuf);
 	spBuf->byteSizeSend=msg_length+5;
 	memcpy(spBuf->sendBuff,tmpbuf,msg_length+5);
-}
-
-void CPortBase::pictureInPictureStat(sendInfo * spBuf)
-{
-
-
-}
-
-void  CPortBase::vedioTransChannelStat(sendInfo * spBuf)
-{
-
 }
 
 void CPortBase::frameFrequenceStat(sendInfo * spBuf)
@@ -2030,22 +1867,24 @@ void  CPortBase::ackscanplantformconfig(sendInfo * spBuf)
 void CPortBase::ackradarconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=9;
-	int senId=Status::getinstance()->radarcfg.sensor;
+	int infosize=14;
+	int sensor=0;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_radarconfig;
-	spBuf->sendBuff[5]=Status::getinstance()->radarcfg.sensor&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->radarcfg.hideline&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->radarcfg.offset50m[senId]&0xff;
-	spBuf->sendBuff[8]=(Status::getinstance()->radarcfg.offset50m[senId]>>8)&0xff;
-	spBuf->sendBuff[9]=Status::getinstance()->radarcfg.offset100m[senId]&0xff;
-	spBuf->sendBuff[10]=(Status::getinstance()->radarcfg.offset100m[senId]>>8)&0xff;
-	spBuf->sendBuff[11]=Status::getinstance()->radarcfg.offset300m[senId]&0xff;
-	spBuf->sendBuff[12]=(Status::getinstance()->radarcfg.offset300m[senId]>>8)&0xff;
-	
+	spBuf->sendBuff[5]=Status::getinstance()->radarcfg.hideline&0xff;
+	for(sensor=0; sensor<2; sensor++)
+	{
+		spBuf->sendBuff[6+sensor*6]=Status::getinstance()->radarcfg.offset50m[sensor]&0xff;
+		spBuf->sendBuff[7+sensor*6]=(Status::getinstance()->radarcfg.offset50m[sensor]>>8)&0xff;
+		spBuf->sendBuff[8+sensor*6]=Status::getinstance()->radarcfg.offset100m[sensor]&0xff;
+		spBuf->sendBuff[9+sensor*6]=(Status::getinstance()->radarcfg.offset100m[sensor]>>8)&0xff;
+		spBuf->sendBuff[10+sensor*6]=Status::getinstance()->radarcfg.offset300m[sensor]&0xff;
+		spBuf->sendBuff[11+sensor*6]=(Status::getinstance()->radarcfg.offset300m[sensor]>>8)&0xff;
+	}
+
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
 	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);
@@ -2081,10 +1920,10 @@ void  CPortBase::ackplantformconfig(sendInfo * spBuf)
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_plantformconfig;
-	spBuf->sendBuff[5]=Status::getinstance()->ptzaddress&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->ptzprotocal&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->ptzbaudrate&0xff;
-	spBuf->sendBuff[8]=Status::getinstance()->ptzspeed&0xff;
+	spBuf->sendBuff[5]=Status::getinstance()->trk_platformcfg.address&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->trk_platformcfg.protocol&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->trk_platformcfg.baudrate&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->trk_platformcfg.ptzspeed&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
@@ -2296,18 +2135,21 @@ void CPortBase::ackdisplayconfig(sendInfo * spBuf)
 void  CPortBase:: ackpanoconfig(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=8;
+	int infosize=9;
+	int sensor=0;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_panoconfig;
-	spBuf->sendBuff[5]=Status::getinstance()->panoptzspeed&0xff;
-	spBuf->sendBuff[6]=(Status::getinstance()->panopiexfocus>>8)&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->panopiexfocus&0xff;
-	spBuf->sendBuff[8]=(Status::getinstance()->panopicturerate)&0xff;
-	spBuf->sendBuff[9]=(Status::getinstance()->panoresolution)&0xff;
-	
+	for(sensor=0; sensor<2; sensor++)
+	{
+		spBuf->sendBuff[5+4*sensor]=Status::getinstance()->panocfg.ptzspeed[sensor]&0xff;
+		spBuf->sendBuff[6+4*sensor]=(Status::getinstance()->panocfg.piexfocus[sensor]>>8)&0xff;
+		spBuf->sendBuff[7+4*sensor]=(Status::getinstance()->panocfg.piexfocus[sensor])&0xff;
+		spBuf->sendBuff[8+4*sensor]=(Status::getinstance()->panocfg.circlefps[sensor])&0xff;
+	}
+
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	
 	spBuf->sendBuff[infosize+4]=(sumCheck&0xff);

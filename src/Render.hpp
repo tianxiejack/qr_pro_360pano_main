@@ -642,8 +642,6 @@ public:
 public:
 	void registorfun();
 	//static MsgApiFun displaymod();
-	static void ConfigCurrentSave(long lParam);
-	static void ConfigLoadDefault(long lParam);
 	static void displaymod(long lParam);
 	static void workmod(long lParam);
 	static void singlecircle(long lParam);
@@ -675,7 +673,6 @@ public:
 	static void livephoto(long lparam);
 	static void videoclip(long lparam);
 	void CheckArea(int x,int y);
-	void configloadtoglobal();
 	void mousemotion(int button, int x, int y);
 	void mousedbclick(int button, int x, int y);
 	void mousebutton(int button, int state, int x, int y);

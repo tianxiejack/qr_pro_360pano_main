@@ -18,6 +18,7 @@ public:
 	virtual void SaveAsMp4(Mat *pmatSrc)=0;
 	virtual void EndOfStream()=0;
 	virtual void SetMTime(unsigned long Tnm)=0;
+	virtual void SetEos()=0;
 };
 
 class Pseudo:public IFSaveVideo
@@ -34,6 +35,7 @@ class SaveVideoByGST:public IFSaveVideo
 	 void init();
 	 void SaveAsMp4(Mat *pmatSrc);
 	 void EndOfStream();
+	 void SetEos();
 private:
 #if 1
 	 RecordHandle * record_handle;

@@ -347,6 +347,8 @@ int main_pano(int argc, char **argv)
 	Plantformpzt::getinstance()->create();
 	/*communication */
 	COM_Contrl::getinstance()->create();
+	/*record playback manager*/
+	RecordManager::getinstance()->create();
 	/*gstreamer link*/
 	GstreaemerContrl::getinstance()->create();
 	/*record video*/
@@ -358,8 +360,6 @@ int main_pano(int argc, char **argv)
 	VideoLoad::getinstance()->registerfun(processFrameRecord_pano);
 	/*rtsp server*/
 	RtspServer::getinstance()->create();
-	/*record playback manager*/
-	RecordManager::getinstance()->create();
 	/*video record information*/
 	Store::getinstance()->create();
 

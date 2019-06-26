@@ -21,7 +21,10 @@
  {
 	 SetTime(Tnm,record_handle);
  };
-
+ void SaveVideoByGST::SetEos()
+ {
+ 	Seteos(record_handle);
+ };
  void SaveVideoByGST::EndOfStream()
  {
 #if 0

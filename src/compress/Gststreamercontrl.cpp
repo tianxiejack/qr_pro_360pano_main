@@ -167,6 +167,7 @@ void GstreaemerContrl::gstputmux(cv::Mat src,Privatedata *privatedata)
 	
 	if(should_video())	
 	{
+		vedioing = 1;
 		gstreamer_mp4->SaveAsMp4(&src);
 		save_gyro_data(privatedata);
 		set_data_cnt(get_data_cnt() + 1);
@@ -202,7 +203,6 @@ int GstreaemerContrl::should_video()
 	
 	if(VideoRecord::getinstance()->getrecordflag())
 	{
-		vedioing = 1;
 		return 1;
 	}
 	else
@@ -220,6 +220,7 @@ int GstreaemerContrl::stop_video()
 		if(get_video_cnt()>0)
 		{
 			remove_last_video();
+			//gstreamer_mp4->SetEos();
 			set_video_cnt(0);
 		}
 

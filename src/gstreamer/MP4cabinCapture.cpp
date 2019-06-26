@@ -152,7 +152,7 @@ static char * name_by_timestamp(GstElement* splitmuxsink, guint id, gpointer use
 		remove(filename_bak);
 		remove(filename_gyro_bak);
 		printf("SetMTime 5minutes\n");
-		GstreaemerContrl::getinstance()->gstreamer_mp4->SetMTime(300000000000);
+		GstreaemerContrl::getinstance()->gstreamer_mp4->SetMTime(120000000000);
 	}
 	if(get_video_cnt() > 1)
 	{
@@ -349,6 +349,13 @@ void SetTime(unsigned long Tnm,RecordHandle *recordHandle)
 	CustomData* pData = (CustomData* )recordHandle->context;
 
 	g_object_set (pData->splitmuxsink1, "max-size-time", Tnm, NULL);
+}
+void Seteos(RecordHandle *recordHandle)
+{
+	GstFlowReturn ret; 
+	CustomData* pData = (CustomData* )recordHandle->context;
+	gst_app_src_end_of_stream((GstAppSrc *)pData->source);
+	//g_signal_emit_by_name (pData->source, "end-of-stream", &ret); 
 }
 
 int gstlinkInit_appsrc_mp4(RecordHandle *recordHandle)

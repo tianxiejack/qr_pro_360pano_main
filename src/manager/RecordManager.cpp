@@ -10,6 +10,7 @@
 #include "DxTimer.hpp"
 //#include "globalDate.h"
 RecordManager*RecordManager::instance=NULL;
+#define LOCALHEAD "local"
 #define AVHEAD "record"
 #define AVTAIL ".avi"
 #define MP4TAIL ".mp4"
@@ -29,6 +30,7 @@ RecordManager::~RecordManager()
 
 void RecordManager::create()
 {
+	removelocalfile(recordpath);
 	findrecordnames();
 	createplayertimer();
 	VideoRecord::getinstance()->registermanagercall(ringrecord);
@@ -126,6 +128,72 @@ bool RecordManager::endsWith(const std::string& str, const std::string& substr)
     {
         return str.rfind(substr) == (str.length() - substr.length());
     }
+
+void RecordManager::removelocalfile(string  path)
+{
+	vector<string> removevec;
+	DIR * dir, *dir2;
+    	struct dirent *ptr, *ptr2;
+    	int i=0;   
+    	string names;
+    	removevec.clear();
+		
+    	dir = opendir((char *)path.c_str());
+    	while((ptr = readdir(dir)) != NULL)
+    	{
+    		if(ptr->d_type & DT_DIR)
+    		{
+			if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)
+				continue;
+			else
+			{
+				string  path2 = path + ptr->d_name;
+				printf("%s, %d,path=%s\n", __FILE__,__LINE__, path2.c_str());
+				dir2 = opendir((char *)path2.c_str());
+				while((ptr2 = readdir(dir2)) != NULL)
+				{
+				   	if(ptr2->d_type & DT_DIR)
+    					{
+						if(strcmp(ptr2->d_name,".")==0 || strcmp(ptr2->d_name,"..")==0)
+							continue;
+				   	}
+					else
+					{
+						names = ptr2->d_name;
+					      	if(startsWith(names,LOCALHEAD))
+					      	{
+					      		if(endsWith(names,MP4TAIL) ||endsWith(names,FILETAIL))
+					      		{
+								removevec.push_back(path2+"/"+names);
+					      		}
+					      	}
+					}
+				}
+				closedir(dir2);
+			}
+		}
+		else
+		{
+			names = ptr->d_name;
+		      	if(startsWith(names,LOCALHEAD))
+		      	{
+				if(endsWith(names,MP4TAIL) ||endsWith(names,FILETAIL))
+				{
+					removevec.push_back(path+names);
+				}
+		      	}
+		} 
+    	}
+	closedir(dir);
+
+	char buf[128] = {0};
+	for(int i = 0; i < removevec.size(); i++)
+	{
+		printf("%s, %d, rm -rf %s\n", __FILE__,__LINE__, removevec[i].c_str());
+		sprintf(buf, "rm -rf %s", removevec[i].c_str());
+		system(buf);
+	}
+}
 void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vector<string> & files)
 {
 

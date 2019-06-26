@@ -69,6 +69,7 @@ int CabinUninit(RecordHandle *handle);
 int CabinEnable(RecordHandle *handle, unsigned short bEnable);
 void EOS(RecordHandle *recordHandle);
 void SetTime(unsigned long Tnm,RecordHandle *recordHandle);
+void Seteos(RecordHandle *recordHandle);
 void set_video_cnt(int cnt);
 int get_video_cnt();
 void set_data_cnt(int cnt);

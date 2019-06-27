@@ -264,7 +264,7 @@ public:
 		double getzeroangle(){return zeroangle;};
 		void setzeroflag(int flag){zeroflag=flag;};
 		int getzeroflag(){return zeroflag;};
-		void zeroprocess();
+		//void zeroprocess();
 		int judgezero();
 
 

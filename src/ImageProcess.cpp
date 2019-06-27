@@ -322,6 +322,7 @@ int  ImageProcess::Panorest()
 		DetectAlg::getinstance()->LKprocessangle[i]=0;
 	return 1;
 }
+#if 0
 void ImageProcess::zeroprocess()
 {
 	double angle=0;
@@ -384,7 +385,7 @@ void ImageProcess::zeroprocess()
 
 	
 }
-
+#endif
 void ImageProcess::Panoprocess(Mat src,Mat dst)
 {
 	//setNextFrameId();

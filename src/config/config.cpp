@@ -11,15 +11,19 @@ using std::cerr;
 using std::ostream;
 using namespace cv;
 FileStorage configfilestore;
-#define CONFIGFILENAME "/home/nvidia/config/config_test.xml"
+#define CONFIGFILENAME "/home/nvidia/config/config.xml"
 
 Config *Config::instance=new Config();
 
 Config::Config():panozeroptz(0),cam_fov(0),ptzpaninverse(0),ptztitleinverse(0),panoprocessshift(0),panoprocesstailcut(0),angleinterval(10),panocalibration(1),cam_fixcamereafov(0),camsource(0)
 {
 	memset(&trk_platformcfg, 0, sizeof(trk_platformcfg));
+	trk_platformcfg.address = 1;
+	trk_platformcfg.baudrate = 2;
 	trk_platformcfg.ptzspeed = 20;
 	memset(&scan_platformcfg, 0, sizeof(scan_platformcfg));
+	scan_platformcfg.address = 1;
+	scan_platformcfg.baudrate = 2;
 	scan_platformcfg.ptzspeed = 20;
 
 	memset(&sensorcfg, 0, sizeof(sensorcfg));

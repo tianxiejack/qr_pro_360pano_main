@@ -454,7 +454,7 @@ bool Plantformpzt::callbackFuncPlantforinittitle()
 
 bool Plantformpzt::callbackFuncPlantforminitpan()
 {
-	static double anglepan=Config::getinstance()->getpanozeroptz();;
+	static double anglepan=Config::getinstance()->getpanozeroptz();
 	
 	double angle=0;
 	angle=getpanangle();
@@ -657,9 +657,7 @@ void Plantformpzt::plantformcontrlinit()
 	else
 		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
 	fd=Uart.UartOpen(UART422NAME);
-	Uart.UartSet(fd, boad, 8, 'n', 1);
-
-
+	Uart.UartSet(fd, Boardrate[boad], 8, 'n', 1);
 
 	double anglepan=0;
 	double angletitle=0;

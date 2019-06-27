@@ -8,7 +8,8 @@
 #include"videoload.hpp"
 #include"videorecord.hpp"
 #include "DxTimer.hpp"
-//#include "globalDate.h"
+#include "globalDate.h"
+
 RecordManager*RecordManager::instance=NULL;
 #define LOCALHEAD "local"
 #define AVHEAD "record"
@@ -432,9 +433,36 @@ void RecordManager::getnexvideo()
 	nextvideoid=nextvideoid%num;
 
 	string videname=recordvideonames[nextvideoid];
+
+
+
+	Recordmantime nowdate,lastdate;
+	sscanf(videname.c_str(),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+		&nowdate.startyear,&nowdate.startmon,&nowdate.startday,&nowdate.starthour,&nowdate.startmin,&nowdate.startsec,
+		&nowdate.endyear,&nowdate.endmon,&nowdate.endday,&nowdate.endhour,&nowdate.endtmin,&nowdate.endsec);
+	string lastname = VideoLoad::getinstance()->lastreadavi.substr(9);
+	sscanf(lastname.c_str(),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+		&lastdate.startyear,&lastdate.startmon,&lastdate.startday,&lastdate.starthour,&lastdate.startmin,&lastdate.startsec,
+		&lastdate.endyear,&lastdate.endmon,&lastdate.endday,&lastdate.endhour,&lastdate.endtmin,&lastdate.endsec);
+	if((nowdate.startyear != lastdate.startyear) ||(nowdate.startmon != lastdate.startmon) ||(nowdate.startday != lastdate.startday))
+	{
+		Status::getinstance()->playerqueryyear = nowdate.startyear;
+		Status::getinstance()->playerquerymon = nowdate.startmon;
+		Status::getinstance()->playerqueryday = nowdate.startday;
+		playerquerry();
+	}
+	playerdate_t starttime2;
+	playerdate_t selecttime;
+	selecttime.year = starttime2.year =  nowdate.startyear;
+	selecttime.mon = starttime2.mon =  nowdate.startmon;
+	selecttime.day = starttime2.day =  nowdate.startday;
+	selecttime.hour = starttime2.hour =  nowdate.starthour;
+	selecttime.min = starttime2.min =  nowdate.startmin;
+	selecttime.sec = starttime2.sec =  nowdate.startsec;
+	setselecttime(starttime2, selecttime);
+	
 	string directory = videname.substr(7, 8);
 	videname = directory + "/" + videname;
-
 
 	VideoLoad::getinstance()->setreadavi(videname);
 	cout<<"[getnexvideo]"<<videname<<endl;
@@ -443,6 +471,7 @@ void RecordManager::getnexvideo()
 	videname.erase(begin,end);//+FILETAIL;
 	videname=videname+FILETAIL;
 	//string filename=videname.erase( 4,4);//+FILETAIL;
+	
 	VideoLoad::getinstance()->setreadname(videname);
 	VideoLoad::getinstance()->setreadnewfile(1);
 
@@ -458,6 +487,46 @@ void RecordManager::setdataheldrecord(int a[2][7][24])
 	VideoRecord::getinstance()->setdataheldrecord(a);
 
 }
+void RecordManager::playerquerry()
+{
+	int year=Status::getinstance()->playerqueryyear;
+	int mon=Status::getinstance()->playerquerymon;
+	int day=Status::getinstance()->playerqueryday;
+	
+	findrecordnames();
+	Recordtime data;
+	Recordmantime recorddate;
+	CGlobalDate::Instance()->querrytime.clear();
+	for(int i=0;i<recordtime.size();i++)
+		{
+			recorddate=recordtime[i];
+			
+			if(((recorddate.startyear==year)&&(recorddate.startmon==mon)&&(recorddate.startday==day))||\
+				((recorddate.endyear==year)&&(recorddate.endmon==mon)&&(recorddate.endday==day)))
+				{
+					data.startyear=recorddate.startyear;
+					data.startmon=recorddate.startmon;
+					data.startday=recorddate.startday;
+					data.starthour=recorddate.starthour;
+					data.startmin=recorddate.startmin;
+					data.startsec=recorddate.startsec;
+
+					data.endyear=recorddate.endyear;
+					data.endmon=recorddate.endmon;
+					data.endday=recorddate.endday;
+					data.endhour=recorddate.endhour;
+					data.endtmin=recorddate.endtmin;
+					data.endsec=recorddate.endsec;
+					CGlobalDate::Instance()->querrytime.push_back(data);
+				}
+
+		}
+
+	CGlobalDate::Instance()->feedback=ACK_playerquerry;
+	printf("send ok");
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
+}
+
 RecordManager*RecordManager::getinstance()
 {
 	if(instance==NULL)

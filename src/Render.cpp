@@ -5726,11 +5726,7 @@ void Render::playerquerry(long lParam)
 
 	CGlobalDate::Instance()->feedback=ACK_playerquerry;
 	printf("send ok");
-	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
-	
-
-	
-	
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
 }
 
 

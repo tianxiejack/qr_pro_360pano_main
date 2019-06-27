@@ -1827,15 +1827,19 @@ void  CPortBase:: recordquerry(sendInfo * spBuf)
 void  CPortBase::ackplayertime(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=4;
+	int infosize=8;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_playertime;
-	spBuf->sendBuff[5]=Status::getinstance()->playertime.hour&0xff;
-	spBuf->sendBuff[6]=Status::getinstance()->playertime.min&0xff;
-	spBuf->sendBuff[7]=Status::getinstance()->playertime.sec&0xff;
+	spBuf->sendBuff[5]=(Status::getinstance()->playertime.year>>8)&0xff;
+	spBuf->sendBuff[6]=Status::getinstance()->playertime.year&0xff;
+	spBuf->sendBuff[7]=Status::getinstance()->playertime.mon&0xff;
+	spBuf->sendBuff[8]=Status::getinstance()->playertime.day&0xff;
+	spBuf->sendBuff[9]=Status::getinstance()->playertime.hour&0xff;
+	spBuf->sendBuff[10]=Status::getinstance()->playertime.min&0xff;
+	spBuf->sendBuff[11]=Status::getinstance()->playertime.sec&0xff;
 	
 	sumCheck=sendCheck_sum(infosize+3,spBuf->sendBuff+1);
 	

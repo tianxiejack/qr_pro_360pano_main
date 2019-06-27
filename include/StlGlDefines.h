@@ -153,16 +153,6 @@ typedef struct{
 	int hour;
 	int min;
 	int sec;
-}playertime_t;
-
-typedef struct
-{
-	int year;
-	int mon;
-	int day;
-	int hour;
-	int min;
-	int sec;
-}playerdate_t;
+}playertime_t, playerdate_t, correcttime_t;
 
 #endif /* STLGLDEFINES_H_ */

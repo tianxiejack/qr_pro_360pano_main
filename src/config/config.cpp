@@ -15,8 +15,11 @@ FileStorage configfilestore;
 
 Config *Config::instance=new Config();
 
-Config::Config():panozeroptz(0),cam_fov(0),ptzpaninverse(0),ptztitleinverse(0),panoprocessshift(0),panoprocesstailcut(0),angleinterval(10),panocalibration(1),cam_fixcamereafov(0),camsource(0)
+Config::Config():cam_fov(0),ptzpaninverse(0),ptztitleinverse(0),panoprocessshift(0),panoprocesstailcut(0),angleinterval(10),panocalibration(1),cam_fixcamereafov(0),camsource(0)
 {
+	panozeroptz = 0;
+	panozeroptztitle = 0;
+
 	memset(&trk_platformcfg, 0, sizeof(trk_platformcfg));
 	trk_platformcfg.address = 1;
 	trk_platformcfg.baudrate = 2;

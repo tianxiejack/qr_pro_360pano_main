@@ -27,7 +27,6 @@ CPP_SRCS += \
 ../src/main.cpp \
 ../src/main_cap.cpp \
 ../src/main_pano.cpp \
-../src/osa_image_queue.cpp \
 ../src/plantformcontrl.cpp 
 
 CU_SRCS += \
@@ -61,7 +60,6 @@ OBJS += \
 ./src/main.o \
 ./src/main_cap.o \
 ./src/main_pano.o \
-./src/osa_image_queue.o \
 ./src/plantformcontrl.o 
 
 CPP_DEPS += \
@@ -88,7 +86,6 @@ CPP_DEPS += \
 ./src/main.d \
 ./src/main_cap.d \
 ./src/main_pano.d \
-./src/osa_image_queue.d \
 ./src/plantformcontrl.d 
 
 

@@ -196,18 +196,6 @@ public:
 	int detectareanum;
 	int detectareaenable;
 
-
-	/******display config*******/
-	int displayresolution;
-
-	/******time config*******/
-	int correctyear;
-	int correctmonth;
-	int correctday;
-	int correcthour;
-	int correctmin;
-	int correctsec;
-
 	/******detect config*******/
 	int movdetectenable;
 	int panodetectenable;
@@ -230,7 +218,11 @@ public:
 	int usestepdetect;
 
 
+	/****** cmd part *******/
+	correcttime_t correcttime;
+
 	/****** config part *******/
+	int displayresolution;
 	sensorcfg_t sensorcfg[3];	// 0-tvin 1-frin 2-netin
 	platformcfg_t scan_platformcfg;
 	platformcfg_t trk_platformcfg;

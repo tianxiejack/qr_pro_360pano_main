@@ -760,34 +760,41 @@ void CPortBase::correcttimeconfig()
 		return ;
 
 	int configchange=0;
-	if((_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6))!=Status::getinstance()->correctyear)
+	correcttime_t correct_tmp;
+	correct_tmp.year = (_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6));
+	correct_tmp.mon = (_globalDate->rcvBufQue.at(7));
+	correct_tmp.day = _globalDate->rcvBufQue.at(8);
+	correct_tmp.hour = _globalDate->rcvBufQue.at(9);
+	correct_tmp.min = _globalDate->rcvBufQue.at(10);
+	correct_tmp.sec = _globalDate->rcvBufQue.at(11);
+	if(correct_tmp.year!=Status::getinstance()->correcttime.year)
 	{
-		Status::getinstance()->correctyear=_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6);
+		Status::getinstance()->correcttime.year=correct_tmp.year;
 		configchange=1;
 	}
-	if((_globalDate->rcvBufQue.at(7))!=Status::getinstance()->correctmonth)
+	if(correct_tmp.mon!=Status::getinstance()->correcttime.mon)
 	{
-		Status::getinstance()->correctmonth=_globalDate->rcvBufQue.at(7);
+		Status::getinstance()->correcttime.mon=correct_tmp.mon;
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(8)!=Status::getinstance()->correctday)
+	if(correct_tmp.day!=Status::getinstance()->correcttime.day)
 	{
-		Status::getinstance()->correctday=_globalDate->rcvBufQue.at(8);
+		Status::getinstance()->correcttime.day=correct_tmp.day;
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(9)!=Status::getinstance()->correcthour)
+	if(correct_tmp.hour!=Status::getinstance()->correcttime.hour)
 	{
-		Status::getinstance()->correcthour=_globalDate->rcvBufQue.at(9);
+		Status::getinstance()->correcttime.hour=correct_tmp.hour;
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(10)!=Status::getinstance()->correctmin)
+	if(correct_tmp.min!=Status::getinstance()->correcttime.min)
 	{
-		Status::getinstance()->correctmin=_globalDate->rcvBufQue.at(10);
+		Status::getinstance()->correcttime.min=correct_tmp.min;
 		configchange=1;
 	}
-	if(_globalDate->rcvBufQue.at(11)!=Status::getinstance()->correctsec)
+	if(correct_tmp.sec!=Status::getinstance()->correcttime.sec)
 	{
-		Status::getinstance()->correctsec=_globalDate->rcvBufQue.at(11);
+		Status::getinstance()->correcttime.sec=correct_tmp.sec;
 		configchange=1;
 	}
 

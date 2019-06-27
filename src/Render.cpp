@@ -5915,12 +5915,12 @@ void Render::detectconfig(long lparam)
 
 void Render::correcttimeconfig(long lparam)
 {	
-	int year=Status::getinstance()->correctyear;
-	int mon=Status::getinstance()->correctmonth;
-	int day=Status::getinstance()->correctday;
-	int hour=Status::getinstance()->correcthour;
-	int min=Status::getinstance()->correctmin;
-	int sec=Status::getinstance()->correctsec;
+	int year=Status::getinstance()->correcttime.year;
+	int mon=Status::getinstance()->correcttime.mon;
+	int day=Status::getinstance()->correcttime.day;
+	int hour=Status::getinstance()->correcttime.hour;
+	int min=Status::getinstance()->correcttime.min;
+	int sec=Status::getinstance()->correcttime.sec;
 
 	VideoRecord::getinstance()->setforcecloseonece(0);
 	sprintf(pthis->correcttimebuff,"date -s \"%d-%d-%d %d:%d:%d\"",year,mon,day,hour,min,sec);

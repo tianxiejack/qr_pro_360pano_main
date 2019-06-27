@@ -13,9 +13,7 @@ CPP_SRCS += \
 ../src/com/CUartProcess.cpp \
 ../src/com/PortFactory.cpp \
 ../src/com/Udpbase.cpp \
-../src/com/comm_main.cpp \
-../src/com/globalDate.cpp \
-../src/com/statCtrl.cpp 
+../src/com/globalDate.cpp 
 
 OBJS += \
 ./src/com/CClient.o \
@@ -27,9 +25,7 @@ OBJS += \
 ./src/com/CUartProcess.o \
 ./src/com/PortFactory.o \
 ./src/com/Udpbase.o \
-./src/com/comm_main.o \
-./src/com/globalDate.o \
-./src/com/statCtrl.o 
+./src/com/globalDate.o 
 
 CPP_DEPS += \
 ./src/com/CClient.d \
@@ -41,9 +37,7 @@ CPP_DEPS += \
 ./src/com/CUartProcess.d \
 ./src/com/PortFactory.d \
 ./src/com/Udpbase.d \
-./src/com/comm_main.d \
-./src/com/globalDate.d \
-./src/com/statCtrl.d 
+./src/com/globalDate.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

@@ -11,6 +11,7 @@ CPP_SRCS += \
 ../src/OSA_CAP/src/osa_event.cpp \
 ../src/OSA_CAP/src/osa_file.cpp \
 ../src/OSA_CAP/src/osa_i2c.cpp \
+../src/OSA_CAP/src/osa_image_queue.cpp \
 ../src/OSA_CAP/src/osa_mbx.cpp \
 ../src/OSA_CAP/src/osa_msgq.cpp \
 ../src/OSA_CAP/src/osa_mutex.cpp \
@@ -30,6 +31,7 @@ OBJS += \
 ./src/OSA_CAP/src/osa_event.o \
 ./src/OSA_CAP/src/osa_file.o \
 ./src/OSA_CAP/src/osa_i2c.o \
+./src/OSA_CAP/src/osa_image_queue.o \
 ./src/OSA_CAP/src/osa_mbx.o \
 ./src/OSA_CAP/src/osa_msgq.o \
 ./src/OSA_CAP/src/osa_mutex.o \
@@ -49,6 +51,7 @@ CPP_DEPS += \
 ./src/OSA_CAP/src/osa_event.d \
 ./src/OSA_CAP/src/osa_file.d \
 ./src/OSA_CAP/src/osa_i2c.d \
+./src/OSA_CAP/src/osa_image_queue.d \
 ./src/OSA_CAP/src/osa_mbx.d \
 ./src/OSA_CAP/src/osa_msgq.d \
 ./src/OSA_CAP/src/osa_mutex.d \

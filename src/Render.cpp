@@ -687,7 +687,7 @@ void Render::ProcessOitKeys(unsigned char key, int x, int y)
 	static int posa = 0 , posb = 100;
 	switch(key)
 		{
-			#if 1
+			#if 0
 			case 'a':
 				{
 					Plantformpzt::getinstance()->getpanopanpos();

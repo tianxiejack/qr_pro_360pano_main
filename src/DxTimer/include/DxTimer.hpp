@@ -5,7 +5,7 @@
 #include <osa_tsk.h>
 
 #define DX_TIMER_MAX    50
-#define MAX_MSG_NUM     50
+#define TIMER_MAX_MSG_NUM     50
 
 class DxTimer;
 
@@ -52,7 +52,7 @@ typedef struct tmsgdriv
     unsigned short tskLoop;
     unsigned short istskStopDone;
     OSA_MsgqHndl msgQue;
-    TMSGTAB_Class msgTab[MAX_MSG_NUM];
+    TMSGTAB_Class msgTab[TIMER_MAX_MSG_NUM];
 }TMSGDRIV_Class;
 
 typedef struct 

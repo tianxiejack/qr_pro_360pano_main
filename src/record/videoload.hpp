@@ -211,6 +211,7 @@ class VideoLoad{
 		OSA_SemHndl  loadsem;
 
 	public:
+		string lastreadavi;
 		string readname;
 		string readavi;
 		string readdir;
@@ -252,7 +253,11 @@ class VideoLoad{
 		int getreadnewfile(){ return readnewfile;};
 		void setreadname(string name){readname=name;};
 		string getreadname(){return readname;};
-		void setreadavi(string name){readavi=name;};
+		void setreadavi(string name)
+		{
+			readavi=name;
+			lastreadavi = name;
+		};
 		string getreadavi(){return readavi;};
 		
 	public:

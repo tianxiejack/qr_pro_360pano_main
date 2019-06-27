@@ -549,10 +549,9 @@ void VideoLoad::main_Recv_func()
 					Recordmantime2 data;
 					sscanf(aviname.c_str()+strlen("/home/nvidia/calib/video/")+9,"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
 						,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
-					
 					time_t longT = date2sec(data.startyear,data.startmon,data.startday,data.starthour,data.startmin,data.startsec);	
 					longT += msec /1000;
-
+					
 					struct tm *info = localtime(&longT);
 					playertime_t playertime_tmp;
 					playertime_tmp.year = info->tm_year+1900;

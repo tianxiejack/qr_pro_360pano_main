@@ -78,13 +78,16 @@ enum CCT_COUNT {
 #define T360_TGA			"360.tga"
 #define RADAR_TGA "radar.tga"
 
+////////////////////////////////////////////////////
+// sys config part
 typedef struct{
 	int address;
 	int protocol;
 	int baudrate;
+	int ptzspeed;
 	int start_signal;
 	int pt_check;
-}scan_platformcfg_t;
+}platformcfg_t;
 
 typedef struct{
 	int outputresol;
@@ -119,7 +122,6 @@ typedef struct{
 }mtdcfg_t;
 
 typedef struct{
-	int sensor;
 	int hideline;
 	int offset50m[2];// 0-tv 1-fr
 	int offset100m[2];// 0-tv 1-fr
@@ -132,6 +134,12 @@ typedef struct{
 	int trkpriosize;
 	int trktime;
 }trackcfg_t;
+
+typedef struct{
+	int ptzspeed[2];// 0-tv 1-fr
+	int piexfocus[2];// 0-tv 1-fr
+	int circlefps[2];// 0-tv 1-fr
+}panocfg_t;
 
 typedef struct{
 	int devid;

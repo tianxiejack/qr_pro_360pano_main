@@ -118,7 +118,7 @@ enum{
 		static void focallencontrl(long lParam);
 		static void chooseptz(long lParam);
 		static void scanplantformcfg(long lParam);
-		static void plantfromcontrl(long lParam);
+		static void plantfromcfg(long lParam);
 
 		static void MoveLeft();
 		static void MoveRight();

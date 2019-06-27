@@ -38,8 +38,8 @@ typedef enum _sys_msg_id_ {
     MSGID_EXT_INPUT_SwitchSensor,
     MSGID_EXT_INPUT_MtdPreset,
     MSGID_EXT_INPUT_configWrite,	// current no need
-    MSGID_EXT_INPUT_configSave,
-    MSGID_EXT_INPUT_configRead,
+    MSGID_EXT_INPUT_configSave,	// current no need
+    MSGID_EXT_INPUT_configRead,	// current no need
     MSGID_EXT_INPUT_kboard,
     MSGID_EXT_INPUT_OSD,
     MSGID_EXT_INPUT_PRMBACK,

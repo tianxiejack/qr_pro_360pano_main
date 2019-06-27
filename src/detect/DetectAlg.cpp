@@ -877,7 +877,6 @@ exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
 void DetectAlg::registorfun()
 {
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MoveDetectConfig,detectparam,0);
-	//CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlantfromConfig,plantfromcontrl,0);
 	
 }
 

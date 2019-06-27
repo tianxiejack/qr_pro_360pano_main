@@ -182,18 +182,6 @@ public:
 	int playerquerymon;
 	int playerqueryday;
 
-	/******trk plantform config*******/
-	int ptzaddress;
-	int ptzprotocal;
-	int ptzbaudrate;
-	int ptzspeed;
-
-	/******scan plantform config*******/
-	scan_platformcfg_t scan_platformcfg;
-
-	/******sensors config*******/
-	sensorcfg_t sensorcfg[3];	// 0-tvin 1-frin 2-netin
-
 	/******zero config*******/
 	unsigned char zeromod;
 
@@ -220,22 +208,9 @@ public:
 	int correctmin;
 	int correctsec;
 
-	/******pano config*******/
-	int panoptzspeed;
-	int panopiexfocus;
-	int panopicturerate;
-	int panoresolution;
-
-
 	/******detect config*******/
 	int movdetectenable;
 	int panodetectenable;
-
-	/******radar config*******/
-	radarcfg_t radarcfg;
-
-	/******track config*******/
-	trackcfg_t trackcfg;
 
 	/******dev config*******/
 	adddevcfg_t adddevcfg;
@@ -253,6 +228,16 @@ public:
 	int nextid;
 
 	int usestepdetect;
+
+
+	/****** config part *******/
+	sensorcfg_t sensorcfg[3];	// 0-tvin 1-frin 2-netin
+	platformcfg_t scan_platformcfg;
+	platformcfg_t trk_platformcfg;
+	radarcfg_t radarcfg;
+	trackcfg_t trackcfg;
+	panocfg_t panocfg;
+
 
 	/***feedback***/
 	int ack_updatepano;
@@ -318,10 +303,9 @@ private:
 public:
 	static Status* getinstance();
 	void loadconfig();
+	void saveCurrentConfig(long lParam);
+	void resetDefaultConfig(long lParam);
 
 };
-
-
-
 
 #endif /* STATUS_HPP_ */

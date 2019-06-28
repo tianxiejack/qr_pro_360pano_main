@@ -18,8 +18,8 @@ RecordManager*RecordManager::instance=NULL;
 #define FILETAIL ".xml"
 #define AVCONTENC "/home/nvidia/calib/video/"
 
-
-RecordManager::RecordManager():recordpath(AVCONTENC),nextvideoid(0),createplayertimeid(0),playertimer(60),enableplay(0),recordavierase("1.avi"),recorddirerase(AVCONTENC),recordnameerase("1.xml")
+#define default_timer	100
+RecordManager::RecordManager():recordpath(AVCONTENC),nextvideoid(0),createplayertimeid(0),playertimer(default_timer),enableplay(0),recordavierase("1.avi"),recorddirerase(AVCONTENC),recordnameerase("1.xml")
 {
 
 }
@@ -54,55 +54,55 @@ void RecordManager::setplayertimer(int playerclass)
 	switch(playerclass)
 	{
 		case -16:
-			recordtimer = 960;
+			recordtimer = default_timer  * 16;
 			break;
 		case -14:
-			recordtimer = 840;
+			recordtimer = default_timer  * 14;
 			break;
 		case -12:
-			recordtimer = 720;
+			recordtimer = default_timer  * 12 ;
 			break;
 		case -10:
-			recordtimer = 600;
+			recordtimer = default_timer  * 10;
 			break;
 		case -8:
-			recordtimer = 480;
+			recordtimer = default_timer  * 8;
 			break;
 		case -6:
-			recordtimer = 360;
+			recordtimer = default_timer  * 6;
 			break;
 		case -4:
-			recordtimer = 240;
+			recordtimer = default_timer  * 4;
 			break;
 		case -2:
-			recordtimer = 120;
+			recordtimer = default_timer  * 2;
 			break;
 		case 0:
-			recordtimer = 60;
+			recordtimer = default_timer;
 			break;
 		case 2:
-			recordtimer = 30;
+			recordtimer = default_timer / 2;
 			break;
 		case 4:
-			recordtimer = 15;
+			recordtimer = default_timer / 4;
 			break;
 		case 6:
-			recordtimer = 11;
+			recordtimer = default_timer / 6;
 			break;
 		case 8:
-			recordtimer = 7;
+			recordtimer = default_timer / 8;
 			break;
 		case 10:
-			recordtimer = 6;
+			recordtimer = default_timer / 10;
 			break;
 		case 12:
-			recordtimer = 5;
+			recordtimer = default_timer / 12;
 			break;
 		case 14:
-			recordtimer = 4;
+			recordtimer = default_timer / 14;
 			break;
 		case 16:
-			recordtimer = 3;
+			recordtimer = default_timer / 16;
 			break;
 		default:
 			break;

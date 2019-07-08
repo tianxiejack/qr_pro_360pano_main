@@ -47,10 +47,8 @@ src/live555/liveMedia \
 src/live555/groupsock \
 src/live555/UsageEnvironment \
 src/live555/BasicUsageEnvironment \
-src/gstreamer \
 src/gpio \
 src/glcom \
-src/file \
 src/detect \
 src/configfile \
 src/config \
@@ -63,7 +61,6 @@ src/Osd \
 src/OSA_CAP/src \
 src/NetCameraCtl \
 src/IPC \
-src/GST \
 src/GLTools/src \
 src/DxTimer/src \
 

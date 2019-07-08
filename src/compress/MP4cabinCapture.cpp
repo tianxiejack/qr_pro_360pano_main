@@ -15,7 +15,7 @@ int max_period = 1;
 #include "sys/stat.h"
 #include "ReSplic.h"
 #include "videorecord.hpp"
-#include"Gststreamercontrl.hpp"
+#include "Gststreamercontrl.hpp"
 
 
 
@@ -481,7 +481,7 @@ int gstlinkInit_appsrc_mp4(RecordHandle *recordHandle)
     g_object_set (pData->omxh264enc, "insert-sps-pps", 1, NULL);
     g_object_set (pData->splitmuxsink1, "max-size-time", MAX_SIZE_TIME, NULL); //10s
 //    g_object_set (pData->splitmuxsink1, "max-size-bytes", 1024000, NULL); 
-    g_object_set (pData->splitmuxsink1, "max-file", 100, NULL); //最大100个文件，多则覆盖最初始的
+    g_object_set (pData->splitmuxsink1, "max-files", 100, NULL); //最大100个文件，多则覆盖最初始的
     g_object_set (pData->splitmuxsink1, "location","%2d.mp4", NULL);
     g_signal_connect(pData->splitmuxsink1, "format-location", G_CALLBACK(name_by_timestamp), pData);
 	gst_element_sync_state_with_parent (pData->source);
@@ -490,7 +490,7 @@ int gstlinkInit_appsrc_mp4(RecordHandle *recordHandle)
 	gst_element_sync_state_with_parent (pData->splitmuxsink1);
 	gst_element_sync_state_with_parent (pData->h264parse);
 
-	g_print("\n\ngst starting ...\n\n");
+	g_print("\n\ngst cabin enc starting ...\n\n");
 
 	/* Create gstreamer loop */
 	pData->loop = g_main_loop_new(NULL, FALSE);
@@ -528,7 +528,6 @@ RecordHandle * CabinInit(int width, int height, int framerate, const char* forma
 
 	recordHandle->capture_src =APPSRC;
 
-	//res = record_main_init(recordHandle); //初始化gstreamer.
 	res=gstlinkInit_appsrc_mp4(recordHandle);
 	if(res == -1)
 	{

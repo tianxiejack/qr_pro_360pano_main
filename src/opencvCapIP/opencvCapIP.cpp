@@ -8,7 +8,7 @@
 #include "CaptureGroup.h"
 #include "osa_image_queue.h"
 #include "Gyroprocess.hpp"
-#include"Gststream.hpp"
+#include "Gststreamercontrl.hpp"
 #include "config.h"
 #include <vector>
 #include "unistd.h"

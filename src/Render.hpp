@@ -25,16 +25,16 @@
 #include <GLMatrixStack.h>
 #include <GLGeometryTransform.h>
 #include <GLFrustum.h>
-#include"Gststream.hpp"
+#include "Gststreamercontrl.hpp"
 #include "config.h"
 #include <iostream>
 #include "Glosd.hpp"
 #include "osd.hpp"
-#include"menu.hpp"
+#include "menu.hpp"
 #include "CMessage.hpp"
 #include <osa_mutex.h>
-#include"Status.hpp"
-#include"configfile.hpp"
+#include "Status.hpp"
+#include "configfile.hpp"
 #include "StlGlDefines.h"
 #include "PBO_FBO_Facade.h"
 #include "IFrealRecord.h"

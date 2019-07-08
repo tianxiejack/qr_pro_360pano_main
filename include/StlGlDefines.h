@@ -19,24 +19,6 @@
 #define TV_HEIGHT 1080
 #define TV_CC 2
 
-#define MAX_QP		51
-#define MIN_QP_2M	41
-#define MIN_QP_4M	38
-#define MIN_QP_8M	34
-
-#define MAX_I		51
-#define MIN_I_2M	41
-#define MIN_I_4M	38
-#define MIN_I_8M	34
-
-#define BITRATE_2M 1400000
-#define BITRATE_4M 2800000
-#define BITRATE_8M 5600000
-
-#define GST_ENCBITRATE_2M	(1400000)
-#define GST_ENCBITRATE_4M	(2800000)
-#define GST_ENCBITRATE_8M	(5600000)
-
 #define	 	PANO360FBOW	1920//1560
 #define		PANO360FBOH	1080//360
 #define		ROIFBOW	1920

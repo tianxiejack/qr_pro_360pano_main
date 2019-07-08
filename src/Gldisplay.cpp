@@ -10,7 +10,6 @@
 #include <GL/glew.h>
 #include "osa_image_queue.h"
 #include"Queuebuffer.hpp"
-#include"Comcontrl.hpp"
 Render render;
 static GLMain *gThis = NULL;
 GLMain::GLMain()
@@ -203,7 +202,6 @@ int GLMain::start(int argc, char** argv,void *parm)
 	GLMain_InitPrm *m_initPrm=(GLMain_InitPrm *)parm;
 
 	/***************************/
-	COM_Contrl::getinstance()->registkey(mouseButtonPress);
 	//parseArgs(argc, argv);
 	initGlut(argc, argv);
 		if(m_initPrm->nQueueSize < 4)

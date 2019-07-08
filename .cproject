@@ -43,7 +43,6 @@
 									<listOptionValue builtIn="false" value="../src/compress"/>
 									<listOptionValue builtIn="false" value="../src/config"/>
 									<listOptionValue builtIn="false" value="../src/detect"/>
-									<listOptionValue builtIn="false" value="../src/GST"/>
 									<listOptionValue builtIn="false" value="../src/menu"/>
 									<listOptionValue builtIn="false" value="../src/lk"/>
 									<listOptionValue builtIn="false" value="../src/pelco"/>
@@ -51,7 +50,6 @@
 									<listOptionValue builtIn="false" value="../src/mv"/>
 									<listOptionValue builtIn="false" value="../src/Osd"/>
 									<listOptionValue builtIn="false" value="../src/mov/inc"/>
-									<listOptionValue builtIn="false" value="../src/file"/>
 									<listOptionValue builtIn="false" value="../src/gpio"/>
 									<listOptionValue builtIn="false" value="../src/record"/>
 									<listOptionValue builtIn="false" value="../src/live555"/>
@@ -78,7 +76,6 @@
 									<listOptionValue builtIn="false" value="../src/RTSPCaptureGroup"/>
 									<listOptionValue builtIn="false" value="../src/ptzProxy"/>
 									<listOptionValue builtIn="false" value="../src/realRecord"/>
-									<listOptionValue builtIn="false" value="../src/gstreamer"/>
 									<listOptionValue builtIn="false" value="../src/IPC"/>
 									<listOptionValue builtIn="false" value="/usr/include/gstreamer-1.0"/>
 									<listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
@@ -86,7 +83,7 @@
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/glib-2.0/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/X11"/>
 								</option>
-								<option id="nvcc.compiler.compileroptions.624954633" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions" valueType="stringList"/>
+								<option id="nvcc.compiler.compileroptions.624954633" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions"/>
 								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols"/>
 								<option id="nvcc.compiler.undef.symbol.973820224" name="Undefined symbols (-U)" superClass="nvcc.compiler.undef.symbol"/>
 								<option id="nvcc.compiler.cpp11option.2006165920" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="false" valueType="boolean"/>
@@ -189,7 +186,6 @@
 									<listOptionValue builtIn="false" value="../src/compress"/>
 									<listOptionValue builtIn="false" value="../src/config"/>
 									<listOptionValue builtIn="false" value="../src/detect"/>
-									<listOptionValue builtIn="false" value="../src/GST"/>
 									<listOptionValue builtIn="false" value="../src/menu"/>
 									<listOptionValue builtIn="false" value="../src/lk"/>
 									<listOptionValue builtIn="false" value="../src/pelco"/>
@@ -197,7 +193,6 @@
 									<listOptionValue builtIn="false" value="../src/mv"/>
 									<listOptionValue builtIn="false" value="../src/Osd"/>
 									<listOptionValue builtIn="false" value="../src/mov/inc"/>
-									<listOptionValue builtIn="false" value="../src/file"/>
 									<listOptionValue builtIn="false" value="../src/gpio"/>
 									<listOptionValue builtIn="false" value="../src/record"/>
 									<listOptionValue builtIn="false" value="../src/live555"/>
@@ -224,7 +219,6 @@
 									<listOptionValue builtIn="false" value="../src/RTSPCaptureGroup"/>
 									<listOptionValue builtIn="false" value="../src/ptzProxy"/>
 									<listOptionValue builtIn="false" value="../src/realRecord"/>
-									<listOptionValue builtIn="false" value="../src/gstreamer"/>
 									<listOptionValue builtIn="false" value="../src/IPC"/>
 									<listOptionValue builtIn="false" value="/usr/include/gstreamer-1.0"/>
 									<listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
@@ -232,7 +226,7 @@
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/glib-2.0/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/X11"/>
 								</option>
-								<option id="nvcc.compiler.compileroptions.2028599137" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions" valueType="stringList"/>
+								<option id="nvcc.compiler.compileroptions.2028599137" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions"/>
 								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols"/>
 								<option id="nvcc.compiler.undef.symbol.1630480812" name="Undefined symbols (-U)" superClass="nvcc.compiler.undef.symbol"/>
 								<option id="nvcc.compiler.cpp11option.8495932" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="false" valueType="boolean"/>

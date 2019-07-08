@@ -526,16 +526,15 @@ void DetectAlg::create()
 	#endif
 	//videowriter=VideoWriter("mov.avi", CV_FOURCC('M', 'J', 'P', 'G'), rate, videoSize);
 	//bool status=videowriter.open("mov.avi", CV_FOURCC('X', 'V', 'I', 'D'),rate, videoSize, false);
-	mk_dir("/home/nvidia/calib/");
+	//mk_dir("/home/nvidia/calib/");
 	for(int i=0;i<MULTICPUPANONUM;i++)
 		{
 			sprintf(bufname,"/home/nvidia/calib/mov%d.avi",i);
-			videowriter[i].open(bufname, CV_FOURCC('M', 'J', 'P', 'G'),rate, videoSize, false);
+			//videowriter[i].open(bufname, CV_FOURCC('M', 'J', 'P', 'G'),rate, videoSize, false);
 		}
 	
 	OSA_printf("***********Create* end=**************\n");
-	
-	
+
 	MAIN_threadCreate();
 
 	registorfun();

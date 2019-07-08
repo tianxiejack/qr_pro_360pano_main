@@ -112,7 +112,7 @@ class VideoRecord{
 	public:
 		void create();
 		static VideoRecord*getinstance();
-		static void recordvideo(void *data,void* size);
+		//static void recordvideo(void *data,void* size);
 		void putsync(void *data);
 		void getsync(void *data);
 

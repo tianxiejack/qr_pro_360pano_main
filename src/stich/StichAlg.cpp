@@ -613,7 +613,7 @@ void StichAlg::main_proc_func()
 		if(outputif == NULL){
 			//OSA_printf("FROMEPANOSTICH NO QUEUE FREE\n");
 			queuebuf->putempty(Queue::TOPANOSTICH,0, inputif);
-			OSA_printf("StichAlg %s:**********1*******end**********************\n",__func__);
+			//OSA_printf("StichAlg %s:**********1*******end**********************\n",__func__);
 			continue;
 			
 			}

@@ -31,10 +31,8 @@ RM := rm -rf
 -include src/live555/groupsock/subdir.mk
 -include src/live555/UsageEnvironment/subdir.mk
 -include src/live555/BasicUsageEnvironment/subdir.mk
--include src/gstreamer/subdir.mk
 -include src/gpio/subdir.mk
 -include src/glcom/subdir.mk
--include src/file/subdir.mk
 -include src/detect/subdir.mk
 -include src/configfile/subdir.mk
 -include src/config/subdir.mk
@@ -47,7 +45,6 @@ RM := rm -rf
 -include src/OSA_CAP/src/subdir.mk
 -include src/NetCameraCtl/subdir.mk
 -include src/IPC/subdir.mk
--include src/GST/subdir.mk
 -include src/GLTools/src/subdir.mk
 -include src/DxTimer/src/subdir.mk
 

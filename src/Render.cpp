@@ -383,7 +383,6 @@ void Render::SetupRC(int windowWidth, int windowHeight)
 	Plantformpzt::getinstance()->registcall(callbacksignalpanomod,Plantformpzt::RENDERSIGNALPANO);
 	Plantformpzt::getinstance()->registcall(callbackmvdetectgo,Plantformpzt::MVDETECTGO);
 	
-	//gstreamer.create();
 	screenshotinit();
 	createfile();
 	writefilehead();
@@ -2036,11 +2035,6 @@ void Render::screenshot()
 	if(info!=NULL)
 		{
 			glReadPixels(0, 0, renderwidth, renderheight, GL_BGR, GL_UNSIGNED_BYTE, info->virtAddr);
-			
-			
-
-			//GstreaemerContrl::getinstance()->gstputmat((char *)info->virtAddr,renderwidth*renderheight*3);
-			//GstreaemerContrl::getinstance()->gstputmat(cv::Mat(renderheight,renderwidth,CV_8UC3,info->virtAddr));
 			queue->putfull(Queue::DISPALYTORTP, 0, info);
 		}
 	else
@@ -2052,7 +2046,7 @@ void Render::screenshot()
 	if(screenpiexframe.data!=NULL)
 		{
 			glReadPixels(0, 0, renderwidth, renderheight, GL_RGB, GL_UNSIGNED_BYTE,screenpiexframe.data);
-			GstreaemerContrl::getinstance()->gstputmat(cv::Mat(renderheight,renderwidth,CV_8UC3,screenpiexframe.data));
+			//GstreaemerContrl::getinstance()->gstputmat(cv::Mat(renderheight,renderwidth,CV_8UC3,screenpiexframe.data));
 			//imshow("screen",screenpiexframe);
 			//waitKey(2);
 		}
@@ -6017,11 +6011,12 @@ void Render::deldevcfg(long lparam)
 void Render::livevideo(long lparam)
 {
 	int livevideoflg = Status::getinstance()->livevideoflg;
+	GstreaemerContrl::getinstance()->setLiveVideo(livevideoflg);
 }
 
 void Render::livephoto(long lparam)
 {
-
+	GstreaemerContrl::getinstance()->setLivePhoto();
 }
 void Render::videoclip(long lparam)
 {

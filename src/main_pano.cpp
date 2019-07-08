@@ -13,15 +13,14 @@
 #include "Displayer.hpp"
 #include "main.h"
 #include "osa_image_queue.h"
-#include"Gyroprocess.hpp"
+#include "Gyroprocess.hpp"
 #include "ImageProcess.hpp"
-#include"Stich.hpp"
+#include "Stich.hpp"
 #include "config.hpp"
-#include"StichAlg.hpp"
-#include"Queuebuffer.hpp"
-#include"DetectAlg.hpp"
+#include "StichAlg.hpp"
+#include "Queuebuffer.hpp"
+#include "DetectAlg.hpp"
 #include "plantformcontrl.hpp"
-#include"Comcontrl.hpp"
 #include <gst/gst.h>
 #include"FileCapture.hpp"
 #include"Gststreamercontrl.hpp"
@@ -345,17 +344,13 @@ int main_pano(int argc, char **argv)
 	StichAlg::getinstance()->create();
 	/*plantform contrl*/
 	Plantformpzt::getinstance()->create();
-	/*communication */
-	COM_Contrl::getinstance()->create();
 	/*record playback manager*/
 	RecordManager::getinstance()->create();
-	/*gstreamer link*/
+	/*gst enc*/
 	GstreaemerContrl::getinstance()->create();
 	/*record video*/
 	VideoRecord::getinstance()->create();
-	/*callback*/
-	GstreaemerContrl::getinstance()->registrecordfun(VideoRecord::recordvideo);
-	/*playbackl video*/
+	/*playback video*/
 	VideoLoad::getinstance()->create();
 	VideoLoad::getinstance()->registerfun(processFrameRecord_pano);
 	/*rtsp server*/
@@ -406,7 +401,6 @@ int main_pano(int argc, char **argv)
 		}
 	//setgyrostart(1);
 	OSA_printf("run app success!\n");
-	//gst_videnc_create();
 
 	/*cs communication*/
 	CPortInterface *p2 = PortFactory::createProduct(2);

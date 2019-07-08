@@ -7,7 +7,6 @@
 #include <opencv2/highgui/highgui.hpp>
 
 VideoRecord* VideoRecord::instance=NULL;
-#define SAVEDIR "/home/nvidia/calib/video"
 VideoRecord::VideoRecord():timeenable(1),eventenable(0),tm_year(0),tm_mon(0),tm_mday(0),tm_hour(0),tm_min(0),tm_sec(0),videorecordfb(NULL),aviheadenable(1),
 timerdelayenable(0),callback(NULL),forceclose_(0),forcecloseonece_(0)
 {
@@ -91,12 +90,12 @@ void Unchar2IplImg(unsigned char *pImg, IplImage *pDis, int nW, int nH,bool Flag
 
 }
 
+#define TMP_TEST 0
+#if TMP_TEST
 void VideoRecord::recordvideo(void *data,void* size)
 {
 	//printf("data=%p size=%d instance=%p\n",data,size,instance);
 	
-#define TMP_TEST 1
-#if TMP_TEST
 	if(data==NULL||size==NULL||instance==NULL)
 		return ;
 	//return;
@@ -368,12 +367,8 @@ void VideoRecord::recordvideo(void *data,void* size)
 			}
 		}
 
-
-	
-#endif	
-
 }
-
+#endif
 void VideoRecord::putsync(void *data)
 {
 	if(data==NULL)

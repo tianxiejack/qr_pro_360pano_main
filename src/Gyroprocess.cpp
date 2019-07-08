@@ -164,7 +164,7 @@ void proptotocal(Mat& frame)
 		if(abs(timeinterval)>33*1000)
 			{
 				pretimestamp=niaxis->gyro_timestamp;
-				printf("*****timeinterval=%f************error \n",timeinterval);
+				//printf("*****timeinterval=%f************error \n",timeinterval);
 				continue;
 			}
 	

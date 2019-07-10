@@ -5720,7 +5720,7 @@ void Render::playerquerry(long lParam)
 
 	CGlobalDate::Instance()->feedback=ACK_playerquerry;
 	printf("send ok");
-	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);	
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);	
 }
 
 
@@ -5772,10 +5772,7 @@ void Render::playerselect(long lParam)
 
 	//CGlobalDate::Instance()->->feedback=ACK_playerquerry;
 	//OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);
-	
 
-	
-	
 }
 
 void Render::getsoftvetsion(long lParam)
@@ -6103,7 +6100,7 @@ void Render::ACK_response(int cmdid, int param)
 	}
 
 	CGlobalDate::Instance()->feedback=cmdid;
-	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);
 }
 
 void Render::sendfile(char *filepath)

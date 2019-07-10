@@ -1,7 +1,6 @@
 #ifndef __CCLIENT_H__
 #define __CCLIENT_H__
 
-#include "CPortBase.hpp"
 #include "CClient.hpp"
 #include "osa_mutex.h"
 #include <sys/socket.h>
@@ -9,8 +8,10 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include "osa_thr.h"
+#include "globalDate.h"
 
-class CClient:public CPortBase
+class CClient
 {
 public:
     CClient();

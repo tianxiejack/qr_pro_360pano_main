@@ -16,6 +16,7 @@ CPP_SRCS += \
 ../src/Render.cpp \
 ../src/Stich.cpp \
 ../src/cuda_mem.cpp \
+../src/eventParsing.cpp \
 ../src/extra.cpp \
 ../src/gst_ring_buffer.cpp \
 ../src/gyro.cpp \
@@ -48,6 +49,7 @@ OBJS += \
 ./src/Stich.o \
 ./src/cuda.o \
 ./src/cuda_mem.o \
+./src/eventParsing.o \
 ./src/extra.o \
 ./src/gst_ring_buffer.o \
 ./src/gyro.o \
@@ -73,6 +75,7 @@ CPP_DEPS += \
 ./src/Render.d \
 ./src/Stich.d \
 ./src/cuda_mem.d \
+./src/eventParsing.d \
 ./src/extra.d \
 ./src/gst_ring_buffer.d \
 ./src/gyro.d \

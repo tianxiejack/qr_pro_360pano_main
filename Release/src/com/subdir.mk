@@ -5,35 +5,26 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/com/CClient.cpp \
-../src/com/CConnect.cpp \
-../src/com/CNetWork.cpp \
-../src/com/CPortBase.cpp \
+../src/com/CNetProc.cpp \
 ../src/com/CUartBase.cpp \
-../src/com/CUartProcess.cpp \
+../src/com/CUartProc.cpp \
 ../src/com/PortFactory.cpp \
-../src/com/Udpbase.cpp \
 ../src/com/globalDate.cpp 
 
 OBJS += \
 ./src/com/CClient.o \
-./src/com/CConnect.o \
-./src/com/CNetWork.o \
-./src/com/CPortBase.o \
+./src/com/CNetProc.o \
 ./src/com/CUartBase.o \
-./src/com/CUartProcess.o \
+./src/com/CUartProc.o \
 ./src/com/PortFactory.o \
-./src/com/Udpbase.o \
 ./src/com/globalDate.o 
 
 CPP_DEPS += \
 ./src/com/CClient.d \
-./src/com/CConnect.d \
-./src/com/CNetWork.d \
-./src/com/CPortBase.d \
+./src/com/CNetProc.d \
 ./src/com/CUartBase.d \
-./src/com/CUartProcess.d \
+./src/com/CUartProc.d \
 ./src/com/PortFactory.d \
-./src/com/Udpbase.d \
 ./src/com/globalDate.d 
 
 

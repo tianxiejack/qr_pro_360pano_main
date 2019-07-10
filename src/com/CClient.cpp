@@ -1,4 +1,9 @@
 #include "CClient.hpp"
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define  ServerPort  (1234)
 
@@ -87,19 +92,31 @@ int CClient::sendData()
     {
 
         //send(m_Socketfd, "hello,i'm zzq", 14, 0);
-        OSA_semWait(&_globalDate->m_semHndl_socket_client,OSA_TIMEOUT_FOREVER);
-	 if(1 == exitservThrd)
-	 {
-	  	_globalDate->set_sendfile_status(0);
-	     break;
-	 }
+	OSA_semWait(&CGlobalDate::Instance()->m_semHndl_socket_client,OSA_TIMEOUT_FOREVER);
+	if(1 == exitservThrd)
+	{
+		CGlobalDate::Instance()->set_sendfile_status(0);
+		break;
+	}
 
-	 char filepath[128] = {0};
-	 memcpy(filepath, (char*)_globalDate->send_filepath, strlen((char *)_globalDate->send_filepath));
-        sendfile(filepath);
-	 _globalDate->set_sendfile_status(0);
+	char filepath[128] = {0};
+	memcpy(filepath, (char*)CGlobalDate::Instance()->send_filepath, strlen((char *)CGlobalDate::Instance()->send_filepath));
+	sendfile(filepath);
+	CGlobalDate::Instance()->set_sendfile_status(0);
     }
     return 0;
+}
+
+void seconds_sleep(unsigned seconds)
+{
+    struct timeval tv;
+
+    int err;
+    do{
+        tv.tv_sec = seconds;
+        tv.tv_usec = 0;
+        err = select(0, NULL, NULL, NULL, &tv);
+    }while(err<0 && errno==EINTR);
 }
 
 int CClient::ReConnectThread()
@@ -231,4 +248,3 @@ int CClient::sendfile(char *filename)
 	
 	fclose(fp);
 }
-

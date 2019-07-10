@@ -29,7 +29,7 @@
 #include"rtspserver.hpp"
 #include "CPortInterface.hpp"
 #include "PortFactory.hpp"
-#include "CPortBase.hpp"
+//#include "CPortBase.hpp"
 #include"RecordManager.hpp"
 #include "DxTimer.hpp"
 #include"store.hpp"
@@ -40,6 +40,9 @@
 #include "Displayer.hpp"
 #include "ipc_custom_head.hpp"
 #include "ipcProc.h"
+#include "eventParsing.hpp"
+#include "CMessage.hpp"
+#include "globalDate.h"
 
 extern ptzProxyMsg ptzmsg;
 static GLMain render;
@@ -403,10 +406,15 @@ int main_pano(int argc, char **argv)
 	OSA_printf("run app success!\n");
 
 	/*cs communication*/
-	CPortInterface *p2 = PortFactory::createProduct(2);
-      p2->getpM();
-      p2->create();
-      p2->run();
+	//CPortInterface *p2 = PortFactory::createProduct(2);
+      //p2->getpM();
+      //p2->create();
+      //p2->run();
+	CEventParsing parsing;
+	OSA_thrCreate(&parsing.comrecvEvent_thid, parsing.thread_comrecvEvent, 0, 0, NULL);
+	OSA_thrCreate(&parsing.comsendEvent_thid, parsing.thread_comsendEvent, 0, 0, NULL);
+	OSA_thrCreate(&parsing.Getaccept_thid, parsing.thread_Getaccept, 0, 0, NULL);
+	OSA_thrCreate(&parsing.ReclaimConnect_thid, parsing.thread_ReclaimConnect, 0, 0, NULL);
 
 
 	/*
@@ -418,6 +426,11 @@ int main_pano(int argc, char **argv)
 	  
 	/*main loop*/
 	render.mainloop();
+
+	OSA_thrDelete(&parsing.comrecvEvent_thid);
+	OSA_thrDelete(&parsing.comsendEvent_thid);
+	OSA_thrDelete(&parsing.Getaccept_thid);
+	OSA_thrDelete(&parsing.ReclaimConnect_thid);
 
 	return 0;
 }

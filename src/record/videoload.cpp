@@ -681,7 +681,7 @@ void VideoLoad::ACK_response_playertime(playertime_t param)
 	Status::getinstance()->playertime = param;
 
 	CGlobalDate::Instance()->feedback=ACK_playertime;
-	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl_socket);
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);
 }
 
 time_t VideoLoad::date2sec(int year, int mon, int day, int hour, int min, int sec)

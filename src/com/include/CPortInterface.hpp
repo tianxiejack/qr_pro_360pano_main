@@ -1,21 +1,15 @@
 #ifndef __CPORTINTERFACE_H__
 #define __CPORTINTERFACE_H__
 
-#include "CMessage.hpp"
-#include "globalDate.h"
+#include <netinet/in.h> 
 
 class CPortInterface
 {
 public:
-    virtual ~CPortInterface(){};
-    virtual int create(){return 0;};
-    virtual int closePort(){return 0;};
-    virtual void run()=0;
-    virtual int recvData(){return 0;};
-    virtual int sendData(){return 0;};
-
-    virtual CMessage *getpM(){return 0;};
-    virtual CGlobalDate* getDate()=0;
+	virtual int copen()=0;
+	virtual int  cclose()=0;
+	virtual int crecv(int fd, void *buf,int len)=0;
+	virtual int csend(int fd, void *buf,int len)=0;
+	virtual int caccept(struct sockaddr*connectAddr,socklen_t* lenthConnect){return 0;};
 };
-
 #endif

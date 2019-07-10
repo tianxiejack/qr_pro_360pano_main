@@ -14,11 +14,13 @@
 #include "CMessage.hpp"
 #include "osa_sem.h"
 #include <errno.h>
-//#include "Ipcctl.h"
 
 using namespace std;
 
-const int MAXSENDSIZE = 8360;
+typedef struct{
+	int fd;
+	int type;// 1. /dev/ttyTHS*  2.network
+}comtype_t;
 
 typedef struct
 {
@@ -26,56 +28,11 @@ typedef struct
 	char idx;
 }selectCh_t;
 
-typedef struct {
-    int byteSizeSend;
-    unsigned char sendBuff[MAXSENDSIZE];
-}sendInfo;
-
 typedef  struct  {
 	u_int8_t   cmdBlock;
 	u_int8_t   cmdFiled;
 	float    confitData;
 }systemSetting;
-
-
-
-typedef  struct  {
-	u_int8_t   dismod;
-
-}disMod;
-
-typedef struct{
-     unsigned char SecAcqStat;// eSecTrkMode
-     int ImgPixelX; //SecTrk X
-     int ImgPixelY; //SecTrk  Y
-}selectTrack;
-
-typedef struct{
-	volatile unsigned char AvtMoveX;// eTrkRefine (axis or aim) x
-	volatile unsigned char AvtMoveY;// eTrkRefine (axis or aim) y
-}POSMOVE;
-
-typedef struct{
-	volatile unsigned int BoresightPos_x;
-	volatile unsigned int BoresightPos_y;
-}iBoresightPos;
-
-typedef struct{
-	volatile unsigned char AcqStat;
-	volatile unsigned int BoresightPos_x;
-	volatile unsigned int BoresightPos_y;
-}AcqBoxPos_ipc;
-
-typedef struct{
-	volatile int AcqBoxW[20];
-	volatile int AcqBoxH[20];
-}AcqBoxSize;
-
-typedef struct{
-	volatile int dir;
-	volatile int alpha;
-}osd_triangle;
-
 
 typedef struct {
 		int  m_TrkStat;
@@ -213,57 +170,31 @@ static CGlobalDate* Instance();
 float errorOutPut[2];
 char  ACK_read_content[128];
 vector <float> ACK_read;
-vector <int> EXT_Ctrl;
 vector <float> Host_Ctrl;
 vector<unsigned char>  rcvBufQue;
 static vector<Read_config_buffer>  readConfigBuffer;
 static vector<int>  defConfigBuffer;
-//static selectCh_t selectch; 
 vector<Recordtime> querrytime;
-//static osdbuffer_t recvOsdbuf;
-sendInfo repSendBuffer;
-CurrParaStat pParam;
-selectTrack m_selectPara;
-AcqBoxPos_ipc m_acqBox_Pos;
-POSMOVE m_avtMove;
-CurrParaStat  m_CurrStat;
-systemSetting avtSetting;
-osd_triangle m_osd_triangel;
-//IMGSTATUS  avt_status;
-MOUSEPTZ ipc_mouseptz;
 MtdConfig mtdconfig;
-LinkageParam linkagePos;
-
-disMod dismod;
-
-
 
 SoftVersion softversion;
 
 OSA_SemHndl  m_semHndl;
-OSA_SemHndl  m_semHndl_s;
-OSA_SemHndl m_semHndl_socket;
-OSA_SemHndl m_semHndl_socket_s;
-OSA_SemHndl m_semHndl_retest;
-OSA_SemHndl m_semHndl_automtd;
 OSA_SemHndl m_semHndl_socket_client;
 int sendfile_status;
 void set_sendfile_status(int value){sendfile_status = value;};
 int get_sendfile_status(void){return sendfile_status;};
 void milliseconds_sleep(unsigned long mSec);
 
-int joystick_flag;
-int commode;
 int feedback;
+comtype_t comtype;
 int mainProStat[ACK_value_max];
 int choose;
-int IrisAndFocus_Ret;
 int respupgradefw_stat;
 int respupgradefw_perc;
 int respexpconfig_stat;
 int respexpconfig_len;
 unsigned char respexpconfig_buf[1024+256];
-struct timeval PID_t;
 int time_start;
 long int time_stop;
  int frame;
@@ -281,7 +212,6 @@ bool MtdAutoLoop;
 int ThreeMode_bak;
 int Sync_Query;
 int rcv_zoomValue;
-int captureMode;
 char send_filepath[128] = {0};
 
 private:

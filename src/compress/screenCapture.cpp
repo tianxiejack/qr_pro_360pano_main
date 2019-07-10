@@ -99,41 +99,37 @@ static void historylocation(void)
 	dir = opendir(VIDEODIR);
 	while((ptr = readdir(dir)) != NULL)
 	{
+		if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)
+			continue;
 		if(ptr->d_type & DT_DIR)
 		{
-			if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)
-				continue;
-			else
+			sprintf(date_dir, "%s/%s", VIDEODIR, ptr->d_name);
+			dir2 = opendir(date_dir);
+			while((ptr2 = readdir(dir2)) != NULL)
 			{
-				sprintf(date_dir, "%s/%s", VIDEODIR, ptr->d_name);
-				dir2 = opendir(date_dir);
-				while((ptr2 = readdir(dir2)) != NULL)
+				if(strcmp(ptr2->d_name,".")==0 || strcmp(ptr2->d_name,"..")==0)
+					continue;
+				if(ptr2->d_type & DT_DIR)
+					;
+				else
 				{
-					if(ptr2->d_type & DT_DIR)
+					if(strncmp(ptr2->d_name, VIDRECHEAD, strlen(VIDRECHEAD))==0)
 					{
-						if(strcmp(ptr2->d_name,".")==0 || strcmp(ptr2->d_name,"..")==0)
-						continue;
-					}
-					else
-					{
-						if(strncmp(ptr2->d_name, VIDRECHEAD, strlen(VIDRECHEAD))==0)
-						{
-							sprintf(filename_cur, "%s/%s/%s", VIDEODIR, date_dir, ptr2->d_name);
-							printf("%s, %d, rm %s\n",  __FILE__,__LINE__, filename_cur);
-							//remove(filename_cur);
-							sprintf(cmdbuf, "rm -rf %s", filename_cur);
-							system(cmdbuf);
-						}
+						sprintf(filename_cur, "%s/%s/%s", VIDEODIR, date_dir, ptr2->d_name);
+						printf("%s, %d, rm %s\n",  __FILE__,__LINE__, filename_cur);
+						//remove(filename_cur);
+						sprintf(cmdbuf, "rm -rf %s", filename_cur);
+						system(cmdbuf);
 					}
 				}
-				closedir(dir2);
 			}
+			closedir(dir2);
 		}
 		else
 		{
-			if(strncmp(ptr2->d_name, VIDRECHEAD, strlen(VIDRECHEAD))==0)
+			if(strncmp(ptr->d_name, VIDRECHEAD, strlen(VIDRECHEAD))==0)
 			{
-				sprintf(filename_cur, "%s/%s", VIDEODIR, ptr2->d_name);
+				sprintf(filename_cur, "%s/%s", VIDEODIR, ptr->d_name);
 				printf("%s, %d, rm %s\n",  __FILE__,__LINE__, filename_cur);
 				//remove(filename_cur);
 				sprintf(cmdbuf, "rm -rf %s", filename_cur);
@@ -379,10 +375,14 @@ static void * thrdhndl_push_buffer(void* arg)
 	queue=Queue::getinstance();
 	//VideoWriter videowriter;
 	//videowriter=VideoWriter("screen.avi", CV_FOURCC('M', 'J', 'P', 'G'), 2, Size(1920,1080));
-	Mat dst=Mat(pData->height,pData->width,CV_8UC4/*CV_8UC3*/,pData->bufferdata);
+	Mat dst;
 	Mat src;
 	Mat src_conv(1080,1920,CV_8UC4);
 	Uint32 pushcnt=0, mstimeprev=0, mstimecur;
+	if(pData->videoconvert)
+		dst=Mat(pData->height,pData->width,CV_8UC3,pData->bufferdata);
+	else
+		dst=Mat(pData->height,pData->width,CV_8UC4,pData->bufferdata);
 	while(pData->bPush){
 		//OSA_semWait(&pData->pushSem, OSA_TIMEOUT_FOREVER);
 		if(!pData->bPush)
@@ -408,8 +408,15 @@ static void * thrdhndl_push_buffer(void* arg)
 				continue;
 			}
 			src=Mat(pData->height,pData->width,CV_8UC3,bufInfo->virtAddr);
-			remap(src, src_conv, pData->Screenmapx, pData->Screenmapy, CV_INTER_LINEAR, BORDER_CONSTANT, Scalar(0,0,0) );
-			cvtColor(src_conv, dst, CV_BGR2RGBA);
+			if(pData->videoconvert)
+			{
+				remap(src, dst, pData->Screenmapx, pData->Screenmapy, CV_INTER_LINEAR, BORDER_CONSTANT, Scalar(0,0,0) );
+			}
+			else
+			{
+				remap(src, src_conv, pData->Screenmapx, pData->Screenmapy, CV_INTER_LINEAR, BORDER_CONSTANT, Scalar(0,0,0) );
+				cvtColor(src_conv, dst, CV_BGR2RGBA);
+			}
 			#if 1
 			//GstBuffer *buffer = (GstBuffer *)bufInfo->physAddr;
 			GstBuffer *buffer =pData->buffer;
@@ -502,7 +509,7 @@ static int gstlinkInit_appsrc_h264(CustomData* pData)	// without tee-queue
 	char formatgst[30]="RGBA";
 	//char formatgst[30]="I420";
 	getDisplayHeight(&(pData->width),&(pData->height));
-	pData->framerate = 30;
+	pData->framerate = 60;
 	memcpy(pData->format,formatgst,sizeof(formatgst));
 
 	pData->Screenmapx.create(Size(pData->width,pData->height), CV_32FC1 );

@@ -219,7 +219,6 @@ void GLOSD::drawrectfill(int x,int y,int w,int h)
 #define POINTSIZE (2)
 void GLOSD::drawrectfov(int x1,int y1,int w,int h)
 {
-	
 	int x=x1;
 	int y=y1;
 	int centerx=x+w/2;
@@ -238,7 +237,7 @@ void GLOSD::drawrectfov(int x1,int y1,int w,int h)
 
 	x=x1+w;
 	y=y1+h;
-	
+
 	drawline(x,y,x-LINELEN,y);
 	drawline(x,y,x,y-LINELEN);
 
@@ -267,25 +266,10 @@ void GLOSD::drawrectfov(int x1,int y1,int w,int h)
 	y=centery-POINTSIZE;
 	drawline(x,y,x,y+POINTSIZE);
 
-	
-
-
-	
-
-	
-
-	
-
-	
 }
-
-
-
-
 
 void GLOSD::drawline(int xs,int ys,int xe,int ye)
 {
-
 	GLfloat point[3];
 	point[0]=xs;
 	point[1]=ys;
@@ -294,11 +278,11 @@ void GLOSD::drawline(int xs,int ys,int xe,int ye)
 	point[0]=xe;
 	point[1]=ye;
 	windowtoglcenter(point,1);
-	 GLBatch			     lineBatch;
-	 lineBatch.Begin(GL_LINES, 2);
-        lineBatch.CopyVertexData3f(Vpoints);
-        lineBatch.End();
-        lineBatch.Draw();
+	GLBatch lineBatch;
+	lineBatch.Begin(GL_LINES, 2);
+	lineBatch.CopyVertexData3f(Vpoints);
+	lineBatch.End();
+	lineBatch.Draw();
 
 }
 
@@ -384,12 +368,14 @@ bool GLOSD::desteryunicode()
 }
 #define MAXCOLOUR (7)
 GLfloat osdcolour[MAXCOLOUR][4]={
-{ 1.0f, 0.0f, 0.0f, 1.0f },
- { 0.0f, 1.0f, 0.0f, 1.0f },
- { 0.0f, 0.0f, 1.0f, 1.0f },
- { 0.0f, 0.0f, 0.0f, 1.0f },
- { 1.0f, 1.0f, 1.0f, 1.0f },
- { 0.5f, 0.5f, 0.5f, 1.0f },
+	{ 1.0f, 0.0f, 0.0f, 1.0f },	//0-red
+	{ 0.0f, 1.0f, 0.0f, 1.0f },	//1-green
+	{ 0.0f, 0.0f, 1.0f, 1.0f },	//2-blue
+	{ 1.0f, 1.0f, 0.0f, 1.0f },	//3-yellow
+	{ 1.0f, 1.0f, 1.0f, 1.0f },	//4-white
+	{ 0.5f, 0.5f, 0.5f, 1.0f },	//5-grey
+	{ 0.0f, 0.0f, 0.0f, 1.0f },	//6-black
+	
 };
 bool GLOSD::setcolorlinealpha(double alpha)
 {

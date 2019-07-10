@@ -1302,78 +1302,65 @@ void Plantformpzt::focuscontrl(long lParam)
 {
 	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
 	{
-	if(lParam==Status::PTZFOCUSSTOP)
-			;
-		//PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
-	else if(lParam==Status::PTZFOCUSSNEAR)
-			;
-		//PlantformContrl->MakeFocusNear(&instance->PELCO_D, instance->address);
-	else if(lParam==Status::PTZFOCUSSFAR)
-			;
-		//PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
+		if(lParam==Status::PTZFOCUSSTOP)
+			;//PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
+		else if(lParam==Status::PTZFOCUSSNEAR)
+			;//PlantformContrl->MakeFocusNear(&instance->PELCO_D, instance->address);
+		else if(lParam==Status::PTZFOCUSSFAR)
+			;//PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
 	}
 	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
 	{
 		if(lParam==Status::PTZFOCUSSTOP)
-		{
 			ptzmsg.Stop();
-		}
-
 		else if(lParam==Status::PTZFOCUSSNEAR)
-		{
 			ptzmsg.focusNear();
-		}
-
 		else if(lParam==Status::PTZFOCUSSFAR)
-		{
 			ptzmsg.focusFar();
-		}
-
 	}
-
 }
+
 void Plantformpzt::iriscontrl(long lParam)
 {
 	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
-		{
+	{
 		if(lParam==Status::PTZIRISSTOP)
-			;
-			//	PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
+			;//PlantformContrl->MakeFocusStop(&instance->PELCO_D, instance->address);
 		else if(lParam==Status::PTZIRISDOWN)
-			;//	PlantformContrl->MakeFocusNear(&instance->PELCO_D, instance->address);
+			;//PlantformContrl->MakeFocusNear(&instance->PELCO_D, instance->address);
 		else if(lParam==Status::PTZIRISUP)
-			;//	PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
-		}
+			;//PlantformContrl->MakeFocusFar(&instance->PELCO_D, instance->address);
+	}
 	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
 	{
 		if(lParam==Status::PTZIRISSTOP)
 			ptzmsg.Stop();
-			else if(lParam==Status::PTZIRISDOWN)
-				ptzmsg.irisClose();
-			else if(lParam==Status::PTZIRISUP)
-				ptzmsg.irisOpen();
+		else if(lParam==Status::PTZIRISDOWN)
+			ptzmsg.irisClose();
+		else if(lParam==Status::PTZIRISUP)
+			ptzmsg.irisOpen();
 	}
 }
 
 void Plantformpzt::focallencontrl(long lParam)
 {
 	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
-		{
+	{
 		if(lParam==Status::PTZFOCUSLENGTHSTOP)
 			;
 		else if(lParam==Status::PTZFOCUSLENGTHOWN)
 			;
 		else if(lParam==Status::PTZFOCUSLENGTHUP)
 			;
-		}
+	}
 	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
 	{
 		if(lParam==Status::PTZFOCUSLENGTHSTOP)
 			ptzmsg.Stop();
-			else if(lParam==Status::PTZFOCUSLENGTHOWN)
-				ptzmsg.zoomOut();
-			else if(lParam==Status::PTZFOCUSLENGTHUP)
-				ptzmsg.zoomIn();
+		else if(lParam==Status::PTZFOCUSLENGTHOWN)
+			ptzmsg.zoomOut();
+		else if(lParam==Status::PTZFOCUSLENGTHUP)
+			ptzmsg.zoomIn();
 	}
 }
 

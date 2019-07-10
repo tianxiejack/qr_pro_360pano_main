@@ -150,7 +150,7 @@ public:
 
 	//Gstreamer gstreamer;
 	unsigned char *screenpiex;
-	Mat screenpiexframe;
+	//Mat screenpiexframe;
 	unsigned char screenenable;
 
 	void destroyPixList();
@@ -302,6 +302,7 @@ public:
 	void drawradar(int x,int y,int w,int h);
 	void DrawTime();
 	void DrawPlaybackOsd();
+	void DrawLiveVideoOsd();
 	void initTgaTexture();
 
 	MENU *Menu;

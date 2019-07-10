@@ -40,7 +40,7 @@ void StichAlg::Zeropreprocess()
 						setzeroflameupdate(0);
 						setzerolostcout(0);
 						setzeroflame(src);
-						imwrite("zero.jpg",src);
+						imwrite("/home/nvidia/calib/zero.jpg",src);
 						//setgyrozero(getcurrentangle());
 						//setcamerazeroossfet(-getcurrentangle());
 

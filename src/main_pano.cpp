@@ -29,7 +29,6 @@
 #include"rtspserver.hpp"
 #include "CPortInterface.hpp"
 #include "PortFactory.hpp"
-//#include "CPortBase.hpp"
 #include"RecordManager.hpp"
 #include "DxTimer.hpp"
 #include"store.hpp"
@@ -406,10 +405,6 @@ int main_pano(int argc, char **argv)
 	OSA_printf("run app success!\n");
 
 	/*cs communication*/
-	//CPortInterface *p2 = PortFactory::createProduct(2);
-      //p2->getpM();
-      //p2->create();
-      //p2->run();
 	CEventParsing parsing;
 	OSA_thrCreate(&parsing.comrecvEvent_thid, parsing.thread_comrecvEvent, 0, 0, NULL);
 	OSA_thrCreate(&parsing.comsendEvent_thid, parsing.thread_comsendEvent, 0, 0, NULL);

@@ -676,20 +676,24 @@ void CEventParsing::displaymod()
 
 void CEventParsing::workMode()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
+
 	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->getworkmod())
-		Status::getinstance()->setworkmod(_globalDate->rcvBufQue.at(5));
-	else
-		return;
-	if(Status::getinstance()->getworkmod()==0)
 	{
-		pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOAUTO));
+		Status::getinstance()->setworkmod(_globalDate->rcvBufQue.at(5));
+		if(Status::getinstance()->getworkmod()==0)
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOAUTO));
+		else if(Status::getinstance()->getworkmod()==1)
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOPTZ));
+		else if(Status::getinstance()->getworkmod()==2)
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOSELECT));
+
+		//PANOAUTO
 	}
-	else if(Status::getinstance()->getworkmod()==1)
-		pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOPTZ));
-	else if(Status::getinstance()->getworkmod()==2)
-		pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOSELECT));
-	
-	//PANOAUTO
+
 }
 
 void CEventParsing::StoreMode(int mod)
@@ -731,8 +735,12 @@ void CEventParsing::updatepano()
 
 void CEventParsing::ZoomCtrl()
 {
-	int focallength = _globalDate->rcvBufQue.at(5);
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
 
+	int focallength = _globalDate->rcvBufQue.at(5);
 	if(0 == focallength)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCALLENGTHCTRL, (void *)(Status::PTZFOCUSLENGTHSTOP));
 	else if(1 == focallength)
@@ -745,8 +753,12 @@ void CEventParsing::ZoomCtrl()
 
 void CEventParsing::IrisCtrl()
 {
-	int iris = _globalDate->rcvBufQue.at(5);
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
 
+	int iris = _globalDate->rcvBufQue.at(5);
 	if(0 == iris)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_IRISCTRL, (void *)(Status::PTZIRISSTOP));
 	else if(1 == iris)
@@ -757,8 +769,12 @@ void CEventParsing::IrisCtrl()
 
 void CEventParsing::FocusCtrl()
 {
-	int focus = _globalDate->rcvBufQue.at(5);
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
 
+	int focus = _globalDate->rcvBufQue.at(5);
 	if(0 == focus)
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_FOCUSCTRL, (void *)(Status::PTZFOCUSSTOP));
 	else if(1 == focus)
@@ -903,8 +919,12 @@ void CEventParsing::choosedev()
 
 void CEventParsing::chooseptz()
 {
-	int ptzid = _globalDate->rcvBufQue.at(5);
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
 
+	int ptzid = _globalDate->rcvBufQue.at(5);
 	if(1 == ptzid)
 		pM->MSGDRIV_send(MSGID_EXT_CHOOSEPTZ, (void *)(Status::PTZ_SCAN));
 	else if(2 == ptzid)
@@ -982,16 +1002,25 @@ void CEventParsing::playerquery()
 
 void CEventParsing::livevideo()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 2)
+		return ;
+
 	if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->livevideoflg)
 	{
 		Status::getinstance()->livevideoflg=_globalDate->rcvBufQue.at(5);
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEVIDEO, 0);
 	}
-
-	pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEVIDEO, 0);
 }
 
 void CEventParsing::livephoto()
 {
+	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	if(cmdLen != 1)
+		return ;
+
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEPHOTO, 0);
 }
 
@@ -1628,7 +1657,7 @@ void CEventParsing::movedetectconfig()
  void CEventParsing::panoconfig()
 {
 	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
-	printf("%s cmdlen=%d\n",__func__,cmdLen);
+	//printf("%s cmdlen=%d\n",__func__,cmdLen);
 	if(cmdLen != 9)
 		return ;
 

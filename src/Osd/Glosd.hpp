@@ -17,13 +17,10 @@ enum
 	GLRED,
 	GLGREEN,
 	GLBLUE,
-	BLACK,
-	WIRTE,
-	GREY,
-	
-	
-
-
+	GLYELLOW,
+	GLWHITE,
+	GLGREY,
+	GLBLACK,
 };
 typedef struct 
 {

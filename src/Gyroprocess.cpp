@@ -314,7 +314,7 @@ int getGyroprocess(Mat& frame,GYRO_DATA_T *gyro)
 		//printf("the getgyrostart error\n ");
 		return 0;
 	}
-	#if 0
+	#if 1
 	if(GyroCalibration()==0)
 	{
 		printf("the GyroCalibration error\n ");

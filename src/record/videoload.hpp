@@ -216,6 +216,7 @@ class VideoLoad{
 		string readavi;
 		string readdir;
 		int readnewfile;
+		int readavi_type;
 		playerdate_t starttime2;
 		playerdate_t selecttime;
 	private :
@@ -253,12 +254,14 @@ class VideoLoad{
 		int getreadnewfile(){ return readnewfile;};
 		void setreadname(string name){readname=name;};
 		string getreadname(){return readname;};
-		void setreadavi(string name)
+		void setreadavi(string name, int type)
 		{
 			readavi=name;
 			lastreadavi = name;
+			readavi_type = type;
 		};
 		string getreadavi(){return readavi;};
+		int getreadavi_type(){return readavi_type;};
 		
 	public:
 		void initvideo();

@@ -490,6 +490,7 @@ void VideoLoad::main_Recv_func()
 	string  xmlname=readdir+readname;
 	memset(&loaddata,0,sizeof(VideoLoadData));
 	static double gyrodata=0;
+	time_t startsec, endsec;;
 	
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{	
@@ -507,11 +508,12 @@ void VideoLoad::main_Recv_func()
 
 				playerdate_t startdate = getstarttime();
 				playerdate_t selectdate = getselecttime();
-
-				time_t starttime = date2sec(startdate.year,startdate.mon,startdate.day,startdate.hour,startdate.min,startdate.sec);
-				time_t endtime = date2sec(selectdate.year,selectdate.mon,selectdate.day,selectdate.hour,selectdate.min,selectdate.sec);
+				printf("%s,%d,start %d-%d-%d %d:%d:%d\n",__FILE__,__LINE__, startdate.year,startdate.mon,startdate.day,startdate.hour,startdate.min,startdate.sec);
+				startsec = date2sec(startdate.year,startdate.mon,startdate.day,startdate.hour,startdate.min,startdate.sec);
+				endsec = date2sec(selectdate.year,selectdate.mon,selectdate.day,selectdate.hour,selectdate.min,selectdate.sec);
+				
 			
-				unsigned long msec = (endtime - starttime)*1000;
+				unsigned long msec = (endsec - startsec)*1000;
 
 				if(OPENCVAVI)
 				videocapture.release();
@@ -532,7 +534,8 @@ void VideoLoad::main_Recv_func()
 
 		if(!fileframe.empty())
 		{
-			loaddata=mydata.read();
+			if(getreadavi_type() == timer_video)
+				loaddata=mydata.read();
 		}
 		else
 		{
@@ -543,16 +546,11 @@ void VideoLoad::main_Recv_func()
 		if(callfun!=NULL)
 		{
 				if(RTSPURL==0)
-				{	
+				{					
 					double msec = videocapture.get(CV_CAP_PROP_POS_MSEC);
-		
-					Recordmantime2 data;
-					sscanf(aviname.c_str()+strlen("/home/nvidia/calib/video/")+9,"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour
-						,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
-					time_t longT = date2sec(data.startyear,data.startmon,data.startday,data.starthour,data.startmin,data.startsec);	
-					longT += msec /1000;
+					time_t player_sec = startsec + msec /1000;
 					
-					struct tm *info = localtime(&longT);
+					struct tm *info = localtime(&player_sec);
 					playertime_t playertime_tmp;
 					playertime_tmp.year = info->tm_year+1900;
 					playertime_tmp.mon = info->tm_mon+1;

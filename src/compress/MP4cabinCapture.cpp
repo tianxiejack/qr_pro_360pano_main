@@ -23,8 +23,8 @@ int max_period = 1;
 	int CurSteps = 0;
 	char MP4_pipeline[16]={};
 
-int data_cnt = 0;
-int video_cnt = 0;
+static int data_cnt = 0;
+static int video_cnt = 0;
 date_t record_date_bak;
 char filename_bak[128] = {0};
 char filename_gyro_bak[128] = {0};
@@ -80,7 +80,7 @@ typedef struct _CustomData
 static char * name_by_timestamp(GstElement* splitmuxsink, guint id, gpointer userdata)
 {
 	/* Names the encoded files by timestamp. */
-	printf("video_cnt=%d\n",get_video_cnt());
+	printf("%s,%d, video_cnt=%d\n", __FILE__, __LINE__, video_cnt);
 
 	char video_dir[64];
 	char date_dir[16];
@@ -126,7 +126,7 @@ static char * name_by_timestamp(GstElement* splitmuxsink, guint id, gpointer use
 			record_date.year, record_date.mon, record_date.day,
 			record_date.hour, record_date.min,record_date.sec);
 	
-	if(get_video_cnt() > 0)
+	if(video_cnt > 0)
 	{
 		sprintf(filename_total, "%s/record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.mp4", 
 					video_dir, 
@@ -147,14 +147,14 @@ static char * name_by_timestamp(GstElement* splitmuxsink, guint id, gpointer use
 
 	VideoRecord::getinstance()->mydata.open(filename_gyro_next);
 	
-	if(get_video_cnt() == 1)
+	if(video_cnt == 1)
 	{
 		remove(filename_bak);
 		remove(filename_gyro_bak);
 		printf("SetMTime 5minutes\n");
 		GstreaemerContrl::getinstance()->gstreamer_mp4->SetMTime(120000000000);
 	}
-	if(get_video_cnt() > 1)
+	if(video_cnt > 1)
 	{
 		rename(filename_bak, filename_total);
 		rename(filename_gyro_bak, filename_gyro_total);
@@ -172,7 +172,7 @@ static char * name_by_timestamp(GstElement* splitmuxsink, guint id, gpointer use
 					record_date.hour, record_date.min,record_date.sec);
 
 	
-	set_video_cnt(get_video_cnt() + 1);
+	video_cnt += 1;;
 	
 
 	static int a=0;

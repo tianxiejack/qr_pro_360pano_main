@@ -88,7 +88,7 @@ void *CEventParsing::thread_comsendEvent(void *p)
 			if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
 			{
 				pThis->pCom2->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
-#if 1
+#if 0
 				printf("net send %d bytes:\n", repSendBuffer.byteSizeSend);
 				for(int i = 0; i < repSendBuffer.byteSizeSend; i++)
 					printf("%02x ", repSendBuffer.sendBuff[i]);
@@ -261,7 +261,7 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype
 	uartdata_pos = 0;
 	if(sizeRcv>0)
 	{
-		printf("------------------(fd:%d)start recv date---------------------\n", comtype.fd);
+		printf("------------------(fd:%d)start recv data---------------------\n", comtype.fd);
 		for(int j=0;j<sizeRcv;j++)
 		{
 			printf("%02x ",tmpRcvBuff[j]);
@@ -1003,7 +1003,7 @@ void CEventParsing::playerquery()
 void CEventParsing::livevideo()
 {
 	int cmdLen = (_globalDate->rcvBufQue.at(2)|_globalDate->rcvBufQue.at(3)<<8);
-	//printf("%s cmdlen=%d\n",__func__,cmdLen);
+	//printf("%s livevideo start, cmdlen=%d\n",__func__,cmdLen);
 	if(cmdLen != 2)
 		return ;
 
@@ -2062,34 +2062,57 @@ void  CEventParsing:: paramtodef(sendInfo * spBuf)
 void  CEventParsing:: recordquerry(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=14*_globalDate->querrytime.size()+1;
+	int infosize=15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+2;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
 	spBuf->sendBuff[3]=(infosize>>8)&0xff;
 	spBuf->sendBuff[4]=ACK_playerquerry;
-	for(int i=0;i<_globalDate->querrytime.size();i++)
-		{
-			spBuf->sendBuff[5+i*14]=(_globalDate->querrytime[i].startyear>>8)&0xff;
-			spBuf->sendBuff[6+i*14]=_globalDate->querrytime[i].startyear&0xff;
-			spBuf->sendBuff[7+i*14]=_globalDate->querrytime[i].startmon;
-			spBuf->sendBuff[8+i*14]=_globalDate->querrytime[i].startday;
-			spBuf->sendBuff[9+i*14]=_globalDate->querrytime[i].starthour;
-			spBuf->sendBuff[10+i*14]=_globalDate->querrytime[i].startmin;
-			spBuf->sendBuff[11+i*14]=_globalDate->querrytime[i].startsec;
-			spBuf->sendBuff[12+i*14]=(_globalDate->querrytime[i].endyear>>8)&0xff;
-			spBuf->sendBuff[13+i*14]=_globalDate->querrytime[i].endyear&0xff;
-			spBuf->sendBuff[14+i*14]=_globalDate->querrytime[i].endmon;
-			spBuf->sendBuff[15+i*14]=_globalDate->querrytime[i].endday;
-			spBuf->sendBuff[16+i*14]=_globalDate->querrytime[i].endhour;
-			spBuf->sendBuff[17+i*14]=_globalDate->querrytime[i].endtmin;
-			spBuf->sendBuff[18+i*14]=_globalDate->querrytime[i].endsec;
+	int i = 0;
+	int j = _globalDate->querrytime.size();
+	for(i = 0; i < j; i++)
+	{
+		spBuf->sendBuff[5+i*15]=1;
+		spBuf->sendBuff[6+i*15]=(_globalDate->querrytime[i].startyear>>8)&0xff;
+		spBuf->sendBuff[7+i*15]=_globalDate->querrytime[i].startyear&0xff;
+		spBuf->sendBuff[8+i*15]=_globalDate->querrytime[i].startmon;
+		spBuf->sendBuff[9+i*15]=_globalDate->querrytime[i].startday;
+		spBuf->sendBuff[10+i*15]=_globalDate->querrytime[i].starthour;
+		spBuf->sendBuff[11+i*15]=_globalDate->querrytime[i].startmin;
+		spBuf->sendBuff[12+i*15]=_globalDate->querrytime[i].startsec;
+		spBuf->sendBuff[13+i*15]=(_globalDate->querrytime[i].endyear>>8)&0xff;
+		spBuf->sendBuff[14+i*15]=_globalDate->querrytime[i].endyear&0xff;
+		spBuf->sendBuff[15+i*15]=_globalDate->querrytime[i].endmon;
+		spBuf->sendBuff[16+i*15]=_globalDate->querrytime[i].endday;
+		spBuf->sendBuff[17+i*15]=_globalDate->querrytime[i].endhour;
+		spBuf->sendBuff[18+i*15]=_globalDate->querrytime[i].endtmin;
+		spBuf->sendBuff[19+i*15]=_globalDate->querrytime[i].endsec;
+
+	}
+
+	for(i = j; i < j + _globalDate->querrylivetime.size(); i++)
+	{
+			spBuf->sendBuff[5+i*15]=2;
+			spBuf->sendBuff[6+i*15]=(_globalDate->querrylivetime[i-j].startyear>>8)&0xff;
+			spBuf->sendBuff[7+i*15]=_globalDate->querrylivetime[i-j].startyear&0xff;
+			spBuf->sendBuff[8+i*15]=_globalDate->querrylivetime[i-j].startmon;
+			spBuf->sendBuff[9+i*15]=_globalDate->querrylivetime[i-j].startday;
+			spBuf->sendBuff[10+i*15]=_globalDate->querrylivetime[i-j].starthour;
+			spBuf->sendBuff[11+i*15]=_globalDate->querrylivetime[i-j].startmin;
+			spBuf->sendBuff[12+i*15]=_globalDate->querrylivetime[i-j].startsec;
+			spBuf->sendBuff[13+i*15]=(_globalDate->querrylivetime[i-j].endyear>>8)&0xff;
+			spBuf->sendBuff[14+i*15]=_globalDate->querrylivetime[i-j].endyear&0xff;
+			spBuf->sendBuff[15+i*15]=_globalDate->querrylivetime[i-j].endmon;
+			spBuf->sendBuff[16+i*15]=_globalDate->querrylivetime[i-j].endday;
+			spBuf->sendBuff[17+i*15]=_globalDate->querrylivetime[i-j].endhour;
+			spBuf->sendBuff[18+i*15]=_globalDate->querrylivetime[i-j].endtmin;
+			spBuf->sendBuff[19+i*15]=_globalDate->querrylivetime[i-j].endsec;
 
 		}
 	//spBuf->sendBuff[5]= (u_int8_t) (_globalDate->mainProStat[ACK_config_Rblock]&0xff);
-	sumCheck=sendCheck_sum(4+14*_globalDate->querrytime.size(),spBuf->sendBuff+1);
-	spBuf->sendBuff[4+14*_globalDate->querrytime.size()+1]=(sumCheck&0xff);
-	spBuf->byteSizeSend=4+14*_globalDate->querrytime.size()+2;
+	sumCheck=sendCheck_sum(4+1+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size(),spBuf->sendBuff+1);
+	spBuf->sendBuff[4+1+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+1]=(sumCheck&0xff);
+	spBuf->byteSizeSend=4+1+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+2;
 	printf("%s\n",__func__);
 }
 

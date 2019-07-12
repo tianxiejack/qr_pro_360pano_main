@@ -5668,82 +5668,155 @@ void Render::playerquerry(long lParam)
 	Recordtime data;
 	Recordmantime recorddate;
 	CGlobalDate::Instance()->querrytime.clear();
+	CGlobalDate::Instance()->querrylivetime.clear();
+
 	for(int i=0;i<RecordManager::getinstance()->recordtime.size();i++)
-		{
-			recorddate=RecordManager::getinstance()->recordtime[i];
+	{
+		recorddate=RecordManager::getinstance()->recordtime[i];
 			
-			if(((recorddate.startyear==year)&&(recorddate.startmon==mon)&&(recorddate.startday==day))||\
-				((recorddate.endyear==year)&&(recorddate.endmon==mon)&&(recorddate.endday==day)))
-				{
-					data.startyear=recorddate.startyear;
-					data.startmon=recorddate.startmon;
-					data.startday=recorddate.startday;
-					data.starthour=recorddate.starthour;
-					data.startmin=recorddate.startmin;
-					data.startsec=recorddate.startsec;
+		if(((recorddate.startyear==year)&&(recorddate.startmon==mon)&&(recorddate.startday==day))||\
+			((recorddate.endyear==year)&&(recorddate.endmon==mon)&&(recorddate.endday==day)))
+		{
+			data.startyear=recorddate.startyear;
+			data.startmon=recorddate.startmon;
+			data.startday=recorddate.startday;
+			data.starthour=recorddate.starthour;
+			data.startmin=recorddate.startmin;
+			data.startsec=recorddate.startsec;
 
-					data.endyear=recorddate.endyear;
-					data.endmon=recorddate.endmon;
-					data.endday=recorddate.endday;
-					data.endhour=recorddate.endhour;
-					data.endtmin=recorddate.endtmin;
-					data.endsec=recorddate.endsec;
-					CGlobalDate::Instance()->querrytime.push_back(data);
-				}
-
+			data.endyear=recorddate.endyear;
+			data.endmon=recorddate.endmon;
+			data.endday=recorddate.endday;
+			data.endhour=recorddate.endhour;
+			data.endtmin=recorddate.endtmin;
+			data.endsec=recorddate.endsec;
+			CGlobalDate::Instance()->querrytime.push_back(data);
 		}
 
+	}
+
+	for(int i=0;i<RecordManager::getinstance()->liverecordtime.size();i++)
+	{
+		recorddate=RecordManager::getinstance()->liverecordtime[i];
+			
+		if(((recorddate.startyear==year)&&(recorddate.startmon==mon)&&(recorddate.startday==day))||\
+			((recorddate.endyear==year)&&(recorddate.endmon==mon)&&(recorddate.endday==day)))
+		{
+			data.startyear=recorddate.startyear;
+			data.startmon=recorddate.startmon;
+			data.startday=recorddate.startday;
+			data.starthour=recorddate.starthour;
+			data.startmin=recorddate.startmin;
+			data.startsec=recorddate.startsec;
+
+			data.endyear=recorddate.endyear;
+			data.endmon=recorddate.endmon;
+			data.endday=recorddate.endday;
+			data.endhour=recorddate.endhour;
+			data.endtmin=recorddate.endtmin;
+			data.endsec=recorddate.endsec;
+			CGlobalDate::Instance()->querrylivetime.push_back(data);
+		}
+	}
+		
+
 	CGlobalDate::Instance()->feedback=ACK_playerquerry;
-	printf("send ok");
+	printf("send ok\n");
 	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);	
 }
 
 
 void Render::playerselect(long lParam)
 {
-	playerdate_t starttime2;
 	playerdate_t selecttime;
+	playerdate_t starttime;
+	playerdate_t starttime_live;
+
+	time_t selsec;
+	time_t startsec, endsec;
+	time_t startsec_live, endsec_live;
+
+	int findok=-1;
+	int findok_live=-1;
+
+	Recordmantime recorddate;
+	
 	selecttime.year=Status::getinstance()->playeryear;
 	selecttime.mon=Status::getinstance()->playermonth;
 	selecttime.day=Status::getinstance()->playerday;
-
 	selecttime.hour=Status::getinstance()->playerhour;
 	selecttime.min=Status::getinstance()->playermin;
 	selecttime.sec=Status::getinstance()->playersec;
-
-	time_t time = VideoLoad::getinstance()->date2sec(selecttime.year,selecttime.mon,selecttime.day,selecttime.hour,selecttime.min,selecttime.sec);
+	selsec = VideoLoad::getinstance()->date2sec(selecttime.year,selecttime.mon,selecttime.day,selecttime.hour,selecttime.min,selecttime.sec);
 
 	//RecordManager::getinstance()->findrecordnames();
 	
-	Recordmantime recorddate;
-	int findok=-1;
 	for(int i=0;i<RecordManager::getinstance()->recordtime.size();i++)
-		{
-			recorddate=RecordManager::getinstance()->recordtime[i];
+	{
+		recorddate=RecordManager::getinstance()->recordtime[i];
 
-			time_t starttime = VideoLoad::getinstance()->date2sec(recorddate.startyear,recorddate.startmon,recorddate.startday,recorddate.starthour,recorddate.startmin,recorddate.startsec);
-			time_t endtime = VideoLoad::getinstance()->date2sec(recorddate.endyear,recorddate.endmon,recorddate.endday,recorddate.endhour,recorddate.endtmin,recorddate.endsec);
+		startsec = VideoLoad::getinstance()->date2sec(recorddate.startyear,recorddate.startmon,recorddate.startday,recorddate.starthour,recorddate.startmin,recorddate.startsec);
+		endsec = VideoLoad::getinstance()->date2sec(recorddate.endyear,recorddate.endmon,recorddate.endday,recorddate.endhour,recorddate.endtmin,recorddate.endsec);
 
-			if((starttime<=time)&&(endtime>=time))
-			{	
-
-				starttime2.year = recorddate.startyear;
-				starttime2.mon = recorddate.startmon;
-				starttime2.day = recorddate.startday;
-				starttime2.hour = recorddate.starthour;
-				starttime2.min = recorddate.startmin;
-				starttime2.sec = recorddate.startsec;
-				findok=i;
-				break;
-			}
+		if((startsec<=selsec)&&(endsec>=selsec))
+		{	
+			starttime.year = recorddate.startyear;
+			starttime.mon = recorddate.startmon;
+			starttime.day = recorddate.startday;
+			starttime.hour = recorddate.starthour;
+			starttime.min = recorddate.startmin;
+			starttime.sec = recorddate.startsec;
+			findok=i;
+			break;
 		}
+	}
 
-	if(findok>=0)
-		{
-			RecordManager::getinstance()->setselecttime(starttime2, selecttime);
-			RecordManager::getinstance()->setpalyervide(findok);
-			RecordManager::getinstance()->enableplayer(1);
+	for(int i=0;i<RecordManager::getinstance()->liverecordtime.size();i++)
+	{
+		recorddate=RecordManager::getinstance()->liverecordtime[i];
+
+		startsec_live = VideoLoad::getinstance()->date2sec(recorddate.startyear,recorddate.startmon,recorddate.startday,recorddate.starthour,recorddate.startmin,recorddate.startsec);
+		endsec_live = VideoLoad::getinstance()->date2sec(recorddate.endyear,recorddate.endmon,recorddate.endday,recorddate.endhour,recorddate.endtmin,recorddate.endsec);
+
+		if((startsec_live<=selsec)&&(endsec_live>=selsec))
+		{	
+			starttime_live.year = recorddate.startyear;
+			starttime_live.mon = recorddate.startmon;
+			starttime_live.day = recorddate.startday;
+			starttime_live.hour = recorddate.starthour;
+			starttime_live.min = recorddate.startmin;
+			starttime_live.sec = recorddate.startsec;
+			findok_live=i;
+			break;
 		}
+	}
+
+	if((findok>=0) && (findok_live>=0))
+	{
+		if(startsec <= startsec_live)
+		{
+			RecordManager::getinstance()->setselecttime(starttime, selecttime);
+			RecordManager::getinstance()->setpalyervide(findok, timer_video);
+		}
+		else
+		{
+			RecordManager::getinstance()->setselecttime(starttime_live, selecttime);
+			RecordManager::getinstance()->setpalyervide(findok_live, live_video);
+		}
+		RecordManager::getinstance()->enableplayer(1);
+	}
+	else if(findok>=0)
+	{
+		RecordManager::getinstance()->setselecttime(starttime, selecttime);
+		RecordManager::getinstance()->setpalyervide(findok, timer_video);
+		RecordManager::getinstance()->enableplayer(1);
+	}
+	else if(findok_live>=0)
+	{
+		RecordManager::getinstance()->setselecttime(starttime_live, selecttime);
+		RecordManager::getinstance()->setpalyervide(findok_live, live_video);
+		RecordManager::getinstance()->enableplayer(1);
+	}
 
 	//CGlobalDate::Instance()->->feedback=ACK_playerquerry;
 	//OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);
@@ -5753,8 +5826,6 @@ void Render::playerselect(long lParam)
 void Render::getsoftvetsion(long lParam)
 {
 	CGlobalDate::Instance()->softversion.major;
-
-
 }
 
 

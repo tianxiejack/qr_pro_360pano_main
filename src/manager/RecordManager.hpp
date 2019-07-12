@@ -32,15 +32,26 @@ typedef struct {
 	int endsec;
 
 }Recordmantime;
+
+enum videotype{
+	timer_video = 1,
+	live_video,
+	mtd_video
+};
 class RecordManager
 {
 public:
 	vector<string> recordvideonames;
 	vector<string> recordfilenames;
+	vector<string> recordlivevideonames;
 
 	vector<Recordmantime> recordtime;
+	vector<Recordmantime> liverecordtime;
 	string  recordpath;
-	int nextvideoid;
+	struct{
+		int id;
+		int type;
+	} nextvideo;
 	int createplayertimeid;
 	int playertimer;
 	int enableplay;
@@ -59,10 +70,10 @@ public:
 	int getpalyerclass(){return playerclass;};
 	void setpalyerclass(int value){playerclass = value;};
 	void getnexvideo();
-	void setpalyervide(int num);
+	void setpalyervide(int num, int type);
 	void setselecttime(playerdate_t startparam, playerdate_t selectparam);
 	void removelocalfile(string  path);
-	void getJustCurrentFile(string path, vector<string> & video,vector<string> & files);
+	void getJustCurrentFile(string  path, vector<string> & video,vector<string> & files, vector<string> & livevideo);
 	 bool startsWith(const std::string& str, const std::string& substr);
 	 bool endsWith(const std::string& str, const std::string& substr);
 	static void recordplaycallback(void *arg);

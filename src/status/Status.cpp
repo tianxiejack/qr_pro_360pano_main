@@ -13,6 +13,7 @@ Status::Status():devid(0),displaymod(0),displaysensor(0),ptzpanspeed(0),ptztitle
 	mtdcfg.speedpriority = -1;
 	mtdcfg.sensitivity = -1;
 	mtdcfg.moverecordtime = -1;
+	livevideoflg = 0;
 
 }
 Status::~Status()

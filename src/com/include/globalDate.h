@@ -175,6 +175,7 @@ vector<unsigned char>  rcvBufQue;
 static vector<Read_config_buffer>  readConfigBuffer;
 static vector<int>  defConfigBuffer;
 vector<Recordtime> querrytime;
+vector<Recordtime> querrylivetime;
 MtdConfig mtdconfig;
 
 SoftVersion softversion;

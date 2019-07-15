@@ -109,7 +109,7 @@ void ImageProcess::Init()
 
 	panoblockdown=Mat(Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocesswidth()/(Config::getinstance()->getmvdownup()),CV_8UC1,cv::Scalar(0));
 
-	printf("panoblockdown w=%d h=%d \n",Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocesswidth()/(Config::getinstance()->getmvdownup()));
+	printf("====== ImageProcess::Init  panoblockdown w=%d h=%d \n",Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocesswidth()/(Config::getinstance()->getmvdownup()));
 	int board=40;
 	int boardh=30;
 	if(Config::getinstance()->getmvdownup()<=2)

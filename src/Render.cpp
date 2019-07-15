@@ -129,7 +129,7 @@ static  GLfloat vTexCoordsindentify [] = { 0.0f, 0.0f,
 
 Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),pano360textureh(0),MOUSEx(0),MOUSEy(0),BUTTON(0),
 	MOUSEST(0),mousex(0),mousey(0),mouseflag(0),pano360renderw(0),pano360renderH(0),pano360renderLux(0),pano360renderLuy(0),
-	CameraFov(0),maxtexture(0),pano360texturenum(0),pano360texturewidth(0),pano360textureheight(0),selecttexture(0),shotcutnum(0),
+	CameraFov(0),maxtexture(0),pano360texturenum(0),pano360texturewidth(0),pano360textureheight(0),selecttexture(0),
 	movviewx(0),movviewy(0),movvieww(0),movviewh(0),menumode(0),tailcut(0),radarinner(3.0),radaroutter(10),viewfov(90),viewfocus(10),
 	osdmenushow(0),osdmenushowpre(0),screenpiex(NULL),screenenable(1),recordscreen(0),zeroselect(0),poisitionreach(0),poisitionreachpan(0),
 	poisitionreachtitle(0),criticalmode(0),debuggl(0),singleenable(0),singleangle(0),siglecircle(0),timerclock(600),currentnum(0),
@@ -162,7 +162,8 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		renderwidth=1920;
 		renderheight=1080;
 		Panpicenum=0;
-		shotcut=0;
+		//shotcut=0;
+		//shotcutnum=0;
 		seamid=0;
 		SeamEable=0;
 		Pano360frameId=0;
@@ -1126,94 +1127,82 @@ void Render::callbackpanomod(void *contex)
 	OSA_mutexUnlock(&pthis->renderlock);
 
 }
+
 void Render::selectmod()
 {
 	OSA_mutexLock(&modelock);
 	displayMode=PANO_360_MODE;
-	Plantformpzt::getinstance()->setpanoscanstop();
 	setmenumode(SELECTMODE);
-	
+	Plantformpzt::getinstance()->setpanoscanstop();
 	setscanpanflag(0);
-
 	OSA_mutexUnlock(&modelock);
 }
 void Render::Tracksignlemode()
 {
+	OSA_mutexLock(&modelock);
 	displayMode=TRACK_SINGLE_VIEW_MODE;
+	OSA_mutexUnlock(&modelock);
 }
 void Render::signalmod()
 {
-	
 	OSA_mutexLock(&modelock);
 	displayMode=SINGLE_VIDEO_VIEW_MODE;
 	setmenumode(SINGLEMODE);
 	Plantformpzt::getinstance()->setpanoscanstop();
 	setscanpanflag(0);
 	OSA_mutexUnlock(&modelock);
-	
 }
 void Render::zeromod()
 {
 	OSA_mutexLock(&modelock);
-	
 	displayMode=PANO_360_MODE;
-	Plantformpzt::getinstance()->setpanoscanstop();
 	setmenumode(SELECTZEROMODE);
-	
+	Plantformpzt::getinstance()->setpanoscanstop();
 	setscanpanflag(0);
-	
 	OSA_mutexUnlock(&modelock);
 }
-
-
 void Render::signalpanomod()
 {
 	OSA_mutexLock(&modelock);
 	double angle=0;
 	bool enable=1;
 	if(getsingleenable())
-		{
+	{
 		OSA_mutexUnlock(&modelock);
 		return ;
-		}
+	}
 	if(getmenumode()==SELECTMODE)
-		{
-			setsingleenable(1);
-			setcriticalmode(1);
-			double zeroanglepan=getptzzeroangle()-1;
-			if(zeroanglepan<0)
-				zeroanglepan+=360;
-			Plantformpzt::getinstance()->setpanopanpos(zeroanglepan);
-			double zeroangletitle=getptzzerotitleangle();
-			if(zeroangletitle<0)
-				zeroangletitle+=360;
-			Plantformpzt::getinstance()->setpanotitlepos(zeroangletitle);
-			
-			Plantformpzt::getinstance()->Enbalecallback(Plantformpzt::RENDERSIGNALPANO,zeroanglepan,zeroangletitle);
-			enable=0;
-			
-		} 
+	{
+		setsingleenable(1);
+		setcriticalmode(1);
+		double zeroanglepan=getptzzeroangle()-1;
+		if(zeroanglepan<0)
+			zeroanglepan+=360;
+		Plantformpzt::getinstance()->setpanopanpos(zeroanglepan);
+		double zeroangletitle=getptzzerotitleangle();
+		if(zeroangletitle<0)
+			zeroangletitle+=360;
+		Plantformpzt::getinstance()->setpanotitlepos(zeroangletitle);
+		
+		Plantformpzt::getinstance()->Enbalecallback(Plantformpzt::RENDERSIGNALPANO,zeroanglepan,zeroangletitle);
+		enable=0;
+	} 
 /*
 	if(enable)
-		{
-			setcriticalmode(0);
-			setpanoflagenable(1);
-			setfusionenalge(Config::getinstance()->getpanofusion());
-			setscanpanflag(1);
-			Plantformpzt::getinstance()->setpanoscan();
-			displayMode=PANO_360_MODE;
-			setmenumode(PANOMODE);	
-		}
+	{
+		setcriticalmode(0);
+		setpanoflagenable(1);
+		setfusionenalge(Config::getinstance()->getpanofusion());
+		setscanpanflag(1);
+		Plantformpzt::getinstance()->setpanoscan();
+		displayMode=PANO_360_MODE;
+		setmenumode(PANOMODE);	
+	}
 */
 	OSA_mutexUnlock(&modelock);
-
-
-
 }
-
 void Render::panomod()
 {
-
 	OSA_mutexLock(&modelock);
 	double angle=0;
 	bool enable=1;
@@ -2006,9 +1995,8 @@ void Render::singleView(int x,int y,int width,int height)
 	glUseProgram(0);
 	glColor3f(0.0, 0.0, 1.0);
     	glRasterPos2f(0.5, -0.9);
-	sprintf(numflame,"image cutnum :%d\n",shotcutnum);
-      glutBitmapString(GLUT_BITMAP_HELVETICA_18, (unsigned char *)numflame);
-	//
+	//sprintf(numflame,"image cutnum :%d\n",shotcutnum);
+      //glutBitmapString(GLUT_BITMAP_HELVETICA_18, (unsigned char *)numflame);
 	testcylinder();
 
 }
@@ -3995,11 +3983,14 @@ void Render::CaptureFrame(int chid,int widht,int height,int channel,unsigned cha
 			}
 		return ;
 	}
-	if(shotcut==1)
-		{
-			shotcut=0;
-			CaptureSavepicture(Capture);
-		}
+	#if 0
+	if(shotcut == 1)
+	{
+		shotcut=0;
+		CaptureSavepicture(Capture);
+	}
+	#endif
+
 	if(chid==TV_QUE_ID)
 		{
 			//printf("*************************\n");
@@ -4060,15 +4051,13 @@ void Render::testcylinder()
 
 }
 
-
 void Render::CaptureSavebmp(Mat& src)
 {
-
 	if(src.cols==0||src.rows==0||src.data==NULL)
 		return ;
+
 	static int bmpcount=0;
 	char file_name[40];
-	
 	sprintf(file_name,"/home/nvidia/calib/%d.bmp",bmpcount);
 	//sprintf(file_name,"calibration/%d.bmp",bmpcount);
 	//Mat frame_copy(SDI_HEIGHT,SDI_WIDTH,CV_8UC4,pic);
@@ -4079,17 +4068,15 @@ void Render::CaptureSavebmp(Mat& src)
 
 void Render::CaptureSavepicture(Mat& src)
 {
-
 	if(src.cols==0||src.rows==0||src.data==NULL)
 		return ;
 	static double tstart = 0;
-	#if 1
+	#if 0
 	if((getTickCount()-tstart)*1000/getTickFrequency()<100)
 		return;
 	#else
-	
-	#endif
 	tstart = (double)getTickCount();
+	#endif
 	CaptureSavebmp(src);
 
 }
@@ -5516,15 +5503,14 @@ void Render::workmod(long lParam)
 	}
 	else if(lParam==Status::PANOPTZ)
 	{
+		pthis->setsingleenable(0);
 		if(Plantformpzt::getinstance()->GetcurPtzId() == 0)
 		{
-			pthis->setsingleenable(0);
 			pthis->signalmod();
 		}
 		else if(Plantformpzt::getinstance()->GetcurPtzId() == 1)
 		{
-			pthis->setsingleenable(0);
-			pthis->Tracksignlemode();
+			//pthis->Tracksignlemode();
 		}
 	}
 	else if(lParam==Status::PANOSELECT)
@@ -6078,33 +6064,24 @@ void Render::CheckArea(int x,int y)
 	}
 	else
 	{
-		if(x>=0 &&x<=955 &&y>=720 &&y<=960) //zuoxia
+		if(displayMode==PANO_360_MODE && getmenumode() == PANOMODE)
 		{
-			if(displayMode==PANO_360_MODE)
+			if(x>=0 &&x<=955 &&y>=720 &&y<=960) //zuoxia
 			{
 				ProcessOitKeys('A',0,0);
 				ACK_response(ACK_fullscreenmode,1);
 			}
-		}
-		else if(x>=0 &&x<=958 &&y>=370&&y<720) //zuoshang
-		{
-		 if(displayMode==PANO_360_MODE)
+			else if(x>=0 &&x<=958 &&y>=370&&y<720) //zuoshang
 			{
 				ProcessOitKeys('B',0,0);
 				ACK_response(ACK_fullscreenmode,1);
 			}
-		}
-		else if(x>=962 &&x<=1920 &&y>=370 &&y<720) //youshang
-		{
-			if(displayMode==PANO_360_MODE)
+			else if(x>=962 &&x<=1920 &&y>=370 &&y<720) //youshang
 			{
 				ProcessOitKeys('C',0,0);
 				ACK_response(ACK_fullscreenmode,1);
 			}
-		}
-		else if(x>=962 &&x<=1920 &&y>=720 &&y<960) //youxia
-		{
-			if(displayMode==PANO_360_MODE)
+			else if(x>=962 &&x<=1920 &&y>=720 &&y<960) //youxia
 			{
 				ProcessOitKeys('D',0,0);
 				ACK_response(ACK_fullscreenmode,1);

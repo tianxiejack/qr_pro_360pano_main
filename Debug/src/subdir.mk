@@ -5,8 +5,6 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/Cylindrical.cpp \
-../src/Displaybase.cpp \
-../src/Displayer.cpp \
 ../src/FileRW.cpp \
 ../src/Gldisplay.cpp \
 ../src/Gyroprocess.cpp \
@@ -37,8 +35,6 @@ CU_DEPS += \
 
 OBJS += \
 ./src/Cylindrical.o \
-./src/Displaybase.o \
-./src/Displayer.o \
 ./src/FileRW.o \
 ./src/Gldisplay.o \
 ./src/Gyroprocess.o \
@@ -64,8 +60,6 @@ OBJS += \
 
 CPP_DEPS += \
 ./src/Cylindrical.d \
-./src/Displaybase.d \
-./src/Displayer.d \
 ./src/FileRW.d \
 ./src/Gldisplay.d \
 ./src/Gyroprocess.d \

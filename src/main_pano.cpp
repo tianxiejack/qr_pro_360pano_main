@@ -10,7 +10,6 @@
 #include <glut.h>
 #include <freeglut_ext.h>
 #include "ChosenCaptureGroup.h"
-#include "Displayer.hpp"
 #include "main.h"
 #include "osa_image_queue.h"
 #include "Gyroprocess.hpp"
@@ -36,7 +35,6 @@
 #include"RTSPCaptureGroup/RTSPCaptureGroup.h"
 #include "opencvCapIP.h"
 #include "ptzProxyMsg.h"
-#include "Displayer.hpp"
 #include "ipc_custom_head.hpp"
 #include "ipcProc.h"
 #include "eventParsing.hpp"

@@ -126,8 +126,8 @@ enum{
 		static void MoveDown();
 		static void Stop();
 		static void SetSpeed(bool plus);
-		 void SetcurPtzId(int idx);
-		 int GetcurPtzId(){return curPtzId;};
+		void SetcurPtzId(int idx);
+		int GetcurPtzId(){return curPtzId;};
 	public:
 		void setspeed(int speed)
 			{
@@ -138,21 +138,19 @@ enum{
 	private:
 		int curPtzId;
 		CUartBase Uart;
+		ComObj platformcom;	// scanptz
+		//ComObj plattrkcom;	// trkptz
+
 		int speedpan;
 		int speedtitle;
 		
 		double titlpanangle;
-		ComObj platformcom;
 		unsigned char recvbuf[2000];
 		unsigned char sendbuf[300];
 		int scanflag;
 
 		int fd;
 		#define TIMEOUTCOUNT (5)
-		
-
-		//unsigned char recvbuff[2000];
-
 		PELCO_D_REQPKT PELCO_D;
 		int mainloop ;
 		int address;

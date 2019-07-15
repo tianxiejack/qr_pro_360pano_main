@@ -12,6 +12,7 @@
 #include "Status.hpp"
 
 CEventParsing* CEventParsing::pThis = NULL;
+int evtDbgOn = 0;
 
 CEventParsing::CEventParsing()
 {
@@ -88,14 +89,13 @@ void *CEventParsing::thread_comsendEvent(void *p)
 			if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
 			{
 				pThis->pCom2->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
-#if 0
-				printf("net send %d bytes:\n", repSendBuffer.byteSizeSend);
-				for(int i = 0; i < repSendBuffer.byteSizeSend; i++)
-					printf("%02x ", repSendBuffer.sendBuff[i]);
-				printf("\n");
-#endif
-
-
+				if(evtDbgOn)
+				{
+					printf("net send %d bytes:\n", repSendBuffer.byteSizeSend);
+					for(int i = 0; i < repSendBuffer.byteSizeSend; i++)
+						printf("%02x ", repSendBuffer.sendBuff[i]);
+					printf("\n");
+				}
 			}
 			OSA_mutexUnlock(&pThis->mutexConn);
 		}
@@ -261,12 +261,15 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype
 	uartdata_pos = 0;
 	if(sizeRcv>0)
 	{
-		printf("------------------(fd:%d)start recv data---------------------\n", comtype.fd);
-		for(int j=0;j<sizeRcv;j++)
+		if(evtDbgOn)
 		{
-			printf("%02x ",tmpRcvBuff[j]);
+			printf("------------------(fd:%d)start recv data---------------------\n", comtype.fd);
+			for(int j=0;j<sizeRcv;j++)
+			{
+				printf("%02x ",tmpRcvBuff[j]);
+			}
+			printf("\n");
 		}
-		printf("\n");
 
 		while (uartdata_pos< sizeRcv)
 		{

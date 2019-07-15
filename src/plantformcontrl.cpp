@@ -10,9 +10,9 @@ extern ptzProxyMsg ptzmsg;
 #define MAX_RECV_BUF_LEN 256
 Plantformpzt *Plantformpzt::instance=NULL;
 
-static IPelcoBaseFormat *PlantformContrl;
+static IPelcoBaseFormat *PlantformContrl;	// scanptz
 
-#define UART422NAME "/dev/ttyTHS1"
+#define UART422NAME "/dev/ttyTHS1"	// scanptz
 
 
 #define HALFUSE 0
@@ -23,12 +23,12 @@ static IPelcoBaseFormat *PlantformContrl;
 #define UART485SEND 1
 #define UART485RECV 0
 #define SENDDELAY (0)
-Plantformpzt::Plantformpzt():fd(0),mainloop(1),address(1),ptzpd(0),panangle(0),titleangle(0),calibration(0),plantformpan(720),plantformtitle(720),
+Plantformpzt::Plantformpzt():mainloop(1),address(1),ptzpd(0),panangle(0),titleangle(0),calibration(0),plantformpan(720),plantformtitle(720),
 plantinitflag(0),speedpan(30),speedtitle(30),titlpanangle(-7.3),plantformpanforever(0),plantformtitleforever(0),scanflag(0),
 curPtzId(0)
 {
-	
 	memset(&platformcom,0,sizeof(platformcom));
+	//memset(&plattrkcom,0,sizeof(plattrkcom));
 	memset(callbackeable,0,sizeof(callbackeable));
 	memset(callbackpan,0,sizeof(callbackpan));
 	memset(callbacktitle,0,sizeof(callbacktitle));
@@ -167,10 +167,7 @@ int Plantformpzt::COMCTRL_checkSum(ComObj* pObj)
 	unsigned char  *pMsg= (unsigned char  *)pObj->recvBuf;
 	//return SDK_SOK;
 	if(pMsg[6]!=chechsum(pMsg))
-			{
-			
-				return -1 ;
-			}
+		return -1 ;
 	
 	return SDK_SOK;
 }
@@ -197,8 +194,7 @@ void Plantformpzt::main_Recv_func()
 	
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{
-
-		buflen=Uart.UartRecv( fd,  platformcom.recvBuf, MAX_RECV_BUF_LEN-platformcom.recvLen);
+		buflen=Uart.UartRecv(platformcom.devId, platformcom.recvBuf, MAX_RECV_BUF_LEN-platformcom.recvLen);
 
 		if(buflen<=0)
 			continue;
@@ -392,7 +388,7 @@ void Plantformpzt::callbackFuncPlantformTitleForever()
 	}
 	setpanotitlepos(plantformtitleforever);
 
-	//printf("***********PLANTFORMTITLEFOREVER******************\n");
+	//printf("***********%s******************\n", __func__);
 	return;
 }
 
@@ -414,7 +410,7 @@ void Plantformpzt::callbackFuncPlantformPanForever()
 	}
 	setpanopanpos(plantformpanforever);
 
-	//printf("***********PLANTFORMPANFOREVER******************\n");
+	//printf("***********%s******************\n", __func__);
 	return;
 }
 
@@ -440,14 +436,14 @@ bool Plantformpzt::callbackFuncPlantforinittitle()
 		timeoutflag[PLANTFORMINITTITLE]=0;
 		return true;
 	}
-
-	printf("angle=%f angletitle=%f\n",angle,angletitle);
+	printf(" %s angle=%f angletitle=%f\n",__func__, angle,angletitle);
 
 	OSA_waitMsecs(1000);
 	//initptzpos(anglepan,angletitle);
 	setpanotitlepos(angletitle);
 	getpanotitlepos();
 
+	//printf("***********%s******************\n", __func__);
 	return false;
 }
 
@@ -468,13 +464,15 @@ bool Plantformpzt::callbackFuncPlantforminitpan()
 		timeoutflag[PLANTFORMINITPAN]=0;
 		return true;
 	}
-	printf("angle=%f anglepan=%f\n",angle,anglepan);
+	printf(" %s angle=%f anglepan=%f\n",__func__, angle,anglepan);
 
 	OSA_waitMsecs(1000);
 	//initptzpos(anglepan,angletitle);
 	//	printf("anglepan=%f\n",anglepan);
 	setpanopanpos(anglepan);
 	getpanopanpos();
+
+	//printf("***********%s******************\n", __func__);
 	return false;
 }
 
@@ -621,6 +619,8 @@ void Plantformpzt::callbackFuncMvdetectgo()
 	
 void Plantformpzt::setplantformcalibration(int flag)
 {
+	if(calibration!=flag)
+		printf("====== %d:%s  calibration=%d ====== \n", OSA_getCurTimeInMsec(), __func__, flag);
 	calibration=flag;
 }
 int  Plantformpzt::getplantformcalibration()
@@ -656,8 +656,8 @@ void Plantformpzt::plantformcontrlinit()
 		PlantformContrl=IPelcoFactory::createIpelco(pelco_D);
 	else
 		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
-	fd=Uart.UartOpen(UART422NAME);
-	Uart.UartSet(fd, Boardrate[boad], 8, 'n', 1);
+	platformcom.devId = Uart.UartOpen(UART422NAME);
+	Uart.UartSet(platformcom.devId, Boardrate[boad], 8, 'n', 1);
 
 	double anglepan=0;
 	double angletitle=0;
@@ -706,94 +706,116 @@ void Plantformpzt::plantformcontrlinit()
 			OSA_printf("angle=%f anglepan=%f ",angle,anglepan);
 		}
 		*/
-	//Uart.UartSet(fd, 1, 8, 'n', 1);
-
-	
-
+	//Uart.UartSet(platformcom.devId, 1, 8, 'n', 1);
 
 }
 
+void Plantformpzt::plantformcontrluninit()
+{
+	Uart.UartClose(platformcom.devId);
+
+}
 
 void Plantformpzt::setpanoscan()
 {
-	int len=0;
-	PlantformContrl->MakeMove(&PELCO_D, PTZ_MOVE_Right,speedpan,true, address);
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&PELCO_D, PTZ_MOVE_Right,speedpan,true, address);
+		unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
+		OSA_waitMsecs(50);
+		//len=Uart.UartSend(platformcom.devId,( unsigned char *) buf, strlen(buf));
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				len=Uart.UartSend(platformcom.devId,pelcodbuf,SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				len=Uart.UartSend(platformcom.devId,pelcodbuf,SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
 
+			}
+		scanflag=1;
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(50);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
-	unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
-	OSA_waitMsecs(50);
-	//len=Uart.UartSend(fd,( unsigned char *) buf, strlen(buf));
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			len=Uart.UartSend(fd,pelcodbuf,SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			len=Uart.UartSend(fd,pelcodbuf,SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-
-		}
-	scanflag=1;
-	OSA_waitMsecs(50);
-	//printf("********************ok*****************send len=%d\n",len);
 }
 
 void Plantformpzt::setpanoantiscan()
 {
-	int len=0;
-	PlantformContrl->MakeMove(&PELCO_D, PTZ_MOVE_Left,speedpan,true, address);
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&PELCO_D, PTZ_MOVE_Left,speedpan,true, address);
+		unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
+		//len=Uart.UartSend(platformcom.devId,( unsigned char *) buf, strlen(buf));
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				len=Uart.UartSend(platformcom.devId,pelcodbuf,SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				len=Uart.UartSend(platformcom.devId,pelcodbuf,SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
 
+			}
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(10);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
-	unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
-
-	//len=Uart.UartSend(fd,( unsigned char *) buf, strlen(buf));
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			len=Uart.UartSend(fd,pelcodbuf,SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			len=Uart.UartSend(fd,pelcodbuf,SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-
-		}
-	OSA_waitMsecs(10);
-	//printf("********************ok*****************send len=%d\n",len);
 }
 void Plantformpzt::setpanoscanstop()
 {
-	scanflag=0;
-	PlantformContrl->MakeMove(&PELCO_D, PTZ_MOVE_Stop,0x10,true, address);
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		scanflag=0;
+		PlantformContrl->MakeMove(&PELCO_D, PTZ_MOVE_Stop,0,true, address);
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
+			}
+		
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(10);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
-		}
-	
-	OSA_waitMsecs(10);
 }
 
 
@@ -814,81 +836,86 @@ void Plantformpzt::Enbalecallback(int index,double pan,double title)
 
 void Plantformpzt::setpanopanpos(double value)
 {
-	if(Config::getinstance()->getptzpaninverse())
-		value=-value;
-	
-	if(value>360)
-		value=value-360;
-	if(value<0)
-		value=value+360;
-	
-	if(getplantformcalibration()==0)
-		return ;
-
-	//printf("*****************************\n");
-	printf("******%s******value=%f*****************\n",__func__,value);
-	unsigned short panvalue=value*100;
-	PlantformContrl->MakeSetPanPos(&PELCO_D, panvalue,address);
-	if(HALFUSE)
+	if(GetcurPtzId() == MPTZ_SCAN)
 	{
-		GPIO_set(GPIP485S,UART485SEND);
-		GPIO_set(GPIP485R,UART485SEND);
-		Uart.UartSend(fd,( unsigned char *)& PELCO_D, SENDLEN);
-		OSA_waitMsecs(SENDDELAY);
-		GPIO_set(GPIP485S,UART485RECV);
-		GPIO_set(GPIP485R,UART485RECV);
-	}
-	else
-	{
-		OSA_mutexLock(&instance->lock);
-		Uart.UartSend(fd,( unsigned char *)& PELCO_D, SENDLEN);
-		OSA_mutexUnlock(&instance->lock);
-	}
-	
-	OSA_waitMsecs(50);
-	
-	//printf("getpanopan=%f\n",getpanopan());
+		if(Config::getinstance()->getptzpaninverse())
+			value=-value;
+		if(value>360)
+			value=value-360;
+		if(value<0)
+			value=value+360;
+	      //printf("******%s******value=%f*****************\n",__func__,value);
+		if(getplantformcalibration()==0)
+			return ;
 
-	//getpanopanpos();
+		int len=0;
+		unsigned short panvalue=value*100;
+		PlantformContrl->MakeSetPanPos(&PELCO_D, panvalue,address);
+		if(HALFUSE)
+		{
+			GPIO_set(GPIP485S,UART485SEND);
+			GPIO_set(GPIP485R,UART485SEND);
+			len = Uart.UartSend(platformcom.devId,( unsigned char *)& PELCO_D, SENDLEN);
+			OSA_waitMsecs(SENDDELAY);
+			GPIO_set(GPIP485S,UART485RECV);
+			GPIO_set(GPIP485R,UART485RECV);
+		}
+		else
+		{
+			OSA_mutexLock(&instance->lock);
+			len = Uart.UartSend(platformcom.devId,( unsigned char *)& PELCO_D, SENDLEN);
+			OSA_mutexUnlock(&instance->lock);
+		}
+		
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(50);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
 }
 
 void Plantformpzt::setpanotitlepos(double value)
 {
-
-	if(Config::getinstance()->getptztitleinverse())
-		{
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		if(Config::getinstance()->getptztitleinverse())
 			;//value=-value;
-		}
-	if(value>360)
-		value=value-360;
-	if(value<0)
-		value=value+360;
+		if(value>360)
+			value=value-360;
+		if(value<0)
+			value=value+360;
+	      //printf("******%s******value=%f*****************\n",__func__,value);
+		if(getplantformcalibration()==0)
+			return ;
 
-	
-      printf("******%s******value=%f*****************\n",__func__,value);
-	
-	if(getplantformcalibration()==0)
-		return ;
-	unsigned short panvalue=value*100;
-	PlantformContrl->MakeSetTilPos(&PELCO_D, panvalue,address);
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-		}
-	OSA_waitMsecs(50);
-	
+		int len=0;
+		unsigned short panvalue=value*100;
+		PlantformContrl->MakeSetTilPos(&PELCO_D, panvalue,address);
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
+			}
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(50);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
 }
 
@@ -907,246 +934,272 @@ int Plantformpzt::getpanotitleforeverstatus()
 }
 void Plantformpzt::setpanopanforever(double value)
 {
-	if(Config::getinstance()->getptzpaninverse())
-		{
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		if(Config::getinstance()->getptzpaninverse())
 			value=-value;
-		}
-	if(value>360)
-		value=value-360;
-	if(value<0)
-		value=value+360;
-	
-	if(getplantformcalibration()==0)
-		return ;
+		if(value>360)
+			value=value-360;
+		if(value<0)
+			value=value+360;
+		
+		//printf("******%s******value=%f*****************\n",__func__,value);
+		if(getplantformcalibration()==0)
+			return ;
 
-	plantformpanforever=value;
-	timeoutflag[PLANTFORMPANFOREVER]=1;
-
+		plantformpanforever=value;
+		timeoutflag[PLANTFORMPANFOREVER]=1;
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
 }
 
 void Plantformpzt::setpanotitleforever(double value)
 {
-
-	if(Config::getinstance()->getptztitleinverse())
-		{
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		if(Config::getinstance()->getptztitleinverse())
 			value=-value;
-		}
-	if(value>360)
-		value=value-360;
-	if(value<0)
-		value=value+360;
+		if(value>360)
+			value=value-360;
+		if(value<0)
+			value=value+360;
 
-	printf("******%s******value=%f*****************\n",__func__,value);
-	if(getplantformcalibration()==0)
-		return ;
-	
-	plantformtitleforever=value;
-	timeoutflag[PLANTFORMTITLEFOREVER]=1;
-	
+		//printf("******%s******value=%f*****************\n",__func__,value);
+		if(getplantformcalibration()==0)
+			return ;
+		
+		plantformtitleforever=value;
+		timeoutflag[PLANTFORMTITLEFOREVER]=1;
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
 }
 
 void Plantformpzt::initptzpos(double pan,double title)
 {
 	if(Config::getinstance()->getptzpaninverse())
-		{
-			pan=-pan;
-		}
+		pan=-pan;
 	if(pan>360)
 		pan=pan-360;
 	if(pan<0)
 		pan=pan+360;
-
-
 	if(Config::getinstance()->getptztitleinverse())
-		{
-			title=-title;
-		}
+		title=-title;
 	if(title>360)
 		title=title-360;
 	if(title<0)
 		title=title+360;
- //  printf("******%s******value=%f*****************\n",__func__,pan);
-	
-	unsigned short panvalue=title*100;
-	PlantformContrl->MakeSetTilPos(&PELCO_D, panvalue,address);
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-		}
+	//printf("******%s******value=%f,%f*****************\n",__func__,pan,title);
 
-	OSA_waitMsecs(10);
-	panvalue=pan*100;
-	PlantformContrl->MakeSetPanPos(&PELCO_D, panvalue,address);
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
-
-		}
-	OSA_waitMsecs(10);
-
-
-
-	
-	
+	if(GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		unsigned short panvalue=title*100;
+		PlantformContrl->MakeSetTilPos(&PELCO_D, panvalue,address);
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
+			}
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(10);
+		panvalue=pan*100;
+		PlantformContrl->MakeSetPanPos(&PELCO_D, panvalue,address);
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				len = Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
+			}
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+		OSA_waitMsecs(10);
+	}
 
 }
 
 double Plantformpzt::getpanopan()
 {
-	unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
-	pelcodbuf[0]=0xff;
-	pelcodbuf[1]=0x01;
-	pelcodbuf[2]=0x00;
-	pelcodbuf[3]=0x51;
-	pelcodbuf[4]=0x00;
-	pelcodbuf[5]=0x00;
-	pelcodbuf[6]=0x52;
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
+		pelcodbuf[0]=0xff;
+		pelcodbuf[1]=0x01;
+		pelcodbuf[2]=0x00;
+		pelcodbuf[3]=0x51;
+		pelcodbuf[4]=0x00;
+		pelcodbuf[5]=0x00;
+		pelcodbuf[6]=0x52;
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
 
-		}
-	timeoutflag[PLANTFORMGETPAN]=0;
-	printf("*******%s*******\n",__func__);
-	//if(Config::getinstance()->getptzwait())
-	//OSA_semWait(&mainRecvThrObj.procNotifySem,OSA_TIMEOUT_FOREVER);
-	OSA_waitMsecs(100);
-	timeoutflag[PLANTFORMGETPAN]=0;
-	return panangle;
+			}
+		timeoutflag[PLANTFORMGETPAN]=0;
+		//if(Config::getinstance()->getptzwait())
+		//OSA_semWait(&mainRecvThrObj.procNotifySem,OSA_TIMEOUT_FOREVER);
+		OSA_waitMsecs(100);
+		timeoutflag[PLANTFORMGETPAN]=0;
+		printf("*******%s scanptz %f*******\n",__func__, panangle);
+		return panangle;
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+		printf("*******%s trkptz %f*******\n",__func__, panangle);
+		return panangle;
+	}
 
 }
 
 double Plantformpzt::getpanotitle()
 {
-	unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
-	pelcodbuf[0]=0xff;
-	pelcodbuf[1]=0x01;
-	pelcodbuf[2]=0x00;
-	pelcodbuf[3]=0x53;
-	pelcodbuf[4]=0x00;
-	pelcodbuf[5]=0x00;
-	pelcodbuf[6]=0x54;
-	if(HALFUSE)
-		{
-			GPIO_set(GPIP485S,UART485SEND);
-			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_waitMsecs(SENDDELAY);
-			GPIO_set(GPIP485S,UART485RECV);
-			GPIO_set(GPIP485R,UART485RECV);
-		}
-	else
-		{
-			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-			OSA_mutexUnlock(&instance->lock);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
+		pelcodbuf[0]=0xff;
+		pelcodbuf[1]=0x01;
+		pelcodbuf[2]=0x00;
+		pelcodbuf[3]=0x53;
+		pelcodbuf[4]=0x00;
+		pelcodbuf[5]=0x00;
+		pelcodbuf[6]=0x54;
+		if(HALFUSE)
+			{
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
+			}
+		timeoutflag[PLANTFORMGETTITLE]=0;
+		//if(Config::getinstance()->getptzwait())
+		//OSA_semWait(&mainRecvThrObj.procNotifySem,OSA_TIMEOUT_FOREVER);
+		OSA_waitMsecs(100);
+		timeoutflag[PLANTFORMGETTITLE]=0;
+		printf("*******%s scanptz %f*******\n",__func__, titleangle);
+		return titleangle;
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+		printf("*******%s trkptz %f*******\n",__func__, titleangle);
+		return titleangle;
+	}
 
-		}
-	timeoutflag[PLANTFORMGETTITLE]=0;
-	printf("*******%s*******\n",__func__);
-	//if(Config::getinstance()->getptzwait())
-	//OSA_semWait(&mainRecvThrObj.procNotifySem,OSA_TIMEOUT_FOREVER);
-	OSA_waitMsecs(100);
-	timeoutflag[PLANTFORMGETTITLE]=0;
-	return titleangle;
 }
 
 void Plantformpzt::getpanopanpos()
 {
-
-	unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
-	pelcodbuf[0]=0xff;
-	pelcodbuf[1]=0x01;
-	pelcodbuf[2]=0x00;
-	pelcodbuf[3]=0x51;
-	pelcodbuf[4]=0x00;
-	pelcodbuf[5]=0x00;
-	pelcodbuf[6]=0x52;
-	if(HALFUSE)
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
 	{
-		GPIO_set(GPIP485S,UART485SEND);
-		GPIO_set(GPIP485R,UART485SEND);
-		Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-		OSA_waitMsecs(SENDDELAY);
-		GPIO_set(GPIP485S,UART485RECV);
-		GPIO_set(GPIP485R,UART485RECV);
-	}
-	else
-	{
-		OSA_mutexLock(&instance->lock);
-		Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
-		OSA_mutexUnlock(&instance->lock);
-	}
-	//printf("*******%s*******\n",__func__);
-	OSA_waitMsecs(10);
-	return ;
-}
-
-void Plantformpzt::getpanotitlepos()
-{
-	
-	
-	unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
-	pelcodbuf[0]=0xff;
-	pelcodbuf[1]=0x01;
-	pelcodbuf[2]=0x00;
-	pelcodbuf[3]=0x53;
-	pelcodbuf[4]=0x00;
-	pelcodbuf[5]=0x00;
-	pelcodbuf[6]=0x54;
-	if(HALFUSE)
+		unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
+		pelcodbuf[0]=0xff;
+		pelcodbuf[1]=0x01;
+		pelcodbuf[2]=0x00;
+		pelcodbuf[3]=0x51;
+		pelcodbuf[4]=0x00;
+		pelcodbuf[5]=0x00;
+		pelcodbuf[6]=0x52;
+		if(HALFUSE)
 		{
-		
 			GPIO_set(GPIP485S,UART485SEND);
 			GPIO_set(GPIP485R,UART485SEND);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
+			Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
 			OSA_waitMsecs(SENDDELAY);
 			GPIO_set(GPIP485S,UART485RECV);
 			GPIO_set(GPIP485R,UART485RECV);
 		}
-	else
+		else
 		{
 			OSA_mutexLock(&instance->lock);
-			Uart.UartSend(fd,( unsigned char *) &PELCO_D, SENDLEN);
+			Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
 			OSA_mutexUnlock(&instance->lock);
 		}
-	//printf("*******%s*******\n",__func__);
-	OSA_waitMsecs(10);
+		//printf("*******%s scan *******\n",__func__);
+		OSA_waitMsecs(10);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
+
+}
+
+void Plantformpzt::getpanotitlepos()
+{
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		unsigned char *pelcodbuf=( unsigned char *) &PELCO_D;
+		pelcodbuf[0]=0xff;
+		pelcodbuf[1]=0x01;
+		pelcodbuf[2]=0x00;
+		pelcodbuf[3]=0x53;
+		pelcodbuf[4]=0x00;
+		pelcodbuf[5]=0x00;
+		pelcodbuf[6]=0x54;
+		if(HALFUSE)
+			{
+			
+				GPIO_set(GPIP485S,UART485SEND);
+				GPIO_set(GPIP485R,UART485SEND);
+				Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_waitMsecs(SENDDELAY);
+				GPIO_set(GPIP485S,UART485RECV);
+				GPIO_set(GPIP485R,UART485RECV);
+			}
+		else
+			{
+				OSA_mutexLock(&instance->lock);
+				Uart.UartSend(platformcom.devId,( unsigned char *) &PELCO_D, SENDLEN);
+				OSA_mutexUnlock(&instance->lock);
+			}
+		//printf("*******%s scan *******\n",__func__);
+		OSA_waitMsecs(10);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 
 }
 
@@ -1164,29 +1217,74 @@ void Plantformpzt::registorfun()
 
 void Plantformpzt::MoveLeft()
 {
-    PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Left,Status::getinstance()->ptzpanspeed,true, instance->address);
-	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Left,Status::getinstance()->ptzpanspeed,true, instance->address);
+		len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 }
 void Plantformpzt::MoveRight()
 {
-	  PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,Status::getinstance()->ptzpanspeed,true, instance->address);
-		instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,Status::getinstance()->ptzpanspeed,true, instance->address);
+		len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 }
 void Plantformpzt::MoveUp()
 {
-    PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Up,Status::getinstance()->ptztitlespeed,true, instance->address);
-	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Up,Status::getinstance()->ptztitlespeed,true, instance->address);
+		len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 }
 void Plantformpzt::MoveDown()
 {
-    PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Down,Status::getinstance()->ptztitlespeed,true, instance->address);
-	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Down,Status::getinstance()->ptztitlespeed,true, instance->address);
+		len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 }
 void Plantformpzt::Stop()
 {
-	PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptzpanspeed,true, instance->address);
-	PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptztitlespeed,true, instance->address);
-	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
+	{
+		int len=0;
+		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptzpanspeed,true, instance->address);
+		PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Stop,Status::getinstance()->ptztitlespeed,true, instance->address);
+		len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
+	}
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
+	{
+	}
 }
 void Plantformpzt::SetcurPtzId(int idx)
 {
@@ -1195,26 +1293,35 @@ void Plantformpzt::SetcurPtzId(int idx)
 
 void Plantformpzt::SetSpeed(bool plus)
 {
-	if(plus)
+	if(Plantformpzt::getinstance()->GetcurPtzId() == MPTZ_SCAN)
 	{
-		Status::getinstance()->ptzpanspeed+=1;
-		Status::getinstance()->ptztitlespeed+=1;
-		if(Status::getinstance()->ptzpanspeed>100)
-			Status::getinstance()->ptzpanspeed=100;
-		if(Status::getinstance()->ptztitlespeed>100)
-			Status::getinstance()->ptztitlespeed=100;
+		if(plus)
+		{
+			Status::getinstance()->ptzpanspeed+=1;
+			Status::getinstance()->ptztitlespeed+=1;
+			if(Status::getinstance()->ptzpanspeed>100)
+				Status::getinstance()->ptzpanspeed=100;
+			if(Status::getinstance()->ptztitlespeed>100)
+				Status::getinstance()->ptztitlespeed=100;
+		}
+		else
+		{
+			Status::getinstance()->ptzpanspeed-=1;
+			Status::getinstance()->ptztitlespeed-=1;
+			if(Status::getinstance()->ptzpanspeed<1)
+				Status::getinstance()->ptzpanspeed=1;
+			if(Status::getinstance()->ptztitlespeed<1)
+				Status::getinstance()->ptztitlespeed=1;
+		}
+		printf("ptzpanspeed=%d ptztitlespeed=%d\n \n",Status::getinstance()->ptzpanspeed,Status::getinstance()->ptztitlespeed);
+		int len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
+		if(len != SENDLEN)
+			printf("====== %d:%s uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
 	}
-	else
+	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
 	{
-		Status::getinstance()->ptzpanspeed-=1;
-		Status::getinstance()->ptztitlespeed-=1;
-		if(Status::getinstance()->ptzpanspeed<1)
-			Status::getinstance()->ptzpanspeed=1;
-		if(Status::getinstance()->ptztitlespeed<1)
-			Status::getinstance()->ptztitlespeed=1;
 	}
-	printf("ptzpanspeed=%d ptztitlespeed=%d\n \n",Status::getinstance()->ptzpanspeed,Status::getinstance()->ptztitlespeed);
-	instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+
 }
 
 void Plantformpzt::ptzcontrl(long lParam)
@@ -1223,7 +1330,7 @@ void Plantformpzt::ptzcontrl(long lParam)
 	int titledir = Status::getinstance()->ptztitledirection;
 	int panspeed = Status::getinstance()->ptzpanspeed;
 	int titlepeed = Status::getinstance()->ptztitlespeed;
-
+	int len=0;
 
 	if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_SCAN)
 	{
@@ -1238,8 +1345,10 @@ void Plantformpzt::ptzcontrl(long lParam)
 				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Right,panspeed,true, instance->address);
 			
 			OSA_mutexLock(&instance->lock);
-			instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+			len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
 			OSA_mutexUnlock(&instance->lock);
+			if(len != SENDLEN)
+				printf("====== %d:%s panodir uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
 			OSA_waitMsecs(50);
 		}
 	//if(mode==Status::PTZTITLEMOV||mode==Status::PTZTWOMOV)
@@ -1252,13 +1361,16 @@ void Plantformpzt::ptzcontrl(long lParam)
 			else if(titledir==2)
 				     PlantformContrl->MakeMove(&instance->PELCO_D, PTZ_MOVE_Down,titlepeed,true, instance->address);
 			OSA_mutexLock(&instance->lock);
-			instance->Uart.UartSend(instance->fd,( unsigned char *) &instance->PELCO_D, SENDLEN);
+			len = instance->Uart.UartSend(instance->platformcom.devId,( unsigned char *) &instance->PELCO_D, SENDLEN);
 			OSA_mutexUnlock(&instance->lock);
+			if(len != SENDLEN)
+				printf("====== %d:%s titledir uartsend failed ====== \n", OSA_getCurTimeInMsec(), __func__);
 			OSA_waitMsecs(10);
 		}
 	}
 	else if(Plantformpzt::getinstance()->GetcurPtzId()==MPTZ_TRACK)
 	{
+		printf(" MPTZ_TRACK ctrl enter titledir=%d  titlepeed=%d\n",titledir,titlepeed);
 		if(panodir==0 &&titledir==0)
 		{
 			ptzmsg.Stop();
@@ -1373,7 +1485,7 @@ void Plantformpzt::chooseptz(long lParam)
 	}
 	else if(lParam==Status::PTZ_TRK)
 	{
-		Plantformpzt::getinstance()->SetcurPtzId(MPTZ_TRACK);
+		//Plantformpzt::getinstance()->SetcurPtzId(MPTZ_TRACK);
 	}
 }
 void Plantformpzt::scanplantformcfg(long lParam)
@@ -1393,10 +1505,10 @@ void Plantformpzt::scanplantformcfg(long lParam)
 		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
 
 	OSA_mutexLock(&instance->lock);
-	if(instance->fd!=0)
-		instance->Uart.UartClose(instance->fd);
-	instance->fd=instance->Uart.UartOpen(UART422NAME);
-	instance->Uart.UartSet(instance->fd, instance->Boardrate[brudrate], 8, 'n', 1);
+	if(instance->platformcom.devId!=0)
+		instance->Uart.UartClose(instance->platformcom.devId);
+	instance->platformcom.devId=instance->Uart.UartOpen(UART422NAME);
+	instance->Uart.UartSet(instance->platformcom.devId, instance->Boardrate[brudrate], 8, 'n', 1);
 	instance->address=ptzaddress;
 	OSA_mutexUnlock(&instance->lock);
 	#endif
@@ -1420,18 +1532,13 @@ void Plantformpzt::plantfromcfg(long lParam)
 		PlantformContrl=IPelcoFactory::createIpelco(pelco_P);
 
 	OSA_mutexLock(&instance->lock);
-	if(instance->fd!=0)
-		instance->Uart.UartClose(instance->fd);
-	instance->fd=instance->Uart.UartOpen(UART422NAME);
-	instance->Uart.UartSet(instance->fd, instance->Boardrate[brudrate], 8, 'n', 1);
+	if(instance->plattrkcom->devId!=0)
+		instance->Uart.UartClose(instance->plattrkcom->devId);
+	instance->plattrkcom->devId=instance->Uart.UartOpen(UART422NAME);
+	instance->Uart.UartSet(instance->plattrkcom->devId, instance->Boardrate[brudrate], 8, 'n', 1);
 	instance->address=ptzaddress;
 	OSA_mutexUnlock(&instance->lock);
 	#endif
 }
 
 
-void Plantformpzt::plantformcontrluninit()
-{
-	Uart.UartClose(fd);
-
-}

@@ -50,32 +50,28 @@ if(gThis->queueinfo[RTSP_QUE_ID]!=NULL)
 }
 */
 	for(int chId=0; chId<gThis->queuenum; chId++)
+	{
+		if(gThis->queueinfo[chId]!=NULL)
 		{
-			if(gThis->queueinfo[chId]!=NULL)
-				{
-				
-				//printf("render angle=%d\n",gThis->queueinfo[chId]->framegyroyaw);
-				render.CaptureFrame(chId, gThis->queueinfo[chId]->width, gThis->queueinfo[chId]->height, gThis->queueinfo[chId]->channels, (unsigned char *)gThis->queueinfo[chId]->virtAddr);
-				}
-			else
-				render.CaptureFrame(chId, 0, 0, 0, NULL);
-
-			
-		
+			//printf("render angle=%d\n",gThis->queueinfo[chId]->framegyroyaw);
+			render.CaptureFrame(chId, gThis->queueinfo[chId]->width, gThis->queueinfo[chId]->height, gThis->queueinfo[chId]->channels, (unsigned char *)gThis->queueinfo[chId]->virtAddr);
 		}
+		else
+			render.CaptureFrame(chId, 0, 0, 0, NULL);
+	}
 	//fullcount=queuebuf->getfullcount(Queue::FROMEPANOSTICH,0);
 	
 	for(int chId=0; chId<1; chId++)
-		{
+	{
 		//gThis->processqueueinfo[chId]=image_queue_peekFull(gThis->IPocess_bufQue[chId]);
 		//if(gThis->processqueueinfo[chId].)
 		fullcount = queuebuf->getfullcount(Queue::FROMEPANOSTICH,chId);
 		if(fullcount>1)
-		gThis->processqueueinfo[chId]=(OSA_BufInfo*)queuebuf->getfull(Queue::FROMEPANOSTICH,chId,OSA_TIMEOUT_NONE);
+			gThis->processqueueinfo[chId]=(OSA_BufInfo*)queuebuf->getfull(Queue::FROMEPANOSTICH,chId,OSA_TIMEOUT_NONE);
 		else
-		gThis->processqueueinfo[chId]=NULL;	
+			gThis->processqueueinfo[chId]=NULL;	
 
-		}
+	}
 	for(int chId=0; chId<1; chId++)
 		{
 			if(gThis->processqueueinfo[chId]!=NULL)
@@ -142,9 +138,7 @@ void GLMain::initGlut(int argc, char **argv)
 	glutInitWindowPosition(0, 0);
 	glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	{
-	sprintf(arg1," %s (%s, %s):",VERSION_STRING, __DATE__,__TIME__);
-	
-
+		sprintf(arg1," %s (%s, %s):",VERSION_STRING, __DATE__,__TIME__);
 	#if 0
 		/* getting a warning here about passing arg1 of sprinf incompatable pointer type ?? */
 		/* WTF ?!? */

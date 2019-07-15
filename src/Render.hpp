@@ -548,8 +548,8 @@ public:
 	Mat testcylinddis;
 	unsigned char * matbuf[8];
 
-	unsigned int shotcut;
-	unsigned int shotcutnum;
+	//unsigned int shotcut;
+	//unsigned int shotcutnum;
 
 	Mat Capture;
 	Mat ProcessCapture;

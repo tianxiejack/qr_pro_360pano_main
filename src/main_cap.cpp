@@ -4,6 +4,7 @@
  *  Created on: 2018年8月23日
  *      Author: fsmdn121
  */
+ #if 0
 #include <glew.h>
 #include <glut.h>
 #include <freeglut_ext.h>
@@ -13,7 +14,6 @@
 #include "StlGlDefines.h"
 //#include "cuda_convert.cuh"
 #include "osa_image_queue.h"
-
 
 static CRender render;
 static int curChannel = TV_DEV_ID;
@@ -145,4 +145,4 @@ int main_cap(int argc, char **argv)
 	return 0;
 }
 */
-
+#endif

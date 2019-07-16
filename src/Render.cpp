@@ -2005,18 +2005,26 @@ void Render::screenshot()
 {
 	//glReadBuffer(GL_BACK);
 	//glFlush(); 
-	
 	//glPixelStorei(GL_UNPACK_ALIGNMENT, 4); 
-	
 	/*
 	if(recordscreen==0)
 		{
 			return ;
 		}
 	*/
+#if 0
+	static int quecnt=0, mstimeprev=0, mstimecur=0;
+	mstimecur = OSA_getCurTimeInMsec()/1000;
+	quecnt++;
+	if(mstimecur != mstimeprev)
+	{
+		if(mstimeprev != 0 && mstimecur != 0)
+			printf("======== %s quecnt %d fps \n", __func__, quecnt/(mstimecur-mstimeprev));
+		mstimeprev = mstimecur;
+		quecnt = 0;
+	}
+#endif
 
-	
-	
 	Queue *queue=Queue::getinstance();
 	#if 1
 	OSA_BufInfo *info=(OSA_BufInfo *)queue->getempty(Queue::DISPALYTORTP, 0,OSA_TIMEOUT_NONE);
@@ -2645,7 +2653,7 @@ void Render::DrawmovMultidetect()
 	unsigned int pan360whalf=pano360texturew/2;
 	
 	
-	Glosdhandle.setcolorline(GLYELLOW);
+	Glosdhandle.setcolorline(GLGREEN);
 	
 	//cout<<"***************detect_vect180***********************"<<detect_vect180.size()<<endl;
 	int size=detect_vect180.size();
@@ -6041,11 +6049,16 @@ void Render::livevideo(long lparam)
 {
 	int livevideoflg = Status::getinstance()->livevideoflg;
 	GstreaemerContrl::getinstance()->setLiveVideo(livevideoflg);
+	/*if(livevideoflg)
+		pthis->StartRecordAllVideo();
+	else
+		pthis->StopRecordAllVideo();*/
 }
 
 void Render::livephoto(long lparam)
 {
 	GstreaemerContrl::getinstance()->setLivePhoto();
+	pthis->SaveAllPic();
 }
 void Render::videoclip(long lparam)
 {

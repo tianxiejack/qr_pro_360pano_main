@@ -1,7 +1,10 @@
 #include "config.hpp"
-#include "stdio.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <iostream>
-#include <string>
+#include <unistd.h>
+#include <sys/stat.h>
 #include "config.h"
 #include "opencv2/core/core.hpp"
 using std::string;
@@ -40,6 +43,13 @@ Config::Config():cam_fov(0),ptzpaninverse(0),ptztitleinverse(0),panoprocessshift
 	#else
 	configfilestore=FileStorage(CONFIGFILENAME, FileStorage::READ);
 	#endif
+
+	// Create top-level video directory
+	if (access("/home/nvidia/calib/video", F_OK))
+		mkdir("/home/nvidia/calib/video", 0775);
+	// Create top-level realtimevideo directory
+	if (access("/home/nvidia/calib/realtimevideo", F_OK))
+		mkdir("/home/nvidia/calib/realtimevideo", 0775);
 
 }
 

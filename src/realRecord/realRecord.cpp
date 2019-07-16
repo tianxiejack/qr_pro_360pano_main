@@ -13,9 +13,9 @@ void RealRecordByCV::SaveVideoByTime()
 	time_t now = time(NULL);
 		struct tm curr_tm = *localtime(&now);
 		char Idxstring[PIC_COUNT][32]={"Panoramic","Partial1","Partial2","Partial3"};
-		sprintf(mpfilename,"/home/ubuntu/calib/realtimevideo/%s-%d%02d%02d%02d%02d%02d.avi",
+		sprintf(mpfilename,"/home/nvidia/calib/realtimevideo/%s-%d%02d%02d%02d%02d%02d.avi",
 						Idxstring[videoIdx],
-						curr_tm.tm_year , curr_tm.tm_mon , curr_tm.tm_mday,
+						curr_tm.tm_year+1900, curr_tm.tm_mon+1, curr_tm.tm_mday,
 						curr_tm.tm_hour, curr_tm.tm_min, curr_tm.tm_sec
 						);
 }

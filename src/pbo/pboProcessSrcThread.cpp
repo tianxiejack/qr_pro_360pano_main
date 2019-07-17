@@ -81,23 +81,24 @@ void process(SaveIDX id,bool isCapVideo)
 
 void *pbo_process_threadPIC(void *arg)
 {
-		while(1)
+	//printf("=====%d %s start ======\n", OSA_getCurTimeInMsec(), __func__);
+	while(1)
+	{
+		OSA_semWait(render.GetPBORcr(PANO_PIC)->getSemPBO(),100000);
+		if(render.IstoSavePic(PANO_PIC))
 		{
-			OSA_semWait(render.GetPBORcr(PANO_PIC)->getSemPBO(),100000);
-			if(render.IstoSavePic(PANO_PIC))
-			{
-				process(PANO_PIC,false);
-			}
-
-			if(render.IstoRecordVideo(PANO_PIC))
-			{
-				process(PANO_PIC,true);
-			}
+			process(PANO_PIC,false);
 		}
+		if(render.IstoRecordVideo(PANO_PIC))
+		{
+			process(PANO_PIC,true);
+		}
+	}
 }
 
 void *pbo_process_threadROI_A(void *arg)
 {
+	//printf("=====%d %s start ======\n", OSA_getCurTimeInMsec(), __func__);
 	while(1)
 	{
 		OSA_semWait(render.GetPBORcr(ROI_A)->getSemPBO(),100000);
@@ -114,6 +115,7 @@ void *pbo_process_threadROI_A(void *arg)
 
 void *pbo_process_threadROI_B(void *arg)
 {
+	//printf("=====%d %s start ======\n", OSA_getCurTimeInMsec(), __func__);
 	while(1)
 	{
 		OSA_semWait(render.GetPBORcr(ROI_B)->getSemPBO(),100000);
@@ -129,6 +131,7 @@ void *pbo_process_threadROI_B(void *arg)
 }
 void *pbo_process_threadROI_C(void *arg)
 {
+	//printf("=====%d %s start ======\n", OSA_getCurTimeInMsec(), __func__);
 	while(1)
 	{
 		OSA_semWait(render.GetPBORcr(ROI_C)->getSemPBO(),100000);

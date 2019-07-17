@@ -956,7 +956,7 @@ void Render::RenderScene(void)
 
 				for(int i=ROI_A;i<PIC_COUNT;i++)
 				{
-					if(CapOnce[i])
+					if(CapOnce[i] || mRecord[i])
 					{
 						if(pFPfacade[i]->IsFboUsed())
 						{
@@ -6049,10 +6049,10 @@ void Render::livevideo(long lparam)
 {
 	int livevideoflg = Status::getinstance()->livevideoflg;
 	GstreaemerContrl::getinstance()->setLiveVideo(livevideoflg);
-	/*if(livevideoflg)
+	if(livevideoflg)
 		pthis->StartRecordAllVideo();
 	else
-		pthis->StopRecordAllVideo();*/
+		pthis->StopRecordAllVideo();
 }
 
 void Render::livephoto(long lparam)

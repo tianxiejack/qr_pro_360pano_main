@@ -31,9 +31,4 @@ private:
 
 };
 
-
-
-
-
-
 #endif /* REALRECORD_H_ */

@@ -1,4 +1,4 @@
-//#include <demo_global_def.h>
+#include "Render.hpp"
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <gst/app/gstappsink.h>
@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#include"Queuebuffer.hpp"
+#include "Queuebuffer.hpp"
 #include <gst_ring_buffer.h>
 
 using namespace std;
@@ -69,15 +69,18 @@ typedef struct _CustomData
 } CustomData;
 
 #define GST_ENCBITRATE	(5600000)
+#define REALTIMEDIR  "/home/nvidia/calib/realtimevideo"
 #define VIDEODIR  "/home/nvidia/calib/video"
 #define VIDRECHEAD "rtsp"
 #define VIDFMTHEAD "screen"
 #define VIDFMTEND ".h264"
+static char localVidFname[128], localPicFname[128];
 static FILE *localVidwrFd = NULL, *localPicwrFd = NULL;
 static int localwrsize = 0;
 static int localsizemax = (GST_ENCBITRATE/8)*60*2;	// 2min
 static int localwrframe = 0;
 static int localframemax = (30)*60*2;	// 2min
+extern Render render;
 
 typedef enum
 {
@@ -100,7 +103,7 @@ static void historylocation(void)
 	char date_dir[128];
 	char filename_cur[128] = {0};
 	char cmdbuf[128] = {0};
-		
+
 	dir = opendir(VIDEODIR);
 	while((ptr = readdir(dir)) != NULL)
 	{
@@ -164,6 +167,11 @@ static void formatlocation(FMT_mode mode)
 	tt_set = tv_set.tv_sec;
 	memcpy(&tm_set, localtime(&tt_set), sizeof(struct tm));
 
+	// Create top-level realtimevideo directory
+	strcpy(video_dir, REALTIMEDIR);
+	if (access(video_dir, F_OK))
+		mkdir(video_dir, 0775);
+
 	// Create top-level video directory
 	strcpy(video_dir, VIDEODIR);
 	if (access(video_dir, F_OK))
@@ -226,12 +234,16 @@ static void formatlocation(FMT_mode mode)
 
 	if(mode == format_shot_open)
 	{
-		sprintf(filename_cur, "%s/shot_%s.jpg", video_dir, curtmstr);
+		sprintf(curtmstr, "%04d%02d%02d%02d%02d%02d",
+			tm_set.tm_year+1900, tm_set.tm_mon+1, tm_set.tm_mday,
+			tm_set.tm_hour, tm_set.tm_min,tm_set.tm_sec);
+		sprintf(filename_cur, "%s/Shotfull-%s.jpg", REALTIMEDIR, curtmstr);
 		localPicwrFd = fopen(filename_cur, "wb");
 		if(localPicwrFd == NULL)
 			printf("screen shot start as %s failed\n", filename_cur);
 		else
 			printf("screen shot start as %s ok\n", filename_cur);
+		strcpy(localPicFname, filename_cur);
 		return ;
 	}
 
@@ -249,7 +261,7 @@ static int outbufCb_vid(void* arg, unsigned char *buf, int size)
 	if(mstimecur != mstimeprev)
 	{
 		if(mstimeprev != 0 && mstimecur != 0)
-			g_print("======== outbuf %d fps \n", pushcnt/(mstimecur-mstimeprev));
+			g_print("======== %d %s %d fps \n", OSA_getCurTimeInMsec(), __func__, pushcnt/(mstimecur-mstimeprev));
 		mstimeprev = mstimecur;
 		pushcnt = 0;
 	}
@@ -303,6 +315,7 @@ static int outbufCb_shot(void* arg, unsigned char *buf, int size)
 			printf(" %s write err size=%d ret=%d \n", __func__, size, ret);
 		}
 		formatlocation(format_shot_close);
+		render.sendfile(localPicFname);
 	}
 
 	if(pData->bRec)
@@ -413,7 +426,7 @@ static void * thrdhndl_push_buffer(void* arg)
 			if(mstimecur != mstimeprev)
 			{
 				if(mstimeprev != 0 && mstimecur != 0)
-					g_print("======== push %d fps \n", pushcnt/(mstimecur-mstimeprev));
+					g_print("======== %d %s %d fps \n", OSA_getCurTimeInMsec(), __func__, pushcnt/(mstimecur-mstimeprev));
 				mstimeprev = mstimecur;
 				pushcnt = 0;
 			}

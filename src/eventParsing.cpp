@@ -687,6 +687,11 @@ void CEventParsing::workMode()
 	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->getworkmod())
 	{
 		Status::getinstance()->setworkmod(_globalDate->rcvBufQue.at(5));
+		if(Status::getinstance()->getworkmod()!=0 && Status::getinstance()->livevideoflg)
+		{
+			Status::getinstance()->livevideoflg = 0;
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEVIDEO, 0);
+		}
 		if(Status::getinstance()->getworkmod()==0)
 			pM->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOAUTO));
 		else if(Status::getinstance()->getworkmod()==1)
@@ -1010,10 +1015,13 @@ void CEventParsing::livevideo()
 	if(cmdLen != 2)
 		return ;
 
-	if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->livevideoflg)
+	if(Status::getinstance()->getworkmod()==0)
 	{
-		Status::getinstance()->livevideoflg=_globalDate->rcvBufQue.at(5);
-		pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEVIDEO, 0);
+		if((_globalDate->rcvBufQue.at(5))!=Status::getinstance()->livevideoflg)
+		{
+			Status::getinstance()->livevideoflg=_globalDate->rcvBufQue.at(5);
+			pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEVIDEO, 0);
+		}
 	}
 }
 
@@ -1024,7 +1032,8 @@ void CEventParsing::livephoto()
 	if(cmdLen != 1)
 		return ;
 
-	pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEPHOTO, 0);
+	if(Status::getinstance()->getworkmod()==0)
+		pM->MSGDRIV_send(MSGID_EXT_INPUT_LIVEPHOTO, 0);
 }
 
 void CEventParsing::panoenable()

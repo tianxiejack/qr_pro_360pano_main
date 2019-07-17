@@ -135,9 +135,9 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 	poisitionreachtitle(0),criticalmode(0),debuggl(0),singleenable(0),singleangle(0),siglecircle(0),timerclock(600),currentnum(0),
 	movareaflag(0),movupdown(0),movconfignum(0),mul(1.0)//,
 	{
-			pPBOSdr=new PBOSender(1,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT);
-			pFBOMgr[PANO_PIC]=new	FBOManager(PANO360FBOW,PANO360FBOH,GL_BGR,GL_RGB8);
-			pPBORcr[PANO_PIC]=new	PBOReceiver(PANO_PIC,1,PANO360FBOW,PANO360FBOH,3,GL_BGR_EXT);
+		pPBOSdr=new PBOSender(1,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT);
+		pFBOMgr[PANO_PIC]=new	FBOManager(PANO360FBOW,PANO360FBOH,GL_BGR,GL_RGB8);
+		pPBORcr[PANO_PIC]=new	PBOReceiver(PANO_PIC,1,PANO360FBOW,PANO360FBOH,3,GL_BGR_EXT);
 
 		mpifRecord[PANO_PIC]=new RealRecordByCV(PANO_PIC,PANO360FBOW,360);
 		for(int i=ROI_A;i<PIC_COUNT;i++)

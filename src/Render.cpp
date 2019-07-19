@@ -138,14 +138,18 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		pPBOSdr=new PBOSender(1,PANO360SRCWIDTH,PANO360SRCHEIGHT,3,GL_BGR_EXT);
 		pFBOMgr[PANO_PIC]=new	FBOManager(PANO360FBOW,PANO360FBOH,GL_BGR,GL_RGB8);
 		pPBORcr[PANO_PIC]=new	PBOReceiver(PANO_PIC,1,PANO360FBOW,PANO360FBOH,3,GL_BGR_EXT);
-
 		mpifRecord[PANO_PIC]=new RealRecordByCV(PANO_PIC,PANO360FBOW,360);
-		for(int i=ROI_A;i<PIC_COUNT;i++)
+		
+		for(int i=ROI_A;i<=ROI_C;i++)
 		{
 			pFBOMgr[i]=new FBOManager(ROIFBOW,ROIFBOH,GL_BGR,GL_RGB8);
 			pPBORcr[i]=new	PBOReceiver(i,1,ROIFBOW,ROIFBOH,3,GL_BGR_EXT);
 			mpifRecord[i]=new RealRecordByCV(i,ROIFBOW,ROIFBOH);
 		}
+		
+		pFBOMgr[ROI_MTD]=new	FBOManager(PANO360FBOW,PANO360FBOH,GL_BGR,GL_RGB8);
+		pPBORcr[ROI_MTD]=new	PBOReceiver(ROI_MTD,1,PANO360FBOW,PANO360FBOH,3,GL_BGR_EXT);
+		
 		for(int i=0;i<PIC_COUNT;i++)
 		{
 			pFPfacade[i]=new PBO_FBO_Facade(*(pFBOMgr[i]),*(pPBORcr[i]));
@@ -267,8 +271,11 @@ void Render::FBOdraw(int idx)
 		case ROI_C:
 			SelectFullScreenView(0,0,ROIFBOW,ROIFBOH,RENDERCAMERA3,true);
 			break;
-			default:
-				break;
+		case ROI_MTD:
+			SelectMtdView(0,0,PANO360FBOW,PANO360FBOH,RENDERMTD,true);
+			break;
+		default:
+			break;
 	}
 }
 
@@ -954,7 +961,16 @@ void Render::RenderScene(void)
 				}
 				Render2Front(0,0,1920,1080);
 
-				for(int i=ROI_A;i<PIC_COUNT;i++)
+				if(mtd_stat)
+				{
+					if(pFPfacade[ROI_MTD]->IsFboUsed())
+					{
+						pFBOMgr[ROI_MTD]->SetDrawBehaviour(this);
+						pFPfacade[ROI_MTD]->DrawAndGet(ROI_MTD);
+					}
+				}
+
+				for(int i=ROI_A;i<=ROI_C;i++)
 				{
 					if(CapOnce[i] || mRecord[i])
 					{
@@ -965,6 +981,7 @@ void Render::RenderScene(void)
 						}
 					}
 				}
+
 		//		pano360View(0,0,renderwidth,renderheight);
 				break;
 			case TRACK_SINGLE_VIEW_MODE:
@@ -1335,6 +1352,32 @@ void Render::SelectFullScreenView(int x,int y,int width,int height,int idx,bool 
 	}
 }
 
+void Render::SelectMtdView(int x,int y,int width,int height,int idx,bool isfboDraw)
+{
+	unsigned int lx=x,ly=y,w=width,h=height;
+	M3DMatrix44f identy;
+	glUseProgram(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//viewcamera[idx].leftdownrect.x=lx;
+	//viewcamera[idx].leftdownrect.y=ly;
+	//viewcamera[idx].leftdownrect.width=w;
+	//viewcamera[idx].leftdownrect.height=h;
+	glViewport(lx,ly,w,h);
+
+	glBindTexture(GL_TEXTURE_2D,pFPfacade[PANO_PIC]->GetFboTextureID());
+	m3dLoadIdentity44(identy);
+	/*
+	if(isfboDraw)
+	{
+		 float ROTATEANGLE=154.0f;
+		 m3dRotationMatrix44(identy,ROTATEANGLE,1.0f,0.0f,0.0f);
+	}
+	*/
+	shaderManager.UseStockShader(GLT_SHADER_TEXTURE_REPLACE, identy, 0);
+	panselecttriangleBatchnew[RENDER2FRONTBATCH][0]->Draw();
+
+}
 
 void Render::RadarFullScreenView(int x,int y,int width,int height)
 {
@@ -3355,6 +3398,7 @@ void Render::pano360View(int x,int y,int width,int height,bool isfboDraw)
 	static int printfount=0;
 	printfount++;
 	selectupdate();
+	//mtdbatchupdate();
 
 
 	if(getmenumode()==SELECTMODE)
@@ -4441,6 +4485,146 @@ void Render::selectupdate()
 }
 
 
+void Render::mtdbatchupdate()
+{
+	GLfloat vVerts[] = { -1.0f, 1.0f, 0.0f, 
+		                  	    1.0f, 1.0f, 0.0f,
+					    -1.0f, -1.0f, 0.0f,
+					    1.0f, -1.0f, 0.0f,};
+	GLfloat vVertsback[] = { -1.0f, 1.0f, 0.0f, 
+		                  	    1.0f, 1.0f, 0.0f,
+					    -1.0f, -1.0f, 0.0f,
+					    1.0f, -1.0f, 0.0f,};
+	
+	 GLfloat vTexselectCoords [] = { 0.0f, 0.0f,
+		                      	      0.1f, 0.0f, 
+						      0.0f, 1.0f ,
+						      0.1,1.0};
+	 GLfloat vTexselectCoordsbak [] = { 0.0f, 0.0f,
+		                      	      0.1f, 0.0f, 
+						      0.0f, 1.0f ,
+						      0.1,1.0};
+	 double ratio=0;
+
+	Rect rect;
+	Rect back;
+	
+	int index=RENDER180;
+
+
+	for(int i=RENDERMTD;i<=RENDERMTD;i++)
+	{
+		int tempw=viewcamera[index].leftdownrect.width;
+			
+		if(tempw==0)
+			tempw=1;
+		int tempH=viewcamera[index].leftdownrect.height;
+		if(tempH==0)
+			tempH=1;
+
+
+		//rect=multipletextureupdate(viewcamera[i].fixrect,i);
+		rect.x = 100;
+		rect.y = 10;
+		rect.width = 200;
+		rect.height = 60;
+
+		rect.y=rect.y-(renderheight-viewcamera[index].leftdownrect.y-viewcamera[index].leftdownrect.height);
+			
+		//if(viewcamera[i].rectback.x==rect.x&&viewcamera[i].rectback.y==rect.y&&viewcamera[i].rectback.width==rect.width&&viewcamera[i].rectback.height==rect.height)
+			//continue;
+			
+		viewcamera[i].blindtextnum=1;
+		viewcamera[i].blindtextid[0]=index;
+			
+		//viewcamera[i].rectback=rect;
+
+		if(pano360texturenum==4)
+		{
+			if(rect.x<=tempw/2&&rect.x+rect.width<=tempw/2)
+			{
+				tempw=tempw/2;
+				viewcamera[i].blindtextid[0]=index*2;
+			}
+			else if(rect.x>=tempw/2&&rect.x+rect.width>=tempw/2)
+			{			
+				rect.x=rect.x-tempw/2;
+				tempw=tempw/2;
+				viewcamera[i].blindtextid[0]=index*2+1;
+			}
+			else
+			{
+				back=rect;
+				viewcamera[i].blindtextnum=2;
+				viewcamera[i].blindtextid[0]=index*2;
+				viewcamera[i].blindtextid[1]=index*2+1;
+				back.width=rect.width+rect.x-tempw/2;
+							
+				rect.width=tempw/2-rect.x;
+				back.x=0;
+				tempw=tempw/2;
+				ratio=1.0*(rect.width)/(rect.width+back.width);
+			}
+		}
+			
+		vTexselectCoords[0]=1.0*rect.x/tempw;
+		vTexselectCoords[1]=1.0*(rect.y)/tempH;
+
+		vTexselectCoords[2]=1.0*(rect.x+rect.width)/tempw;
+		vTexselectCoords[3]=1.0*(rect.y)/tempH;
+
+		vTexselectCoords[4]=1.0*rect.x/tempw;
+		vTexselectCoords[5]=1.0*(rect.y+rect.height)/tempH;
+
+		vTexselectCoords[6]=1.0*(rect.x+rect.width)/tempw;
+		vTexselectCoords[7]=1.0*(rect.y+rect.height)/tempH;
+
+		if(pano360texturenum==1)
+		{
+			for(int j=0;j<4;j++)
+			{
+				vTexselectCoords[2*j]=vTexselectCoords[2*j]/2;
+				if(index==RENDER360)
+					vTexselectCoords[2*j]+=0.5;
+			}					
+		}
+
+		if(viewcamera[i].blindtextnum==2)
+		{
+			vTexselectCoordsbak[0]=1.0*back.x/tempw;
+			vTexselectCoordsbak[1]=1.0*(back.y)/tempH;
+
+			vTexselectCoordsbak[2]=1.0*(back.x+back.width)/tempw;
+			vTexselectCoordsbak[3]=1.0*(back.y)/tempH;
+
+			vTexselectCoordsbak[4]=1.0*back.x/tempw;
+			vTexselectCoordsbak[5]=1.0*(back.y+back.height)/tempH;
+
+			vTexselectCoordsbak[6]=1.0*(back.x+back.width)/tempw;
+			vTexselectCoordsbak[7]=1.0*(back.y+back.height)/tempH;
+
+			vVerts[3]=-1+2*ratio;
+			vVerts[9]=-1+2*ratio;
+
+			vVertsback[0]=-1+2*ratio;
+			vVertsback[6]=-1+2*ratio;
+		}
+
+		if(viewcamera[i].blindtextnum==1)
+		{
+			panselecttriangleBatchnew[i][0]->CopyTexCoordData2f(vTexselectCoords, 0);
+			panselecttriangleBatchnew[i][0]->CopyVertexData3f(vVerts);
+		}
+		else if(viewcamera[i].blindtextnum==2)
+		{
+			panselecttriangleBatchnew[i][0]->CopyTexCoordData2f(vTexselectCoords, 0);
+			panselecttriangleBatchnew[i][1]->CopyTexCoordData2f(vTexselectCoordsbak, 0);
+					
+			panselecttriangleBatchnew[i][0]->CopyVertexData3f(vVerts);
+			panselecttriangleBatchnew[i][1]->CopyVertexData3f(vVertsback);
+		}
+	}
+}
 
 void Render::leftdown2leftup(Rect& down,Rect& up)
 {
@@ -5305,7 +5489,7 @@ void Render::gltMakeradarpoints(vector<OSDPoint>& osdpoints, GLfloat innerRadius
 
 void Render::StopRecordAllVideo()
 {
-	for(int i=0;i<PIC_COUNT;i++)
+	for(int i=0;i<=ROI_C;i++)
 	{
 		mRecord[i]=false;
 		mpifRecord[i]->StopRecord();
@@ -5315,7 +5499,7 @@ void Render::StopRecordAllVideo()
 
 void Render::StartRecordAllVideo()
 {
-	for(int i=0;i<PIC_COUNT;i++)
+	for(int i=0;i<=ROI_C;i++)
 	{
 		mRecord[i]=true;
 		mpifRecord[i]->StartRecord();
@@ -5323,7 +5507,7 @@ void Render::StartRecordAllVideo()
 }
 void Render::SaveAllPic()
 {
-	for(int i=0;i<PIC_COUNT;i++)
+	for(int i=0;i<=ROI_C;i++)
 	{
 		CapOnce[i]=true;
 	}

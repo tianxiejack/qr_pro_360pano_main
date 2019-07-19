@@ -347,6 +347,13 @@ void PBOReceiver::callbackPBODraw()
 		w=PANO360FBOW;
 		h=PANO360FBOH;
 	}
+	else if(midx==ROI_MTD)
+	{
+		x=0;
+		y=0;
+		w=PANO360FBOW;
+		h=PANO360FBOH;
+	}
 	else
 	{
 		printf("Is this IDX right?\n");

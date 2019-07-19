@@ -28,8 +28,10 @@ typedef enum{
 	ROI_A,
 	ROI_B,
 	ROI_C,
+	ROI_MTD,
 	PIC_COUNT
 }SaveIDX;
+
 
 enum
 {

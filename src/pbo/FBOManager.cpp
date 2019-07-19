@@ -10,7 +10,7 @@ using namespace cv;
 static const GLenum windowBuff[] = { GL_BACK_LEFT };
 
 GLFrame				FBOcameraFrame;
-FBOManager::FBOManager(	int TextureW,int TextureH,GLenum format,GLenum internalFormat):
+FBOManager::FBOManager(int TextureW,int TextureH,GLenum format,GLenum internalFormat):
 				fboSupported(false),fboUsed(false),
 				m_format(format),m_internalFormat(internalFormat),
 				TextureHeight(TextureH),TextureWidth(TextureW),
@@ -427,9 +427,9 @@ bool FBOManager::Init()
         // attach additional image to the stencil attachement point, too.
         glGenRenderbuffers(1, &rboDepthId);
         glBindRenderbuffer(GL_RENDERBUFFER, rboDepthId);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, TextureWidth, TextureHeight);
+       glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, TextureWidth, TextureHeight);
 
-        glGenTextures(1, &textureId);
+       glGenTextures(1, &textureId);
 		glBindTexture(GL_TEXTURE_2D, textureId);
 		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat,  TextureWidth, TextureHeight, 0, m_format, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

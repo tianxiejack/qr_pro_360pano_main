@@ -114,6 +114,7 @@ public:
 	RENDERCAMERA2,
 	RENDERCAMERA3,
 	RENDERCAMERA4,
+	RENDERMTD,
 	RENDER2FRONTBATCH,
 	RENDERCAMERASELECT,
 	RENDERCAMERMAX,
@@ -196,6 +197,7 @@ public:
 	void TracksingleView(int x,int y,int width,int height);
 	void singleViewInit(void);
 	void SelectFullScreenView(int x,int y,int width,int height,int idx,bool isfboDraw=false);
+	void SelectMtdView(int x,int y,int width,int height,int idx,bool isfboDraw);
 	void	SelectFullScreenTrackView(int x,int y,int width,int height);
 	void	RadarFullScreenView(int x,int y,int width,int height);
 	void tgaBatchInit();
@@ -345,6 +347,7 @@ public:
 	/******************select function mod ***********************/
 
 	void selectupdate();
+	void mtdbatchupdate();
 	void Drawmenuupdate();
 	int selecttexture;
 	void setselecttexture(int mod){selecttexture=mod;};
@@ -520,6 +523,7 @@ private:
 	bool CapOnce[PIC_COUNT];
 	bool mRecord[PIC_COUNT];
 	float mul;
+	int mtd_stat = 0;
 
 
 	pPBO_FBO_Facade pFPfacade[PIC_COUNT];

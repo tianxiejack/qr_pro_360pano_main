@@ -122,6 +122,9 @@
 								</option>
 								<option id="nvcc.linker.option.paths.1718676411" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
+									<listOptionValue builtIn="false" value="/usr/local/cuda-8.0/targets/aarch64-linux-gnu/lib"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
 								</option>
 								<option id="nvcc.linker.option.other.1620950413" name="Other options (-Xlinker [option])" superClass="nvcc.linker.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-rpath=/usr/lib/aarch64-linux-gnu/tegra"/>
@@ -269,6 +272,9 @@
 								</option>
 								<option id="nvcc.linker.option.paths.910279819" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
+									<listOptionValue builtIn="false" value="/usr/local/cuda-8.0/targets/aarch64-linux-gnu/lib"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
 								</option>
 								<option id="nvcc.linker.option.other.1656228869" name="Other options (-Xlinker [option])" superClass="nvcc.linker.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-rpath=/usr/lib/aarch64-linux-gnu/tegra"/>

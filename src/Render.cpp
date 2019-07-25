@@ -1011,8 +1011,12 @@ void Render::RenderScene(void)
 		}
 
 		singlefun();
-		
+
+#if USE_DETECTV2
+		movMultidetectrectV2();
+#else
 		movMultidetectrect();
+#endif
 		
 		if(displayMode==SELECT_FULL_SCREEN_A
 				||displayMode==SELECT_FULL_SCREEN_B
@@ -1529,7 +1533,7 @@ void Render::Panotexture(void)
 
 	
 	
-	printf("******the fov=%f****texturewidth=%d  pano360texturenum=%d  Config::getinstance()->getcamfx()=%f\n",CameraFov,texturewidth,pano360texturenum,Config::getinstance()->getcamfx());
+	printf("******the fov=%f****texturewidth=%d  pano360texturenum=%d  Config::getinstance()->getcamfx()=%f,pano360texturewidth=%d\n",CameraFov,texturewidth,pano360texturenum,Config::getinstance()->getcamfx(), pano360texturewidth);
 	//texturewidth=1920*4;
 	pano360textureheight=textureheith=height+PANOEXTRAH;
 
@@ -1580,8 +1584,10 @@ void Render::Panotexture(void)
 	panosrcwidth=width;
 	panosrcheight=height;
 	panoformat=eFormat;
-	
-	
+#if USE_DETECTV2
+	init_mtd_param(texturewidth);
+	DetectAlg::getinstance()->initmtdparam(texturewidth);
+#endif
 
 }
 
@@ -2652,24 +2658,114 @@ void Render::movMultidetectrect()
 
 }
 
+#if USE_DETECTV2
+void Render::movMultidetectrectV2()
+{
+	detectbox_angle_t detect_tempV2;
+	std::vector<cv::Rect>	detect_temp180;
+	std::vector<cv::Rect>	detect_temp360;
+
+	std::vector<cv::Rect>	detect_tempfilter;
+	std::vector<cv::Rect>	detect_vectcombination;
+	
+	detect_vect180.clear();
+	detect_vect360.clear();
+	Rect recttemp;
+	Rect camrect;
+	Point point;
+	for(int i=0;i<MULTICPUPANONUM;i++)
+		{
+			std::vector<cv::Rect> detect_temp;
+			getmvdetectV2(detect_tempV2,i);
+			mvdetectupV2(detect_tempV2);
+			Multipotionto360V2(detect_tempV2, detect_temp,i);
+			mvclassification(detect_temp,detect_vect180,detect_vect360);
+/*
+			if(detect_vect180.size()>0)
+			{
+				printf("detect_vect180:\n");
+				for(int i = 0; i < detect_vect180.size(); i++)
+				{
+					printf("(%d,%d,%d,%d)\n", detect_vect180[i].x,detect_vect180[i].y,detect_vect180[i].width,detect_vect180[i].height);
+				}
+			}
+			if(detect_vect360.size()>0)
+			{
+				printf("detect_vect360:\n");
+				for(int i = 0; i < detect_vect360.size(); i++)
+				{
+					printf("(%d,%d,%d,%d)\n", detect_vect360[i].x,detect_vect360[i].y,detect_vect360[i].width,detect_vect360[i].height);
+				}
+			}
+*/
+		}
+
+}
+void Render::DrawmovMultidetectV2()
+{
+	int mtdpositonnum = pano360texturew / Config::getinstance()->getmvprocesswidth();
+	if(pano360texturew % Config::getinstance()->getmvprocesswidth())
+		mtdpositonnum += 1;
+	
+	unsigned int pan360w=pano360texturew;
+	unsigned int pan360whalf=pano360texturew/2;
+	
+	Glosdhandle.setcolorline(GLGREEN);
+	
+	int size=detect_vect180.size();
+	//if(size!=0)
+		glViewport(mov180viewx,mov180viewy,mov180vieww,mov180viewh);
+
+	Glosdhandle.setwindow(pan360whalf,pano360textureh);
+	Glosdhandle.drawbegin();
+	for(int i=0;i<size;i++)
+	{
+		Glosdhandle.drawrect(detect_vect180[i].x, pano360textureh*detect_vect180[i].y/1080, detect_vect180[i].width, pano360textureh*detect_vect180[i].height/1080);
+	}
+	Glosdhandle.drawend();
+	
+	Glosdhandle.setcolorline(GLYELLOW);
+	Glosdhandle.drawbegin();
+	for(int i = 0; i < mtdpositonnum/2+1; i++)
+	{
+		Glosdhandle.drawline(1920*i, pano360textureh - 50, 1920*i, pano360textureh);
+	}
+	Glosdhandle.drawend();
+	
+	size=detect_vect360.size();
+	//if(size!=0)
+		glViewport(mov360viewx,mov360viewy,mov360vieww,mov360viewh);
+
+	Glosdhandle.setcolorline(GLGREEN);
+	Glosdhandle.setwindow(pan360whalf,pano360textureh);
+	Glosdhandle.drawbegin();
+	for(int i=0;i<size;i++)
+	{
+		Glosdhandle.drawrect(detect_vect360[i].x, pano360textureh*detect_vect360[i].y/1080, detect_vect360[i].width, pano360textureh*detect_vect360[i].height/1080);
+	}
+	Glosdhandle.drawend();
+	
+	Glosdhandle.setcolorline(GLYELLOW);
+	Glosdhandle.drawbegin();
+	for(int i = mtdpositonnum/2 - 1; i < mtdpositonnum; i++)
+	{
+		Glosdhandle.drawline(1920*(i)-pan360whalf, pano360textureh - 50, 1920*(i)-pan360whalf, pano360textureh);
+	}
+	Glosdhandle.drawend();
+}
+#endif
+
 void Render::loadmvarea()
 {
 	for(int i=0;i<16;i++)
-	{
-		//if(movarearect[i].detectflag==0)
-		//	continue;
-		
-		
+	{		
 		for(int j=0;j<4;j++)
 		{
 			mvcontours[i].push_back(movarearect[i].area[j].point);
-		}
-		
-
+		}	
 	}
-	
-
 }
+
 int Render::findinmvarea(Point p)
 {
 	int status=-1;
@@ -2724,12 +2820,6 @@ void Render::DrawmovMultidetect()
 			Glosdhandle.drawrect(detect_vect360[i].x, detect_vect360[i].y, detect_vect360[i].width, detect_vect360[i].height);
 		}
 	Glosdhandle.drawend();
-	
-
-	
-	
-	
-	
 
 }
 
@@ -3029,7 +3119,13 @@ void Render::Drawosd()
 	if(getmenumode()==PANOMODE)
 		{
 			if(MULTICPUPANO)
+			{
+#if USE_DETECTV2
+				DrawmovMultidetectV2();
+#else
 				DrawmovMultidetect();
+#endif
+			}
 			else
 				Drawmovdetect();
 		}

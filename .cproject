@@ -84,7 +84,9 @@
 									<listOptionValue builtIn="false" value="/usr/include/X11"/>
 								</option>
 								<option id="nvcc.compiler.compileroptions.624954633" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions"/>
-								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols"/>
+								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="USE_DETECTV2"/>
+								</option>
 								<option id="nvcc.compiler.undef.symbol.973820224" name="Undefined symbols (-U)" superClass="nvcc.compiler.undef.symbol"/>
 								<option id="nvcc.compiler.cpp11option.2006165920" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="false" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.304571006" superClass="nvcc.compiler.input.cu"/>
@@ -115,6 +117,8 @@
 									<listOptionValue builtIn="false" value="gstapp-1.0"/>
 									<listOptionValue builtIn="false" value="GLU"/>
 									<listOptionValue builtIn="false" value="ipc_c"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="detector"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="opencv_gpu"/>
 								</option>
 								<option id="nvcc.linker.option.paths.1718676411" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib"/>
@@ -227,7 +231,9 @@
 									<listOptionValue builtIn="false" value="/usr/include/X11"/>
 								</option>
 								<option id="nvcc.compiler.compileroptions.2028599137" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions"/>
-								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols"/>
+								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="USE_DETECTV2"/>
+								</option>
 								<option id="nvcc.compiler.undef.symbol.1630480812" name="Undefined symbols (-U)" superClass="nvcc.compiler.undef.symbol"/>
 								<option id="nvcc.compiler.cpp11option.8495932" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="false" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.67168885" superClass="nvcc.compiler.input.cu"/>
@@ -258,6 +264,8 @@
 									<listOptionValue builtIn="false" value="gstapp-1.0"/>
 									<listOptionValue builtIn="false" value="GLU"/>
 									<listOptionValue builtIn="false" value="ipc_c"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="detector"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="opencv_gpu"/>
 								</option>
 								<option id="nvcc.linker.option.paths.910279819" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib"/>

@@ -16,6 +16,7 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include"DetectAlg.hpp"
 
 using namespace cv;
 using namespace std;
@@ -38,6 +39,13 @@ void setnextnum();
 Mat getpanolastmap();
 void setmvdetect(std::vector<cv::Rect> &mv,int chid);
 void  getmvdetect(std::vector<cv::Rect> &mv,int chid);
+#if USE_DETECTV2
+void init_mtd_param(int texturewidth);
+void setmvdetectV2(detectbox_angle_t &mv,int chid);
+void  getmvdetectV2(detectbox_angle_t &mv,int chid);
+void mvdetectupV2(detectbox_angle_t &mv);
+void Multipotionto360V2(detectbox_angle_t &mvsrc, std::vector<cv::Rect> &mvdst,int chid);
+#endif
 void Multipotionto360(std::vector<cv::Rect> &mv,int chid);
 void mvdetectup(std::vector<cv::Rect> &mv);
 void mvclassification(std::vector<cv::Rect> &mv,std::vector<cv::Rect> &mv180,std::vector<cv::Rect> &mv360);

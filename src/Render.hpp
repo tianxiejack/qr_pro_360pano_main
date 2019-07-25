@@ -334,6 +334,10 @@ public:
 	//std::vector<OSDPoint>	detect_vectradarpoints;
 	std::vector<OSDPoint>  detect_vectradarpoints[1000];
 	void movMultidetectrect();
+#if USE_DETECTV2
+	void movMultidetectrectV2();
+	void DrawmovMultidetectV2();
+#endif
 	void setmenumode(int mod){menumode=mod;};
 	int getmenumode(){return menumode;};
 

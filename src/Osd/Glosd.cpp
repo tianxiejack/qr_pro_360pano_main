@@ -132,8 +132,6 @@ void GLOSD::drawrect(int x,int y,int w,int h)
 	
 }
 
-
-
 void GLOSD::drawloops(std::vector<OSDPoint> points)
 {
 	GLfloat point[3];

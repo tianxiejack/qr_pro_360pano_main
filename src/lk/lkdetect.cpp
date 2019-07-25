@@ -220,10 +220,7 @@ void LKmove::lkmovdetectpreprocess(Mat &src,Mat &dst,int chid)
 			}
 		OpticalFlowprocess(backgroundmovmat[chid], src, dst);
 
-		exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
-	 	//OSA_printf("the lkmovdetectpreprocess=%f MS\n",exec_time);
-		
-
+		exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();	
 }
 void LKmove::lkmovdetect(Mat src,int chid)
 {

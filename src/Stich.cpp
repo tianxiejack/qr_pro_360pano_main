@@ -42,7 +42,10 @@ double mvprocessangle[MULTICPUPANONUM];
 int stichreset=0;
 
 int modelnum[MULTICPUPANONUM];
-
+#if USE_DETECTV2
+vector<mvtect_angle_t> mvtect_angle;
+vector<OSA_MutexHndl> disLockv2;
+#endif
 
 void setmodelnum(int chid)
 {
@@ -470,6 +473,69 @@ void  getmvdetect(std::vector<cv::Rect> &mv,int chid)
 	OSA_mutexUnlock(&disLock[chid]);
 	
 }
+
+#if USE_DETECTV2
+void init_mtd_param(int texturewidth)
+{
+	int mtdpositonnum = texturewidth / Config::getinstance()->getmvprocesswidth();
+	if(texturewidth % Config::getinstance()->getmvprocesswidth())
+		mtdpositonnum += 1;
+
+	mvtect_angle.resize(mtdpositonnum);
+	disLockv2.resize(mtdpositonnum);
+	for(int i = 0; i < mtdpositonnum; i++)
+		OSA_mutexCreate(&disLockv2[i]);
+
+}
+void setmvdetectV2(detectbox_angle_t &mv,int chid)
+{
+	OSA_mutexLock(&disLockv2[chid]);
+	mvtect_angle[chid].mvtect.clear();
+	for(int i=0;i<mv.detectbox_.size();i++)
+		mvtect_angle[chid].mvtect.push_back(mv.detectbox_[i]);
+	
+	mvtect_angle[chid].angle = mv.angle;
+	OSA_mutexUnlock(&disLockv2[chid]);
+}
+void  getmvdetectV2(detectbox_angle_t &mv,int chid)
+{
+	OSA_mutexLock(&disLockv2[chid]);
+	mv.detectbox_.clear();
+	for(int i=0;i<mvtect_angle[chid].mvtect.size();i++)
+		mv.detectbox_.push_back(mvtect_angle[chid].mvtect[i]);
+	mv.angle = mvtect_angle[chid].angle;
+	OSA_mutexUnlock(&disLockv2[chid]);
+	
+}
+void mvdetectupV2(detectbox_angle_t &mv)
+{
+	if(MOVDETECTDOWENABLE)
+		{
+			for(int i=0;i<mv.detectbox_.size();i++)
+				{
+					mv.detectbox_[i].x=mv.detectbox_[i].x*Config::getinstance()->getmvdownup();
+					mv.detectbox_[i].y=mv.detectbox_[i].y*Config::getinstance()->getmvdownup();
+					mv.detectbox_[i].width=mv.detectbox_[i].width*Config::getinstance()->getmvdownup();
+					mv.detectbox_[i].height=mv.detectbox_[i].height*Config::getinstance()->getmvdownup();
+				}
+		}
+}
+void Multipotionto360V2(detectbox_angle_t &mvsrc, std::vector<cv::Rect> &mvdst,int chid)
+{
+	int size=mvsrc.detectbox_.size();
+	if(size==0)
+		return;
+	
+	double anglepos=mvsrc.angle;
+	int offset=getpanooffet(anglepos);
+	for(int i=0;i<mvsrc.detectbox_.size();i++)
+	{
+		mvdst.push_back(mvsrc.detectbox_[i]);
+		mvdst[i].x=offset+mvdst[i].x;
+	}
+}
+#endif
+
 void mvdetectup(std::vector<cv::Rect> &mv)
 {
 	if(MOVDETECTDOWENABLE)
@@ -499,11 +565,7 @@ void Multipotionto360(std::vector<cv::Rect> &mv,int chid)
 			//mv[i].x=chid*MOVDETECTSRCWIDTH+mv[i].x;
 			mv[i].x=offset+mv[i].x;
 			//mv.push_back();
-			//cout<<"***mv360*****"<<mv[i]<<"   "<<anglepos<<endl;
-			
-
 		}
-
 }
 
 void mvclassification(std::vector<cv::Rect> &mv,std::vector<cv::Rect> &mv180,std::vector<cv::Rect> &mv360)

@@ -7,7 +7,7 @@
 
 #ifndef DETECTERFACTORY_HPP_
 #define DETECTERFACTORY_HPP_
-#if USE_DETECTV2
+
 class Detector;
 class DetectorFactory{
 public:
@@ -16,6 +16,7 @@ public:
 		HOGDETECTOR,
 		SALIENCYDETECTOR,
 		DEEPLEARNDETECTOR,
+		MVLEARNDETECTOR,
 		COMPOSITEDETECTOR,
 	}DetectroName;
 public:
@@ -27,6 +28,5 @@ private:
 	~DetectorFactory();
 };
 
-#endif
 
 #endif /* DETECTERFACTORY_HPP_ */

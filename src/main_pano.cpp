@@ -339,6 +339,9 @@ int main_pano(int argc, char **argv)
 	/*timer */
 	DxTimer::getinstance()->create();
 	/*detect alg */
+	#if USE_DETECTV2
+	DetectAlg::getinstance()->createV2();
+	#endif
 	DetectAlg::getinstance()->create();
 	/*stich alg*/
 	StichAlg::getinstance()->create();

@@ -16,7 +16,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #define DETECTOR_PURE_VIRTUAL =0
-#if USE_DETECTV2
 
 struct BoundingBox : public cv::Rect {
 		  BoundingBox(){}
@@ -34,7 +33,7 @@ struct BoundingBox : public cv::Rect {
 		  /*strategy*/
 		  int classid;
 		};
-typedef void (* DetectboxCallback)(std::vector<BoundingBox> &boxs);
+typedef void (* DetectboxCallback)(std::vector<BoundingBox> &boxs,void *context,int chid);
 class Detector{
 public:
 	typedef enum {
@@ -51,6 +50,11 @@ public:
 					DETECTDETECTCLOSE,//FOR CHANGE VIDEO CLOSE DETECT
 					DETECTMINAREA,
 					DETECTMAXAREA,
+					DETECTTRACKSTRAGE,
+					DETECTTRACKSTOPTIME,
+					DETECTTRACKCORRECT,
+					DETECTTRACKMAXNUM,
+					DETECTTRACKNUM,
 			}DetectDyParam;
 public:
 
@@ -66,13 +70,13 @@ public:
 	virtual void setparam(DetectParam id,int value) DETECTOR_PURE_VIRTUAL;
 	virtual void setparam(DetectParam id,std::string value)DETECTOR_PURE_VIRTUAL;
 	virtual void dynamicsetparam(DetectDyParam id,int value)DETECTOR_PURE_VIRTUAL;
+	virtual void dynamicgetparam(DetectDyParam id,int &value)DETECTOR_PURE_VIRTUAL;
 	virtual void getversion();
-	virtual void setasyncdetect(DetectboxCallback detectfun,DetectboxCallback trackfun){};
-	virtual void detectasync(cv::Mat src,cv::Rect roi=cv::Rect(0,0,0,0),bool useroi=false);
+	virtual void setasyncdetect(DetectboxCallback detectfun,DetectboxCallback trackfun,void * context){};
+	virtual void detectasync(cv::Mat src,int chid=0,cv::Rect roi=cv::Rect(0,0,0,0),bool useroi=false);
 	
 
 };
-#endif
 
 
 #endif /* DETECTOR_HPP_ */

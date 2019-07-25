@@ -30,7 +30,19 @@
 using namespace cv;
 using namespace ibgs;
 
+#if USE_DETECTV2
+typedef struct{
+	vector<BoundingBox> detectbox_;
+	double angle;
+}detectbox_angle_t;
 
+typedef struct
+{
+	std::vector<cv::Rect> mvtect;
+	double angle;
+}mvtect_angle_t;
+#endif
+		
 typedef struct {
 	bool bTrack;
 	bool bMtd;
@@ -58,11 +70,14 @@ class DetectAlg
 
 	public :
 		void create();
-		void createV2();
 #if USE_DETECTV2
-
-		static  void	detectcall(vector<BoundingBox>& trackbox);
-		static  void trackcall(vector<BoundingBox>& trackbox);
+		void initmtdparam(int texturewidth);
+		void createV2();
+		int JudgeLkFastV2(Mat src);
+		void panomoveprocessV2();
+		void panomoveprocessV2(Mat src, int chid);
+		static  void detectcall(vector<BoundingBox>& trackbox,void *context,int chid);
+		static  void trackcall(vector<BoundingBox>& trackbox,void *context,int chid);
 #endif
 		static DetectAlg *getinstance();
 	public:
@@ -87,11 +102,16 @@ class DetectAlg
 		Mat panoblock[MOVEBLOCKNUM];
 		Mat panoblockdown;
 #if USE_DETECTV2
+		int mtdpositonnum;
+		vector<double> angleposv2;
+		vector<cv::Mat> panoblockv2;
+	
 		OSA_MutexHndl mulock;
 		OSA_MutexHndl mulocktrack;
 		Detector *detectornew;
-		vector<BoundingBox> detectbox_;
+		double mtd_curangle[MULTICPUPANONUM];
 		vector<BoundingBox> trackbox_;
+		detectbox_angle_t detectbox_angle;
 #endif
 		int newframe;
 		void setnewframe(int flag){newframe=flag;};
@@ -101,7 +121,6 @@ class DetectAlg
 		
 		Mat Modelframe[MOVEBLOCKNUM][MODELINGNUM];
 		void panomoveprocess();
-		void panomoveprocessV2();
 		void getnumofpano360image(int startx,int endx,int *texturestart,int *textureend);
 		static void NotifyFunc(void *context, int chId);
 		static void NotifyFunclk(void *context, int chId);

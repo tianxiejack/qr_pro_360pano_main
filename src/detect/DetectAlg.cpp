@@ -8,16 +8,222 @@
 #include<sys/stat.h>
 #include "CMessage.hpp"
 #include"Status.hpp"
-#if USE_DETECTV2
-#include"DetecterFactory.hpp"
-#include "Detector.hpp"
-#endif
+
 DetectAlg*DetectAlg::instance=NULL;
 
 #if USE_DETECTV2
-void DetectAlg::trackcall(vector<BoundingBox>& trackbox)
+void DetectAlg::initmtdparam(int texturewidth)
 {
+	mtdpositonnum = texturewidth / Config::getinstance()->getmvprocesswidth();
+	if(texturewidth % Config::getinstance()->getmvprocesswidth())
+		mtdpositonnum += 1;
+	printf("%s,%d, mtdpositonnum=%d\n",__FILE__,__LINE__, mtdpositonnum);
 
+	angleposv2.resize(mtdpositonnum);
+	panoblockv2.resize(mtdpositonnum);
+
+	Mat testmat;
+	for(int i = 0; i<mtdpositonnum; i++)
+	{
+		angleposv2[i] = i * 360 * Config::getinstance()->getmvprocesswidth() /  texturewidth;
+		if(PANOGRAYDETECT)
+			panoblockv2[i]=Mat(Config::getinstance()->getmvprocessheight(),Config::getinstance()->getmvprocesswidth(),CV_8UC1,cv::Scalar(0));
+		else
+			panoblockv2[i]=Mat(Config::getinstance()->getmvprocessheight(),Config::getinstance()->getmvprocesswidth(),CV_8UC3,cv::Scalar(0));	
+	}
+}
+
+void DetectAlg::createV2()
+{
+	std::vector<std::string> model;
+	std::vector<cv::Size> modelsize;
+
+	OSA_mutexCreate(&mulock);
+	OSA_mutexCreate(&mulocktrack);
+#ifdef DEEPDETECT
+//	readclassnmaeformtxt("config/labels.txt");
+	model.push_back(string("config/yolo_v3_tiny.yml"));
+	modelsize.push_back(Size(1920,1080));
+	detectornew=DetectorFactory::getinstance()->createDetector(DetectorFactory::DEEPLEARNDETECTOR);
+#else
+	model.push_back(string("car.xml"));
+	modelsize.push_back(Size(32,32));
+	detectornew=DetectorFactory::getinstance()->createDetector(DetectorFactory::HOGDETECTOR);
+#endif
+
+	detectornew->setparam(Detector::MAXTRACKNUM,20);
+	detectornew->init(model,modelsize);
+
+#ifdef DEEPDETECT
+	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,100);
+#else
+	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,200);
+#endif
+
+	detectornew->dynamicsetparam(Detector::DETECTMOD,1);
+	detectornew->dynamicsetparam(Detector::DETECTFREQUENCY,1);
+	detectornew->dynamicsetparam(Detector::DETECTTRACKSTOPTIME,100);
+	detectornew->dynamicsetparam(Detector::DETECTTRACKCORRECT,0);
+	detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
+	
+	detectornew->getversion();
+	detectornew->setasyncdetect(detectcall,trackcall, NULL);
+}
+
+int DetectAlg::JudgeLkFastV2(Mat src)
+{
+	int ret=-1;
+	double angle=getcurrentcapangle();
+	int postionid=-1;
+
+	double angleoffset=0;
+	static double angleoffsetpre=0;
+	
+	for(int i=0;i<angleposv2.size();i++)
+	{
+		angleoffset=fabs(angle-angleposv2[i]);
+
+		if(angleoffset<LKMOVANGLE)
+		{
+			postionid=i;	
+		}
+	}
+	
+	if(postionid!=-1)
+	{
+		Mat dst=panoblockv2[postionid];
+		memcpy(dst.data,src.data,dst.cols*dst.rows*dst.channels());
+		ret=postionid;
+	}
+
+	return ret;
+}
+
+void DetectAlg::panomoveprocessV2()
+{
+	Mat process;
+	char recoardnum[50];
+	int blocknum=movblocknum;
+	Mat src;
+	static int premodelnum=0;
+	static int prenum=-1;
+	if(prenum!=blocknum)
+	{
+		prenum=blocknum;
+		setnewframe(1);
+	}
+	else
+		setnewframe(0);
+	
+	int newmat=getnewframe();
+
+	if(MULTICPUPANO)
+	{
+		for(int i=0;i<=MULDETECTTRAIN;i++)
+		{
+			blocknum=(blocknum+mtdpositonnum-i)%mtdpositonnum;
+			if(MOVDETECTDOWENABLE)
+			{
+				resize(panoblockv2[blocknum],panoblockdown,Size(Config::getinstance()->getmvprocesswidth()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup()),0,0,INTER_LINEAR);
+				process=panoblockdown;
+			}
+			else
+				process=panoblockv2[blocknum];
+
+			//if(blocknum==0||blocknum==1)
+			{
+				//if(lkmove.backgroundmov[blocknum]==0)
+				{
+					//setwarndetect(process.cols,process.rows,blocknum);
+					//setmvprocessangle(LKprocessangle[blocknum],blocknum);			
+				}
+
+				if(newmat)
+				{
+					if(Config::getinstance()->getpanocalibration())
+					{
+						//lkmove.lkmovdetectpreprocess(process,LKRramegray,blocknum);
+						//lkmove.backgroundmov[blocknum]=1;
+						memcpy(LKRramegray.data,process.data,process.cols*process.rows*process.channels());
+					}
+					else
+					{
+						//lkmove.backgroundmov[blocknum]=1;
+						memcpy(LKRramegray.data,process.data,LKRramegray.cols*LKRramegray.rows*LKRramegray.channels());
+					}
+				}
+				else
+				{
+					printf("******blocknum=%d prenum=%d\n******",blocknum,prenum);
+				}
+
+				if(getmodeling())
+				{
+					int num=getmodelnum(blocknum);
+					if(num<MODELINGNUM&&newmat)
+					{
+						premodelnum=num;
+						//LKRramegray(blackrect).copyTo(Modelframe[blocknum][premodelnum](blackrect));
+						LKRramegray.copyTo(Modelframe[blocknum][premodelnum]);
+						setmodelnum(blocknum);	
+					}
+				}
+				else	
+				{
+					//LKRramegray(blackrect).copyTo(LKRramegrayblackboard(blackrect));
+					LKRramegray.copyTo(LKRramegrayblackboard);
+				}
+
+				if(getmodeling()==0)
+					videowriter[blocknum]<<LKRramegrayblackboard;
+				else
+					videowriter[blocknum]<<Modelframe[blocknum][premodelnum];
+						
+
+				if(getmodeling())
+				{
+						m_pMovDetector->setFrame(Modelframe[blocknum][premodelnum],Modelframe[blocknum][premodelnum].cols,Modelframe[blocknum][premodelnum].rows,blocknum,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
+				}
+				else
+				{		
+					Rect roi=Rect(0,0,LKRramegrayblackboard.cols,LKRramegrayblackboard.rows);
+					bool roienable=false;
+					mtd_curangle[blocknum] = getcurrentcapangle();
+					//printf("setFrame chid=%d, angle=%f\n", blocknum, mtd_curangle);
+					detectornew->detectasync(LKRramegrayblackboard, blocknum, roi, roienable);
+				}
+			}
+		}
+		return;
+	}
+
+}
+
+void DetectAlg::panomoveprocessV2(Mat src, int chid)
+{
+	vector<BoundingBox> trackbox;
+	vector<BoundingBox> algbox;
+	Mat dst;
+	//src.copyTo(dst);
+	cvtColor(src,dst,COLOR_BGR2RGB);
+	resize(dst,dst,Size(1920,1080));
+
+	Rect roi=Rect(dst.cols*1/4,dst.rows*1/4,dst.cols*2/4,dst.rows*2/4);
+	bool roienable=false;
+#ifdef DEEPDETECT
+	detectornew->detectasync(dst, chid, roi, roienable);
+	//detectornew->detect(src,algbox,trackbox);
+#else
+		Mat src1;
+		cvtColor(src,src1,COLOR_RGB2GRAY);
+		printf("the w=%d h=%d \n",src1.cols,src1.rows);
+		detectornew->detect(src1,algbox,trackbox);
+#endif
+}
+
+void DetectAlg::trackcall(vector<BoundingBox>& trackbox,void *context,int chid)
+{
+	printf("%s,%d, detectcall start\n",__FILE__, __LINE__);
 	instance->trackbox_.clear();
 	OSA_mutexLock(&instance->mulocktrack);
 	instance->trackbox_.insert(instance->trackbox_.begin(),trackbox.begin(),trackbox.end());
@@ -25,17 +231,29 @@ void DetectAlg::trackcall(vector<BoundingBox>& trackbox)
 	//swap(detectbox_,trackbox);
 }
 
-void DetectAlg::detectcall(vector<BoundingBox>& trackbox)
+void DetectAlg::detectcall(vector<BoundingBox>& trackbox,void *context,int chid)
 {
-
-	instance->detectbox_.clear();
+	instance->detectbox_angle.detectbox_.clear();
 	OSA_mutexLock(&instance->mulock);
-	instance->detectbox_.insert(instance->detectbox_.begin(),trackbox.begin(),trackbox.end());
+	instance->detectbox_angle.detectbox_.insert(instance->detectbox_angle.detectbox_.begin(),trackbox.begin(),trackbox.end());
+	instance->detectbox_angle.angle = instance->mtd_curangle[chid];
 	OSA_mutexUnlock(&instance->mulock);
 	//swap(detectbox_,trackbox);
+	if(instance->detectbox_angle.detectbox_.size() >0)
+	{
+		printf("%s,%d, detectcall chid=%d, angle=%f\n",__FILE__, __LINE__, chid, instance->detectbox_angle.angle);
+		for(int i  = 0; i < instance->detectbox_angle.detectbox_.size(); i++)
+		{
+			Rect r = instance->detectbox_angle.detectbox_[i];
+			printf("(%d,%d,%d,%d),", r.x, r.y, r.width, r.height);
+		}
+		printf("\n");
+	}
+	setmvdetectV2(instance->detectbox_angle,chid);
 }
+
 #endif
-DetectAlg::DetectAlg():newframe(0),currentcapangle(0),movblocknum(0)
+DetectAlg::DetectAlg():newframe(0),currentcapangle(0),movblocknum(0),movblocknumpre(-1)
 	{
 	};
 DetectAlg::~DetectAlg()
@@ -76,27 +294,6 @@ void DetectAlg::detectprocesstest(Mat src)
 
 }
 
-void DetectAlg::panomoveprocessV2()
-{
-#if USE_DETECTV2
-	vector<BoundingBox> trackbox;
-	vector<BoundingBox> algbox;
-	Mat dst;
-	//src.copyTo(dst);
-//	cvtColor(src,dst,COLOR_BGR2RGB);
-//	double exec_time = (double)getTickCount();
-
-#ifdef DEEPDETECT
-	//detectornew->detectasync(dst);
-	detectornew->detect(src,algbox,trackbox);
-#else
-		Mat src1;
-		cvtColor(src,src1,COLOR_RGB2GRAY);
-		printf("the w=%d h=%d \n",src1.cols,src1.rows);
-		detectornew->detect(src1,algbox,trackbox);
-#endif
-#endif
-}
 void DetectAlg::panomoveprocess()
 {
 	Mat process;
@@ -114,58 +311,7 @@ void DetectAlg::panomoveprocess()
 		setnewframe(0);
 	
 	int newmat=getnewframe();
-	if(DETECTTEST)
-		{
-			src=MvtestFRrame[pp^1];
-			if(MOVDETECTDOWENABLE)
-				{
-				
-					resize(src,MvtestFRramegray,Size(Config::getinstance()->getmvprocesswidth()/Config::getinstance()->getmvdownup(),Config::getinstance()->getmvprocessheight()/Config::getinstance()->getmvdownup()),0,0,INTER_LINEAR);
-					src=MvtestFRramegray;
-				}
 
-
-			if(PANOGRAYDETECT)
-			{
-
-			/*
-				if(lkmove.backgroundmov[0]==0)
-					setmvprocessangle(LKprocessangle[0],0);
-				#if 1
-				lkmove.lkmovdetectpreprocess(src,LKRramegray,0);
-				m_pMovDetector->setFrame(LKRramegray,LKRramegray.cols,LKRramegray.rows,0,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
-				#else
-				lkmove.lkmovdetect(src,0);
-
-				#endif
-				//imshow("LKRramegray",LKRramegray);
-				//waitKey(1);
-				//lkmove.lkmovdetect(src,0);
-				*/
-				classifydetect->detect(src,0);
-				
-			}
-			else
-				m_pMovDetector->setFrame(src,src.cols,src.rows,0,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
-			return ;
-		}
-
-
-	
-/*
-	if(PANOGRAYDETECT)
-		{
-			process=panoblock[blocknum];
-			
-			//lkmove.lkmovdetect(process,0);
-			
-			videowriter[blocknum]<<process;
-			//OSA_printf("the mov write ok\n");
-			//imshow("mov",panoblock[blocknum]);
-			//waitKey(1);
-			return ;
-		}
-		*/
 	if(MULTICPUPANO)
 		{
 
@@ -188,16 +334,15 @@ void DetectAlg::panomoveprocess()
 					//waitKey(1);
 					//if(blocknum==0||blocknum==1)
 						{
-						//cout<<"************panomoveprocess*************"<<endl;
+	
 
-						
 						if(lkmove.backgroundmov[blocknum]==0)
 							{
 								//setwarndetect(process.cols,process.rows,blocknum);
 								setmvprocessangle(LKprocessangle[blocknum],blocknum);
 								
 							}
-						//if(blocknum==0)
+
 						if(newmat)
 							{
 								if(Config::getinstance()->getpanocalibration())
@@ -209,67 +354,48 @@ void DetectAlg::panomoveprocess()
 									lkmove.backgroundmov[blocknum]=1;
 									memcpy(LKRramegray.data,process.data,LKRramegray.cols*LKRramegray.rows*LKRramegray.channels());
 								}
-							//printf("******newmatblocknum=%d prenum=%d\n******",blocknum,prenum);
 							}
 						else
 							{
 								printf("******blocknum=%d prenum=%d\n******",blocknum,prenum);
 							}
-						//lkmove.lkmovdetect(process,blocknum);
-						//printf("**lkmovdetect****blocknum=%d prenum=%d\n******",blocknum,prenum);
-						//continue;
 
-						//cout<<"blackrect"<<blackrect<<endl;
 						if(getmodeling())
 							{
 								int num=getmodelnum(blocknum);
 								if(num<MODELINGNUM&&newmat)
 									{
 										premodelnum=num;
-										//printf(" newmat proceess ****************num=%d\n",premodelnum);
 										LKRramegray(blackrect).copyTo(Modelframe[blocknum][premodelnum](blackrect));
-										//lkmove.lkmovdetectpreprocess(process,Modelframe[blocknum][num],blocknum);
 										setmodelnum(blocknum);	
 									}
 							}
 						else	
 							{
-								//printf(" newmat proceess ****************num=%d\n",premodelnum);
 								LKRramegray(blackrect).copyTo(LKRramegrayblackboard(blackrect));
 							}
 
-						
-						//int num=getmodelnum(blocknum);
+
 						if(getmodeling()==0)
 							videowriter[blocknum]<<LKRramegrayblackboard;
 						else
 							videowriter[blocknum]<<Modelframe[blocknum][premodelnum];
 						
-						/*
-						if(blocknum==1)
-							{
-								    cv::Mat img_mask;
-								    cv::Mat img_bkgmodel;
-								    bgs->process(LKRramegrayblackboard, img_mask, img_bkgmodel); // by default, it shows automatically the foreground mask image
 
-							}
-							waitKey(1);
-						*/
-						
-						//m_pMovDetector->setFrame(LKRramegray,LKRramegray.cols,LKRramegray.rows,0,10,MINAREDETECT,200000,40);
-						//printf("modeling=%d newmat=%d num=%d\n",blocknum,newmat,premodelnum);
 						if(getmodeling())
 							{
 								m_pMovDetector->setFrame(Modelframe[blocknum][premodelnum],Modelframe[blocknum][premodelnum].cols,Modelframe[blocknum][premodelnum].rows,blocknum,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
 							}
 						else
+						{
 							m_pMovDetector->setFrame(LKRramegrayblackboard,LKRramegrayblackboard.cols,LKRramegrayblackboard.rows,blocknum,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
+						}
 
 				}
 				}
 			return;
 		}
-	//videocapture
+
 	Mat pano360=getpanolastmap();
 	
 #if PANOGRAYDETECT
@@ -283,13 +409,8 @@ void DetectAlg::panomoveprocess()
 				}
 			else
 				process=panoblock[0];
-			//videowriter<<process;
-			//videowriter.write(process);
-			//videowriter<<process;
-			//waitKey(1);
-			//OSA_printf("***********video write***************\n");
-			//VideoWriter
-			//imwrite("blockpano.bmp",panoblock[0]);
+
+			printf("%s,%d, setFrame\n", __FILE__, __LINE__);
 			m_pMovDetector->setFrame(process,process.cols,process.rows,0,10,Config::getinstance()->getminarea(),Config::getinstance()->getmaxarea(),Config::getinstance()->getdetectthread());
 
 
@@ -322,16 +443,15 @@ void DetectAlg::main_proc_func()
 		OSA_semWait(&mainProcThrdetectObj.procNotifySem, OSA_TIMEOUT_FOREVER);
 		//OSA_printf("**********%s***********\n",__func__);
 		double exec_time = (double)getTickCount();
+#if USE_DETECTV2
+		panomoveprocessV2();
+#else
 		panomoveprocess();
+#endif
 		exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
-		
-		
-		
-
 	}
-
-
 }
+
 int DetectAlg::MAIN_threadCreate(void)
 {
 	int iRet = OSA_SOK;
@@ -425,39 +545,6 @@ int DetectAlg::mk_dir(char *dir)
     return 0;
 }
 
-void DetectAlg::createV2()
-{
-#if	USE_DETECTV2
-	std::vector<std::string> model;
-	std::vector<cv::Size> modelsize;
-
-	OSA_mutexCreate(&mulock);
-	OSA_mutexCreate(&mulocktrack);
-#ifdef DEEPDETECT
-//	readclassnmaeformtxt("config/labels.txt");
-	model.push_back(string("config/yolo_v3_tiny.yml"));
-	modelsize.push_back(Size(1920,1080));
-	detectornew=DetectorFactory::getinstance()->createDetector(DetectorFactory::DEEPLEARNDETECTOR);
-#else
-	model.push_back(string("car.xml"));
-	modelsize.push_back(Size(32,32));
-	detectornew=DetectorFactory::getinstance()->createDetector(DetectorFactory::HOGDETECTOR);
-#endif
-
-	detectornew->setparam(Detector::MAXTRACKNUM,20);
-	detectornew->init(model,modelsize);
-#ifdef DEEPDETECT
-	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,100);
-#else
-	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,200);
-#endif
-	detectornew->dynamicsetparam(Detector::DETECTMOD,1);
-	detectornew->dynamicsetparam(Detector::DETECTFREQUENCY,1);
-	//detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
-	detectornew->getversion();
-	detectornew->setasyncdetect(detectcall,trackcall);
-#endif
-}
 void DetectAlg::create()
 {
 	for(int i=0;i<2;i++)
@@ -503,7 +590,6 @@ void DetectAlg::create()
 	
 	
 	blackrect=Rect(board,boardh,Config::getinstance()->getmvprocesswidth()/Config::getinstance()->getmvdownup()-2*board,Config::getinstance()->getmvprocessheight()/(Config::getinstance()->getmvdownup())-2*boardh);
-
 	char bufname[50];
 	m_pMovDetector=MvDetector_Create();
 	m_pMovDetector->init(NotifyFunc,( void *) this);
@@ -713,7 +799,6 @@ int DetectAlg::JudgeLkFast(Mat src)
 	double anglepos[MOVELKBLOCKNUM];
 	memset(anglepos,0,sizeof(anglepos));
 	double angle=getcurrentcapangle();
-	//printf("the cap angle =%f\n",angle);
 	int postionid=-1;
 
 	double angleoffset=0;
@@ -826,25 +911,27 @@ void DetectAlg::MulticpuLKpanoprocess(Mat& src)
 	if(Status::getinstance()->getusestepdetect())
 		blucknum=JudgeLkFastNew(processsrc);
 	else if(1)
+	{
+#if USE_DETECTV2
+		blucknum=JudgeLkFastV2(processsrc);
+#else
 		blucknum=JudgeLkFast(processsrc);
+#endif
+	}
 	else
 		blucknum=JudgeLk(processsrc);
+
 	if(blucknum!=-1)
 		{
-			
-			
 			if(movblocknumpre!=blucknum)
 				{
-					//OSA_printf("the movblocknumpre=%d\n",movblocknumpre);
-					movblocknum=movblocknumpre;
-					movblocknumpre=blucknum;
+					movblocknum=blucknum;
+					movblocknumpre=movblocknum;
 					OSA_semSignal(&mainProcThrdetectObj.procNotifySem);
 					modelingnum++;
 					enablemodel=1;
 					//setnewframe(1);
-				}
-			
-
+				}		
 		}
 	else
 		{

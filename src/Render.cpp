@@ -3120,11 +3120,14 @@ void Render::Drawosd()
 		{
 			if(MULTICPUPANO)
 			{
+				if(DetectAlg::getinstance()->getmtdstat())
+				{
 #if USE_DETECTV2
-				DrawmovMultidetectV2();
+					DrawmovMultidetectV2();
 #else
-				DrawmovMultidetect();
+					DrawmovMultidetect();
 #endif
+				}
 			}
 			else
 				Drawmovdetect();

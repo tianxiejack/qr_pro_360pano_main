@@ -85,9 +85,6 @@ public:
 
 		int Panorest();
 
-		int detectenable(OSA_BufInfo* info);
-
-
 		//////////////////ring buffer/////////////////////
 		OSA_BufHndl m_bufQue[IMAGEQUEUE];
 		OSA_BufHndl mcap_bufQue[QUEUESUM];

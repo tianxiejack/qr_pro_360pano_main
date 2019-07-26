@@ -1530,54 +1530,59 @@ void CEventParsing::recordconfig()
 void CEventParsing::movedetectconfig()
  {
  	int configchange=0;
-	if(_globalDate->rcvBufQue.at(5)!=Status::getinstance()->mtdcfg.movedetectalgenable)
+	mtdcfg_t mtdcfg_tmp = Status::getinstance()->mtdcfg;
+	if(_globalDate->rcvBufQue.at(5) != mtdcfg_tmp.movedetectalgenable)
 	{
-		Status::getinstance()->mtdcfg.movedetectalgenable=_globalDate->rcvBufQue.at(5);
-		configchange=1;
+		mtdcfg_tmp.movedetectalgenable = _globalDate->rcvBufQue.at(5);
+		configchange = 1;
 	}
-	if((_globalDate->rcvBufQue.at(6))!=Status::getinstance()->mtdcfg.sensitivity)
+	if((_globalDate->rcvBufQue.at(6)) != mtdcfg_tmp.sensitivity)
 	{
-		Status::getinstance()->mtdcfg.sensitivity=_globalDate->rcvBufQue.at(6);
-		configchange=1;
+		mtdcfg_tmp.sensitivity = _globalDate->rcvBufQue.at(6);
+		configchange = 1;
 	}
-	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->mtdcfg.speedpriority)
+	if(_globalDate->rcvBufQue.at(7) != mtdcfg_tmp.speedpriority)
 	{
-		Status::getinstance()->mtdcfg.speedpriority=_globalDate->rcvBufQue.at(7);
-		configchange=1;
+		mtdcfg_tmp.speedpriority = _globalDate->rcvBufQue.at(7);
+		configchange = 1;
 	}
-	if((_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9))!=Status::getinstance()->mtdcfg.movmaxwidth)
+	if((_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9)) != mtdcfg_tmp.movmaxwidth)
 	{
-		Status::getinstance()->mtdcfg.movmaxwidth=_globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9);
-		configchange=1;
+		mtdcfg_tmp.movmaxwidth = _globalDate->rcvBufQue.at(8)<<8|_globalDate->rcvBufQue.at(9);
+		configchange = 1;
 	}
-	if((_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11))!=Status::getinstance()->mtdcfg.movmaxheight)
+	if((_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11)) != mtdcfg_tmp.movmaxheight)
 	{
-		Status::getinstance()->mtdcfg.movmaxheight=_globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11);
-		configchange=1;
+		mtdcfg_tmp.movmaxheight = _globalDate->rcvBufQue.at(10)<<8|_globalDate->rcvBufQue.at(11);
+		configchange = 1;
 	}
-	if((_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13))!=Status::getinstance()->mtdcfg.movminwidth)
+	if((_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13)) != mtdcfg_tmp.movminwidth)
 	{
-		Status::getinstance()->mtdcfg.movminwidth=_globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13);
-		configchange=1;
+		mtdcfg_tmp.movminwidth = _globalDate->rcvBufQue.at(12)<<8|_globalDate->rcvBufQue.at(13);
+		configchange = 1;
 	}
-	if((_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15))!=Status::getinstance()->mtdcfg.movminheight)
+	if((_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15)) != mtdcfg_tmp.movminheight)
 	{
-		Status::getinstance()->mtdcfg.movminheight=_globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15);
-		configchange=1;
+		mtdcfg_tmp.movminheight = _globalDate->rcvBufQue.at(14)<<8|_globalDate->rcvBufQue.at(15);
+		configchange = 1;
 	}	
 
-	if((_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17))!=Status::getinstance()->mtdcfg.moverecordtime)
+	if((_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17)) != mtdcfg_tmp.moverecordtime)
 	{
-		Status::getinstance()->mtdcfg.moverecordtime=_globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17);
-		configchange=1;
+		mtdcfg_tmp.moverecordtime = _globalDate->rcvBufQue.at(16)<<8|_globalDate->rcvBufQue.at(17);
+		configchange = 1;
 	}
 
-	OSA_printf("movedetectalgenable=%d  sensitivity=%d  speedpriority=%d movminwidth=%d movminheight=%d moverecordtime=%d\n",Status::getinstance()->mtdcfg.movedetectalgenable,Status::getinstance()->mtdcfg.sensitivity,Status::getinstance()->mtdcfg.speedpriority,\
-	Status::getinstance()->mtdcfg.movminwidth,Status::getinstance()->mtdcfg.movminheight,Status::getinstance()->mtdcfg.moverecordtime);
+	OSA_printf("movedetectalgenable=%d  sensitivity=%d  speedpriority=%d movminwidth=%d movminheight=%d moverecordtime=%d\n",\
+		mtdcfg_tmp.movedetectalgenable,mtdcfg_tmp.sensitivity,mtdcfg_tmp.speedpriority,\
+		mtdcfg_tmp.movminwidth,mtdcfg_tmp.movminheight,mtdcfg_tmp.moverecordtime);
 
 	if(configchange)
+	{
+	 	Status::getinstance()->mtdcfg = mtdcfg_tmp;
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_MoveDetectConfig,0);
-		
+	}
+	
  }
 
  void CEventParsing::movedetectareaconfig()

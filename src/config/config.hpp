@@ -96,12 +96,10 @@ public:
 	 int mvprocesswidth;
 	 int mvprocessheight;
 	 int mvdownup;
-	 int minarea;
-	 int maxarea;
 	 int detectthread;
 
-	 inline int getminarea(){return minarea;};
-	 inline int getmaxarea(){return maxarea;};
+	 inline int getminarea(){return mtdcfg.movminwidth*mtdcfg.movminheight;};
+	 inline int getmaxarea(){return mtdcfg.movmaxwidth*mtdcfg.movmaxheight;};
 	 inline int getdetectthread(){return detectthread;};
 	 inline int getmvprocesswidth(){return mvprocesswidth;};
 	 inline  int getmvprocessheight(){return mvprocessheight;};
@@ -125,6 +123,8 @@ public:
 	trackcfg_t trackcfg;
 	/*pano*/
 	panocfg_t panocfg;
+	/*mtd*/
+	mtdcfg_t mtdcfg;
 
 	static Config *getinstance();
 	void saveconfig();

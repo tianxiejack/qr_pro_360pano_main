@@ -78,7 +78,7 @@ void Config::saveconfig()
 	configfilestore <<"panoalg" << "{" << "panoprocesswidth" << panoprocesswidth << "panoprocessheight" << panoprocessheight  <<"panozeroptz"<< panozeroptz << "panozeroptztitle"<<panozeroptztitle<<"panoprocessshift"<<panoprocessshift<<"panoprocesstailcut"<<panoprocesstailcut\
 		<<"panocylinder"<<panocylinder<<"panofusion"<<panofusion<<"angleinterval"<<angleinterval<<"panocalibration"<<panocalibration<<"}";
 
-	configfilestore <<"mvdetect" << "{" << "mvprocesswidth" << mvprocesswidth << "mvprocessheight" << mvprocessheight  <<"mvdownup"<<mvdownup<<"minarea"<<minarea<<"maxarea"<<maxarea<<"detectthread"<<detectthread<< "}";
+	configfilestore <<"mvdetect" << "{" << "mvenable" << mtdcfg.movedetectalgenable<< "mvprocesswidth" << mvprocesswidth << "mvprocessheight" << mvprocessheight  <<"mvdownup"<<mvdownup<<"minwidth"<<mtdcfg.movminwidth<<"minheight"<<mtdcfg.movminheight<<"maxwidth"<<mtdcfg.movmaxwidth<<"maxheight"<<mtdcfg.movmaxheight<<"detectthread"<<detectthread<< "}";
 
 	configfilestore <<"ptz" << "{" << "ptzpaninverse" << ptzpaninverse << "ptztitleinverse" << ptztitleinverse << "}";
 
@@ -170,11 +170,14 @@ void Config::loadconfig()
 	panoprocesstailcut=(int)struct_node["panoprocesstailcut"];
 
 	struct_node = configfilestore["mvdetect"];
+	mtdcfg.movedetectalgenable=(int )struct_node["mvenable"];
 	mvprocesswidth=(int )struct_node["mvprocesswidth"];
 	mvprocessheight=(int )struct_node["mvprocessheight"];
 	mvdownup=(int )struct_node["mvdownup"];
-	minarea=(int )struct_node["minarea"];
-	maxarea=(int )struct_node["maxarea"];
+	mtdcfg.movmaxwidth=(int )struct_node["maxwidth"];
+	mtdcfg.movmaxheight=(int )struct_node["maxheight"];
+	mtdcfg.movminwidth=(int )struct_node["minwidth"];
+	mtdcfg.movminheight=(int )struct_node["minheight"];
 	detectthread=(int )struct_node["detectthread"];
 
 	//////////////////////////////////////

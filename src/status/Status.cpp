@@ -5,7 +5,7 @@
 Status* Status::instance=NULL;
 
 Status::Status():devid(0),displaymod(0),displaysensor(0),ptzpanspeed(0),ptztitlespeed(0),ptzpanodirection(0),ptztitledirection(0),workmode(-1),mouseevent(-1),mousex(-1),mousey(-1),mousemod(-1),
-	storegonum(0),storemod(-1),storesavenum(0),storesavemod(0),displayresolution(-1),detectareanum(-1),detectareaenable(-1),movdetectenable(1),
+	storegonum(0),storemod(-1),storesavenum(0),storesavemod(0),displayresolution(-1),detectareanum(-1),detectareaenable(-1),
 	panodetectenable(1),researchangle(0),mvdetectresearch(0),usestepdetect(0),mvconfigenable(0),zeromod(0),calibration(0)
 {
 	memset(&correcttime, 0, sizeof(correcttime));
@@ -40,6 +40,7 @@ void Status::loadconfig()
 	memcpy(&radarcfg, &(Config::getinstance()->radarcfg), sizeof(radarcfg_t));
 	memcpy(&trackcfg, &(Config::getinstance()->trackcfg), sizeof(trackcfg_t));
 	memcpy(&panocfg, &(Config::getinstance()->panocfg), sizeof(panocfg_t));
+	memcpy(&mtdcfg, &(Config::getinstance()->mtdcfg), sizeof(mtdcfg_t));
 	printf("%s load status form config\r\n",__func__);
 }
 
@@ -57,6 +58,7 @@ void Status::saveCurrentConfig(long lParam)
 	memcpy(&(Config::getinstance()->radarcfg), &radarcfg, sizeof(radarcfg_t));
 	memcpy(&(Config::getinstance()->trackcfg), &trackcfg, sizeof(trackcfg_t));
 	memcpy(&(Config::getinstance()->panocfg), &panocfg, sizeof(panocfg_t));
+	memcpy(&(Config::getinstance()->mtdcfg), &mtdcfg, sizeof(mtdcfg_t));
 	Config::getinstance()->SaveConfig();
 	printf("%s save config form status\r\n",__func__);
 }

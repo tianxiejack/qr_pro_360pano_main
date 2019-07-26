@@ -35,6 +35,7 @@ void DetectAlg::initmtdparam(int texturewidth)
 
 void DetectAlg::createV2()
 {
+	mtdcfg_t mtdcfg_alg = Status::getinstance()->mtdcfg;
 	std::vector<std::string> model;
 	std::vector<cv::Size> modelsize;
 
@@ -65,9 +66,13 @@ void DetectAlg::createV2()
 	detectornew->dynamicsetparam(Detector::DETECTTRACKSTOPTIME,100);
 	detectornew->dynamicsetparam(Detector::DETECTTRACKCORRECT,0);
 	detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
+	detectornew->dynamicsetparam(Detector::DETECTMINAREA,mtdcfg_alg.movminwidth*mtdcfg_alg.movminheight);
+	detectornew->dynamicsetparam(Detector::DETECTMAXAREA,mtdcfg_alg.movmaxwidth*mtdcfg_alg.movmaxheight);
 	
 	detectornew->getversion();
 	detectornew->setasyncdetect(detectcall,trackcall, NULL);
+
+	setmtdstat(mtdcfg_alg.movedetectalgenable);
 }
 
 int DetectAlg::JudgeLkFastV2(Mat src)
@@ -253,7 +258,7 @@ void DetectAlg::detectcall(vector<BoundingBox>& trackbox,void *context,int chid)
 }
 
 #endif
-DetectAlg::DetectAlg():newframe(0),currentcapangle(0),movblocknum(0),movblocknumpre(-1)
+DetectAlg::DetectAlg():newframe(0),currentcapangle(0),movblocknum(0),movblocknumpre(-1),movdetectenable(0)
 	{
 	};
 DetectAlg::~DetectAlg()
@@ -627,7 +632,6 @@ void DetectAlg::create()
 
 }
 
-
 void DetectAlg::detectprocess(Mat src,OSA_BufInfo* frameinfo)
 {	
 
@@ -962,14 +966,18 @@ exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
 
 void DetectAlg::registorfun()
 {
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MoveDetectConfig,detectparam,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MoveDetectConfig,updatemtdparam,0);
 	
 }
 
-void DetectAlg::detectparam(long param)
+void DetectAlg::updatemtdparam(long param)
 {
-	
-	mtdcfg_t mtdcfg_tmp = Status::getinstance()->mtdcfg;
+	mtdcfg_t mtdcfg_alg = Status::getinstance()->mtdcfg;
+#if USE_DETECTV2
+	getinstance()->detectornew->dynamicsetparam(Detector::DETECTMINAREA, mtdcfg_alg.movminwidth * mtdcfg_alg.movminheight);
+	getinstance()->detectornew->dynamicsetparam(Detector::DETECTMAXAREA, mtdcfg_alg.movmaxwidth * mtdcfg_alg.movmaxheight);
+#endif
+	getinstance()->setmtdstat(mtdcfg_alg.movedetectalgenable);
 }
 
 DetectAlg *DetectAlg::getinstance()

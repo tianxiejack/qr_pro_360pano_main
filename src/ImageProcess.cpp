@@ -1082,14 +1082,6 @@ void ImageProcess::cpupanoprocess(Mat& src)
 
 }
 
-
-int ImageProcess::detectenable(OSA_BufInfo* info)
-{
-	int ret=0;
-	ret=Status::getinstance()->movdetectenable;
-	return ret;
-}
-
 int ImageProcess::stichenable(OSA_BufInfo* info)
 {
 	int ret=0;
@@ -1144,7 +1136,7 @@ void ImageProcess::main_proc_func()
 		//OSA_printf("******begin*angle=%f*********************\n",infocap->framegyroyaw*1.0/ANGLESCALE);
 		queuebuf=Queue::getinstance();
 
-		if(detectenable(infocap))
+		if(DetectAlg::getinstance()->getmtdstat())
 		{
 			DetectAlg::getinstance()->detectprocess(src1,infocap);
 		}

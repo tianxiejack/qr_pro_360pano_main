@@ -197,7 +197,6 @@ public:
 	int detectareaenable;
 
 	/******detect config*******/
-	int movdetectenable;
 	int panodetectenable;
 
 	/******dev config*******/

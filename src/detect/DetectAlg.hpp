@@ -23,10 +23,12 @@
 #include"lkdetect.hpp"
 #include "IBGS.h"
 #include"classifydetect.hpp"
+#include "StlGlDefines.h"
 #if USE_DETECTV2
 #include"DetecterFactory.hpp"
 #include "Detector.hpp"
 #endif
+
 using namespace cv;
 using namespace ibgs;
 
@@ -81,8 +83,8 @@ class DetectAlg
 #endif
 		static DetectAlg *getinstance();
 	public:
-		
-		
+		void setmtdstat(int stat){movdetectenable = stat;}
+		int getmtdstat(){return movdetectenable;}
 		void detectprocess(Mat src,OSA_BufInfo* frameinfo);
 		
 		
@@ -113,6 +115,7 @@ class DetectAlg
 		vector<BoundingBox> trackbox_;
 		detectbox_angle_t detectbox_angle;
 #endif
+		int movdetectenable;
 		int newframe;
 		void setnewframe(int flag){newframe=flag;};
 		int getnewframe(){return newframe;};
@@ -197,7 +200,7 @@ class DetectAlg
 			return NULL;
 		}
 	private:
-		static void detectparam(long param);
+		static void updatemtdparam(long param);
 
 
 

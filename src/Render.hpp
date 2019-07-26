@@ -50,6 +50,8 @@ using namespace cv;
 
 
 #define MAXTURESELECT (8)
+#define MTDAREANUM 16
+
 typedef struct{
 
 	Rect leftdownrect;
@@ -335,6 +337,11 @@ public:
 	std::vector<OSDPoint>  detect_vectradarpoints[1000];
 	void movMultidetectrect();
 #if USE_DETECTV2
+	int mtdpositonnum;
+	int drawmovareanum = -1;
+	vector<int> mtdareapoints[MTDAREANUM];
+	int checkareav2(int mousex, int mousey);
+	void mousemovrectv2();
 	void movMultidetectrectV2();
 	void DrawmovMultidetectV2();
 #endif
@@ -681,6 +688,7 @@ public:
 	static void livevideo(long lparam);
 	static void livephoto(long lparam);
 	static void videoclip(long lparam);
+	static void updatemtdparam(long lparam);
 	void CheckArea(int x,int y);
 	void mousemotion(int button, int x, int y);
 	void mousedbclick(int button, int x, int y);

@@ -11,6 +11,7 @@
 
 DetectAlg*DetectAlg::instance=NULL;
 
+
 #if USE_DETECTV2
 void DetectAlg::initmtdparam(int texturewidth)
 {
@@ -194,8 +195,8 @@ void DetectAlg::panomoveprocessV2()
 					Rect roi=Rect(0,0,LKRramegrayblackboard.cols,LKRramegrayblackboard.rows);
 					bool roienable=false;
 					mtd_curangle[blocknum] = getcurrentcapangle();
-					//printf("setFrame chid=%d, angle=%f\n", blocknum, mtd_curangle);
-					detectornew->detectasync(LKRramegrayblackboard, blocknum, roi, roienable);
+					//if(render.mtdareapoints[0][blocknum])
+						detectornew->detectasync(LKRramegrayblackboard, blocknum, roi, roienable);
 				}
 			}
 		}
@@ -966,11 +967,11 @@ exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
 
 void DetectAlg::registorfun()
 {
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MoveDetectConfig,updatemtdparam,0);
+	
 	
 }
 
-void DetectAlg::updatemtdparam(long param)
+void DetectAlg::updatemtdparam()
 {
 	mtdcfg_t mtdcfg_alg = Status::getinstance()->mtdcfg;
 #if USE_DETECTV2

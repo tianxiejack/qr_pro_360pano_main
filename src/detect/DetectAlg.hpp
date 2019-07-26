@@ -24,6 +24,7 @@
 #include "IBGS.h"
 #include"classifydetect.hpp"
 #include "StlGlDefines.h"
+
 #if USE_DETECTV2
 #include"DetecterFactory.hpp"
 #include "Detector.hpp"
@@ -86,6 +87,7 @@ class DetectAlg
 		void setmtdstat(int stat){movdetectenable = stat;}
 		int getmtdstat(){return movdetectenable;}
 		void detectprocess(Mat src,OSA_BufInfo* frameinfo);
+		void updatemtdparam();
 		
 		
 
@@ -199,10 +201,6 @@ class DetectAlg
 		
 			return NULL;
 		}
-	private:
-		static void updatemtdparam(long param);
-
-
 
 };
 

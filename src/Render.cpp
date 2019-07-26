@@ -540,7 +540,11 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 	if(getmenumode()==PANOMODE)
 		{
 			viewcameraprocess();
+#if USE_DETECTV2
+			mousemovrectv2();
+#else
 			mousemovrect();
+#endif
 		}
 	/*
 	if(Plantformpzt::getinstance()->getplantformcalibration())
@@ -1587,6 +1591,14 @@ void Render::Panotexture(void)
 #if USE_DETECTV2
 	init_mtd_param(texturewidth);
 	DetectAlg::getinstance()->initmtdparam(texturewidth);
+
+	mtdpositonnum = texturewidth / Config::getinstance()->getmvprocesswidth();
+	if(texturewidth % Config::getinstance()->getmvprocesswidth())
+		mtdpositonnum += 1;
+	for(int i = 0; i < MTDAREANUM; i++)
+	{
+		mtdareapoints[i].resize(mtdpositonnum);
+	}
 #endif
 
 }
@@ -2659,6 +2671,62 @@ void Render::movMultidetectrect()
 }
 
 #if USE_DETECTV2
+int Render::checkareav2(int mousex, int mousey)
+{
+	int id = -1;
+	int width = viewcamera[RENDER180].leftdownrect.width;
+	int width2 = 2 * width;
+	int y180 = renderheight - viewcamera[RENDER180].leftdownrect.y;
+	int y360 = renderheight - viewcamera[RENDER360].leftdownrect.y;
+
+	if((mousex >0 && mousex < width) && (mousey > 0 && mousey < y180))
+	{
+		int x1 = mousex * pano360texturew / width2;
+		double id1 = x1 / Config::getinstance()->getmvprocesswidth();
+		id = ceil(id1);		
+	}
+	else if((mousex >0 && mousex < width) && (mousey > y180 && mousey < y360))
+	{
+		int x1 = (mousex + width) * pano360texturew / width2;
+		double id1 = x1 / Config::getinstance()->getmvprocesswidth();
+		id = ceil(id1);	
+	}
+	
+	printf("%s,%d,point(%d,%d)is in area %d\n", __FILE__,__LINE__,mousex,mousey, id);
+
+	return id;
+}
+
+void Render::mousemovrectv2()
+{
+	if(MOUSEST==MOUSEPRESS&&BUTTON==MOUSELEFT)
+	{
+		if(drawmovareanum != -1)
+		{
+			int id = checkareav2(MOUSEx, MOUSEy);
+			if(id>=0 && id <mtdpositonnum)
+			{
+				mtdareapoints[drawmovareanum][id] = 1;
+				printf("%s,%d,mtdareapoints[%d][%d]=%d\n", __FILE__,__LINE__,
+					drawmovareanum, id, mtdareapoints[drawmovareanum][id]);
+			}	
+		}
+	}
+	else if(MOUSEST==MOUSEPRESS&&BUTTON==MOUSERIGHT)
+	{
+		if(drawmovareanum != -1)
+		{
+			int id = checkareav2(MOUSEx, MOUSEy);
+			if(id>=0 && id <mtdpositonnum)
+			{
+				mtdareapoints[drawmovareanum][id] = 0;
+				printf("%s,%d,mtdareapoints[%d][%d]=%d\n", __FILE__,__LINE__,
+					drawmovareanum, id, mtdareapoints[drawmovareanum][id]);
+			}
+				
+		}
+	}
+}
 void Render::movMultidetectrectV2()
 {
 	detectbox_angle_t detect_tempV2;
@@ -2706,7 +2774,9 @@ void Render::DrawmovMultidetectV2()
 	int mtdpositonnum = pano360texturew / Config::getinstance()->getmvprocesswidth();
 	if(pano360texturew % Config::getinstance()->getmvprocesswidth())
 		mtdpositonnum += 1;
-	
+
+	int w = Config::getinstance()->getmvprocesswidth();
+	int h = Config::getinstance()->getmvprocessheight();
 	unsigned int pan360w=pano360texturew;
 	unsigned int pan360whalf=pano360texturew/2;
 	
@@ -2720,7 +2790,7 @@ void Render::DrawmovMultidetectV2()
 	Glosdhandle.drawbegin();
 	for(int i=0;i<size;i++)
 	{
-		Glosdhandle.drawrect(detect_vect180[i].x, pano360textureh*detect_vect180[i].y/1080, detect_vect180[i].width, pano360textureh*detect_vect180[i].height/1080);
+		Glosdhandle.drawrect(detect_vect180[i].x, pano360textureh*detect_vect180[i].y/h, detect_vect180[i].width, pano360textureh*detect_vect180[i].height/h);
 	}
 	Glosdhandle.drawend();
 	
@@ -2728,7 +2798,11 @@ void Render::DrawmovMultidetectV2()
 	Glosdhandle.drawbegin();
 	for(int i = 0; i < mtdpositonnum/2+1; i++)
 	{
-		Glosdhandle.drawline(1920*i, pano360textureh - 50, 1920*i, pano360textureh);
+		Glosdhandle.drawline(w*i, pano360textureh - 50, w*i, pano360textureh);
+		if((drawmovareanum != -1) && mtdareapoints[0][i])
+		{
+			Glosdhandle.drawrect(w*(i), 0, w, pano360textureh);
+		}
 	}
 	Glosdhandle.drawend();
 	
@@ -2741,7 +2815,7 @@ void Render::DrawmovMultidetectV2()
 	Glosdhandle.drawbegin();
 	for(int i=0;i<size;i++)
 	{
-		Glosdhandle.drawrect(detect_vect360[i].x, pano360textureh*detect_vect360[i].y/1080, detect_vect360[i].width, pano360textureh*detect_vect360[i].height/1080);
+		Glosdhandle.drawrect(detect_vect360[i].x, pano360textureh*detect_vect360[i].y/h, detect_vect360[i].width, pano360textureh*detect_vect360[i].height/h);
 	}
 	Glosdhandle.drawend();
 	
@@ -2749,8 +2823,11 @@ void Render::DrawmovMultidetectV2()
 	Glosdhandle.drawbegin();
 	for(int i = mtdpositonnum/2 - 1; i < mtdpositonnum; i++)
 	{
-		Glosdhandle.drawline(1920*(i)-pan360whalf, pano360textureh - 50, 1920*(i)-pan360whalf, pano360textureh);
+		Glosdhandle.drawline(w*(i)-pan360whalf, pano360textureh - 50, w*(i)-pan360whalf, pano360textureh);
+		if((drawmovareanum!= -1) && mtdareapoints[0][i])
+			Glosdhandle.drawrect(w*(i)-pan360whalf, 0, w, pano360textureh);
 	}
+	
 	Glosdhandle.drawend();
 }
 #endif
@@ -3120,14 +3197,11 @@ void Render::Drawosd()
 		{
 			if(MULTICPUPANO)
 			{
-				if(DetectAlg::getinstance()->getmtdstat())
-				{
 #if USE_DETECTV2
-					DrawmovMultidetectV2();
+				DrawmovMultidetectV2();
 #else
-					DrawmovMultidetect();
+				DrawmovMultidetect();
 #endif
-				}
 			}
 			else
 				Drawmovdetect();
@@ -5758,6 +5832,7 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEVIDEO,livevideo,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_LIVEPHOTO,livephoto,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_VIDEOCLIP,videoclip,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MoveDetectConfig,updatemtdparam,0);
 
 	//MSGID_EXT_INPUT_WorkModeCTRL
 }
@@ -6189,42 +6264,39 @@ void Render::detectconfig(long lparam)
 	int detectareaenable=Status::getinstance()->detectareaenable;
 	int detectareanum=Status::getinstance()->detectareanum;
 	printf("%s:%d detectareaenable=%d detectareanum=%d\n",__func__,__LINE__,detectareaenable,detectareanum);
+
+#if USE_DETECTV2
+	if(1 == detectareaenable)
+	{
+		pthis->drawmovareanum = detectareanum;
+		printf("%s,%d, pthis->drawmovareanum=%d\n", __FILE__,__LINE__, pthis->drawmovareanum);
+	}
+	else 	if(2 == detectareaenable)
+	{
+		for(int i = 0; i < pthis->mtdareapoints[detectareanum].size(); i++)
+			pthis->mtdareapoints[detectareanum][i] = 0;
+	}
+#else
 	if(detectareaenable==2)
-		{
-			pthis->movarearect[detectareanum].detectflag=0;
+	{
+		pthis->movarearect[detectareanum].detectflag=0;
 			
-			ConfigFile::getinstance()->setdetectdate(pthis->movarearect);
-			ConfigFile::getinstance()->detectsave();
-		}
+		ConfigFile::getinstance()->setdetectdate(pthis->movarearect);
+		ConfigFile::getinstance()->detectsave();
+	}
 	else if(detectareaenable==1)
+	{
+		OSA_mutexLock(&pthis->mvlock);
+		pthis->movdrawpoints.clear();
+		OSA_mutexUnlock(&pthis->mvlock);
+		for(int i=0;i<16;i++)
 		{
-			OSA_mutexLock(&pthis->mvlock);
-			pthis->movdrawpoints.clear();
-			OSA_mutexUnlock(&pthis->mvlock);
-			for(int i=0;i<16;i++)
-				{
-					pthis->movarearect[i].singleshowflag=0;
-				}
-			pthis->movarearect[detectareanum].singleshowflag=1;
-			pthis->movconfignum=detectareanum;
-			#if 0
-				if(pthis->movdrawpoints.size()!=4)
-					return ;
-				pthis->mvcontours[detectareanum].clear();
-				
-				for(int i=0;i<pthis->movdrawpoints.size();i++)
-					{
-						pthis->movarearect[detectareanum].area[i].point=pthis->movdrawpoints[i].point;
-						pthis->mvcontours[detectareanum].push_back(pthis->movarearect[detectareanum].area[i].point);
-					}
-					pthis->movarearect[detectareanum].detectflag=1;
-
-				ConfigFile::getinstance()->setdetectdate(pthis->movarearect);
-				ConfigFile::getinstance()->detectsave();
-			#endif
+			pthis->movarearect[i].singleshowflag=0;
 		}
-	
-
+		pthis->movarearect[detectareanum].singleshowflag=1;
+		pthis->movconfignum=detectareanum;
+	}
+#endif
 }
 
 void Render::correcttimeconfig(long lparam)
@@ -6347,6 +6419,14 @@ void Render::videoclip(long lparam)
 {
 	int videoclipflg = Status::getinstance()->videoclipflg;
 	RecordManager::getinstance()->enableclip(videoclipflg);
+}
+void Render::updatemtdparam(long lparam)
+{
+
+	DetectAlg::getinstance()->updatemtdparam();
+#if USE_DETECTV2
+	pthis->drawmovareanum = -1;
+#endif
 }
 void Render::CheckArea(int x,int y)
 {

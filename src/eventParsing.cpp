@@ -1577,7 +1577,7 @@ void CEventParsing::movedetectconfig()
 		mtdcfg_tmp.movedetectalgenable,mtdcfg_tmp.sensitivity,mtdcfg_tmp.speedpriority,\
 		mtdcfg_tmp.movminwidth,mtdcfg_tmp.movminheight,mtdcfg_tmp.moverecordtime);
 
-	if(configchange)
+	//if(configchange)
 	{
 	 	Status::getinstance()->mtdcfg = mtdcfg_tmp;
 		pM->MSGDRIV_send(MSGID_EXT_INPUT_MoveDetectConfig,0);

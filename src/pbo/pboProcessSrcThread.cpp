@@ -39,6 +39,7 @@ void process(SaveIDX id,bool isCapVideo)
 
 	int matW[PIC_COUNT]={1920,ROIFBOW,ROIFBOW,ROIFBOW};
 	int matH[PIC_COUNT]={360,ROIFBOH,ROIFBOH,ROIFBOH};
+	
 
 //	OSA_semWait(render.GetPBORcr(id)->getSemPBO(),100000);
 	Mat testData(matH[id], matW[id], CV_8UC3);
@@ -78,7 +79,7 @@ void process(SaveIDX id,bool isCapVideo)
 	}
 }
 
-void processmtd(SaveIDX id)
+void processmtd(SaveIDX id )
 {
 	int offsetPIC=1920*(1080-360)*3;
 	int offsetROI=0;
@@ -94,16 +95,16 @@ void processmtd(SaveIDX id)
 	int matH[PIC_COUNT]={360,ROIFBOH,ROIFBOH,ROIFBOH, PANO360FBOH};
 
 	Mat testData(matH[id], matW[id], CV_8UC3);
-	bool isCapedFrame=false;
 
+	int processId=render.GetPBORcr(id)->getCurrentPBOIdx();
+	if((char *)*render.GetPBORcr(id)->getPixelBuffer(processId)!=NULL)
+	{
+		memcpy(testData.data,offset[id]+ (char *)*render.GetPBORcr(id)->getPixelBuffer(processId),totalSize[id]);
+		//imwrite("/home/nvidia/calib/realtimevideo/mtdtest.jpg",testData);
+	}
 
-		int processId=render.GetPBORcr(id)->getCurrentPBOIdx();
-		if((char *)*render.GetPBORcr(id)->getPixelBuffer(processId)!=NULL)
-		{
-			memcpy(testData.data,offset[id]+ (char *)*render.GetPBORcr(id)->getPixelBuffer(processId),totalSize[id]);
-			imwrite("/home/nvidia/calib/realtimevideo/mtdtest.jpg",testData);
-		}
-
+	render.GetifRealRecord(id)->PushData(&testData);
+	
 }
 
 void *pbo_process_threadPIC(void *arg)
@@ -178,7 +179,10 @@ void *pbo_process_threadROI_MTD(void *arg)
 	while(1)
 	{
 		OSA_semWait(render.GetPBORcr(ROI_MTD)->getSemPBO(),100000);
-		processmtd(ROI_MTD);
+		if(render.IstoRecordVideo(ROI_MTD))
+		{
+			processmtd(ROI_MTD);
+		}
 	}
 }
 

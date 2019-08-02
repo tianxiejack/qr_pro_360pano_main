@@ -2079,7 +2079,7 @@ void  CEventParsing:: paramtodef(sendInfo * spBuf)
 void  CEventParsing:: recordquerry(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
-	int infosize=15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+2;
+	int infosize=15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size()+1;
 	spBuf->sendBuff[0]=0xEB;
 	spBuf->sendBuff[1]=0x51;
 	spBuf->sendBuff[2]=infosize&0xff;
@@ -2125,12 +2125,36 @@ void  CEventParsing:: recordquerry(sendInfo * spBuf)
 			spBuf->sendBuff[18+i*15]=_globalDate->querrylivetime[i-j].endtmin;
 			spBuf->sendBuff[19+i*15]=_globalDate->querrylivetime[i-j].endsec;
 
-		}
+	}
+
+	j = _globalDate->querrytime.size() + _globalDate->querrylivetime.size();
+
+	for(i =  j; i < j + _globalDate->querrymtdtime.size(); i++)
+	{
+			spBuf->sendBuff[5+i*15]=3;
+			spBuf->sendBuff[6+i*15]=(_globalDate->querrymtdtime[i-j].startyear>>8)&0xff;
+			spBuf->sendBuff[7+i*15]=_globalDate->querrymtdtime[i-j].startyear&0xff;
+			spBuf->sendBuff[8+i*15]=_globalDate->querrymtdtime[i-j].startmon;
+			spBuf->sendBuff[9+i*15]=_globalDate->querrymtdtime[i-j].startday;
+			spBuf->sendBuff[10+i*15]=_globalDate->querrymtdtime[i-j].starthour;
+			spBuf->sendBuff[11+i*15]=_globalDate->querrymtdtime[i-j].startmin;
+			spBuf->sendBuff[12+i*15]=_globalDate->querrymtdtime[i-j].startsec;
+			spBuf->sendBuff[13+i*15]=(_globalDate->querrymtdtime[i-j].endyear>>8)&0xff;
+			spBuf->sendBuff[14+i*15]=_globalDate->querrymtdtime[i-j].endyear&0xff;
+			spBuf->sendBuff[15+i*15]=_globalDate->querrymtdtime[i-j].endmon;
+			spBuf->sendBuff[16+i*15]=_globalDate->querrymtdtime[i-j].endday;
+			spBuf->sendBuff[17+i*15]=_globalDate->querrymtdtime[i-j].endhour;
+			spBuf->sendBuff[18+i*15]=_globalDate->querrymtdtime[i-j].endtmin;
+			spBuf->sendBuff[19+i*15]=_globalDate->querrymtdtime[i-j].endsec;
+
+	}
+
+	
 	//spBuf->sendBuff[5]= (u_int8_t) (_globalDate->mainProStat[ACK_config_Rblock]&0xff);
-	sumCheck=sendCheck_sum(4+1+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size(),spBuf->sendBuff+1);
-	spBuf->sendBuff[4+1+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+1]=(sumCheck&0xff);
-	spBuf->byteSizeSend=4+1+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+2;
-	printf("%s\n",__func__);
+	sumCheck=sendCheck_sum(4+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size(),spBuf->sendBuff+1);
+	spBuf->sendBuff[4+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size()+1]=(sumCheck&0xff);
+	spBuf->byteSizeSend=4+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size()+2;
+	printf("%s, %d, %s\n",__FILE__, __LINE__, __func__);
 }
 
 void  CEventParsing::ackplayertime(sendInfo * spBuf)

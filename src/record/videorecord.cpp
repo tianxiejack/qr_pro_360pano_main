@@ -5,9 +5,11 @@
 #include "cxcore.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include "Render.hpp"
+
 
 VideoRecord* VideoRecord::instance=NULL;
-VideoRecord::VideoRecord():timeenable(1),eventenable(0),tm_year(0),tm_mon(0),tm_mday(0),tm_hour(0),tm_min(0),tm_sec(0),videorecordfb(NULL),aviheadenable(1),
+VideoRecord::VideoRecord():timeenable(1),mtdenable(0),eventenable(0),tm_year(0),tm_mon(0),tm_mday(0),tm_hour(0),tm_min(0),tm_sec(0),videorecordfb(NULL),aviheadenable(1),
 timerdelayenable(0),callback(NULL),forceclose_(0),forcecloseonece_(0)
 {
 
@@ -46,6 +48,19 @@ void VideoRecord::heldrecord()
 	movenableweek=recordpositionheld[1][week-1][hour-1];
 
 	settimerecordenable(timeenableweek);
+
+	if((0 == getmtdecordenable()) && movenableweek)
+	{
+		Render::pthis->set_mtd_record(1);
+		Render::pthis->StartRecordMtdVideo();
+	}
+	if((1 == getmtdecordenable()) && (0 == movenableweek))
+	{
+		Render::pthis->set_mtd_record(0);
+		Render::pthis->StopRecordMtdVideo();
+	}
+			
+	setmtdecordenable(movenableweek);
 
 	if(movenableweek)
 		{	

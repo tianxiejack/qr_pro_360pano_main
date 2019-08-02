@@ -176,6 +176,7 @@ static vector<Read_config_buffer>  readConfigBuffer;
 static vector<int>  defConfigBuffer;
 vector<Recordtime> querrytime;
 vector<Recordtime> querrylivetime;
+vector<Recordtime> querrymtdtime;
 MtdConfig mtdconfig;
 
 SoftVersion softversion;

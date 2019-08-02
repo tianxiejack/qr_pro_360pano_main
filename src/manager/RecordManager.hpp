@@ -44,9 +44,11 @@ public:
 	vector<string> recordvideonames;
 	vector<string> recordfilenames;
 	vector<string> recordlivevideonames;
+	vector<string> recordmtdvideonames;
 
 	vector<Recordmantime> recordtime;
 	vector<Recordmantime> liverecordtime;
+	vector<Recordmantime> mtdrecordtime;
 	string  recordpath;
 	struct{
 		int id;
@@ -73,7 +75,7 @@ public:
 	void setpalyervide(int num, int type);
 	void setselecttime(playerdate_t startparam, playerdate_t selectparam);
 	void removelocalfile(string  path);
-	void getJustCurrentFile(string  path, vector<string> & video,vector<string> & files, vector<string> & livevideo);
+	void getJustCurrentFile(string  path, vector<string> & video,vector<string> & files, vector<string> & livevideo, vector<string> & mtdvideo);
 	 bool startsWith(const std::string& str, const std::string& substr);
 	 bool endsWith(const std::string& str, const std::string& substr);
 	static void recordplaycallback(void *arg);

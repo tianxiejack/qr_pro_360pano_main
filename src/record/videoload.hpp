@@ -21,6 +21,7 @@
 #include <gst/gstinfo.h>
 #include <gst/app/gstappsink.h>
 #include "Status.hpp"
+#include"RecordManager.hpp"
 
 using namespace std;
 typedef struct {
@@ -250,7 +251,11 @@ class VideoLoad{
 		void setselecttime(playerdate_t startparam, playerdate_t selectparam){starttime2 = startparam; selecttime = selectparam;};
 		playerdate_t getselecttime(){return selecttime;};
 		playerdate_t getstarttime(){return starttime2;};
-		void setreadnewfile(int flag){readnewfile=flag;};
+		void setreadnewfile(int flag)
+		{
+			readnewfile=flag;
+			RecordManager::getinstance()->enableplayer(1);
+		};
 		int getreadnewfile(){ return readnewfile;};
 		void setreadname(string name){readname=name;};
 		string getreadname(){return readname;};

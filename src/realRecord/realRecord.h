@@ -20,6 +20,8 @@ public:
 	 void PushData(Mat *pmatSrc);
 	 void StopRecord();
 	 char *GetFileName();
+	 void StartMtdRecord();
+	 void StopMtdRecord();
 private:
 	 int videoIdx;
 	 int videoW;
@@ -27,6 +29,7 @@ private:
 	 int vdieoFrameRate;
 	 Mat frame;
 	 char *mpfilename;
+	 struct tm tm_bak;
 	 VideoWriter outputVideo;
 
 };

@@ -135,7 +135,9 @@ void  processFrameRecord_pano(void *data,void *infodata)
 		{
 			img = Mat(config->getcamheight(),config->getcamwidth(),CV_8UC3, info->virtAddr);
 		}
+
 	memcpy(img.data,framdata,img.cols*img.rows*img.channels());
+
 	info->channels = img.channels();
 	info->width = img.cols;
 	info->height = img.rows;

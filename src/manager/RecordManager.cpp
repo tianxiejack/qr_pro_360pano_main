@@ -20,6 +20,9 @@ RecordManager*RecordManager::instance=NULL;
 #define VIDFMTHEAD "screen"
 #define VIDFMTEND ".h264"
 
+#define MTDHEAD "detect"
+#define MTDEND ".avi"
+
 #define AVCONTENC "/home/nvidia/calib/video/"
 
 #define default_timer	100
@@ -49,7 +52,9 @@ void RecordManager::recordplaycallback(void *arg)
 	if(instance==NULL)
 		return ;
 	if(instance->getableplayer())
-	VideoLoad::getinstance()->playvideo();
+	{
+		VideoLoad::getinstance()->playvideo();
+	}
 	
 }
 
@@ -199,7 +204,7 @@ void RecordManager::removelocalfile(string  path)
 		system(buf);
 	}
 }
-void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vector<string> & files, vector<string> & livevideo)
+void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vector<string> & files, vector<string> & livevideo, vector<string> & mtdvideo)
 {
 
     DIR * dir, *dir2;
@@ -209,6 +214,8 @@ void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vect
     video.clear();
     files.clear();
     livevideo.clear();
+    mtdvideo.clear();
+	
     dir = opendir((char *)path.c_str());
     while((ptr = readdir(dir)) != NULL)
     	{
@@ -251,6 +258,17 @@ void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vect
 								livevideo.push_back(names);
 					      		}
 						}
+						else if(startsWith(names,MTDHEAD))
+						{
+					      		if(endsWith(names,MTDEND))
+					      		{
+								if(names.length()> strlen("detect_20190801-144300.avi"))
+								{
+									printf("%s, %d,names=%s\n", __FILE__,__LINE__, names.c_str());
+									mtdvideo.push_back(names);
+								}
+					      		}
+						}
 					}
 				}
 				closedir(dir2);
@@ -276,6 +294,17 @@ void RecordManager::getJustCurrentFile(string  path, vector<string> & video,vect
 				{
 					printf("%s, %d,names=%s\n", __FILE__,__LINE__, names.c_str());
 					livevideo.push_back(names);
+				}
+			}
+			else if(startsWith(names,MTDHEAD))
+			{
+				if(endsWith(names,MTDEND))
+				{
+					if(names.length()> strlen("detect_20190801-144300.avi"))
+					{
+						printf("%s, %d,names=%s\n", __FILE__,__LINE__, names.c_str());
+						mtdvideo.push_back(names);
+					}
 				}
 			}
 		} 
@@ -373,10 +402,11 @@ void RecordManager::ringrecord()
 void RecordManager::findrecordnames()
 {
 	//string temp;
-	getJustCurrentFile(recordpath, recordvideonames,recordfilenames,recordlivevideonames);
+	getJustCurrentFile(recordpath, recordvideonames,recordfilenames,recordlivevideonames,recordmtdvideonames);
 	Recordmantime data;
 	recordtime.clear();
 	liverecordtime.clear();
+	mtdrecordtime.clear();
 	int onece=0;
 	
 	for(int i=0;i<recordvideonames.size();i++)
@@ -418,6 +448,14 @@ void RecordManager::findrecordnames()
 		
 		liverecordtime.push_back(data);
 	}
+	for(int i=0;i<recordmtdvideonames.size();i++)
+	{
+		string videname=recordmtdvideonames[i];
+		sscanf(videname.c_str(),"detect_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",&data.startyear,&data.startmon,&data.startday,&data.starthour\
+			,&data.startmin,&data.startsec,&data.endyear,&data.endmon,&data.endday,&data.endhour,&data.endtmin,&data.endsec);
+		
+		mtdrecordtime.push_back(data);
+	}
 }
 
 
@@ -441,6 +479,12 @@ void RecordManager::setpalyervide(int num, int type)
 	else if(live_video == type)
 	{
 		count=recordlivevideonames.size();
+		if(num>=count)
+			return ;
+	}
+	else if(mtd_video == type)
+	{
+		count=recordmtdvideonames.size();
 		if(num>=count)
 			return ;
 	}
@@ -472,6 +516,15 @@ void RecordManager::setpalyervide(int num, int type)
 		VideoLoad::getinstance()->setreadavi(videname, type);
 		VideoLoad::getinstance()->setreadnewfile(1);
 	}
+	else if(mtd_video == type)
+	{
+		string videname=recordmtdvideonames[num];
+		string directory = videname.substr(strlen(MTDHEAD)+strlen("_"), 8);
+		videname = directory + "/" + videname;
+		cout<<"RecordManager 522 setreadavi:"<<videname<<endl;
+		VideoLoad::getinstance()->setreadavi(videname, type);
+		VideoLoad::getinstance()->setreadnewfile(1);
+	}
 }
 
 void RecordManager::getnexvideo()
@@ -487,6 +540,12 @@ void RecordManager::getnexvideo()
 	else if(live_video == nextvideo.type)
 	{
 		num = recordlivevideonames.size();
+		if(num == 0)
+			return ;
+	}
+	else if(mtd_video == nextvideo.type)
+	{
+		num = recordmtdvideonames.size();
 		if(num == 0)
 			return ;
 	}
@@ -521,6 +580,18 @@ void RecordManager::getnexvideo()
 			&lastdate.startyear,&lastdate.startmon,&lastdate.startday,&lastdate.starthour,&lastdate.startmin,&lastdate.startsec,
 			&lastdate.endyear,&lastdate.endmon,&lastdate.endday,&lastdate.endhour,&lastdate.endtmin,&lastdate.endsec);
 	}
+	else if(mtd_video == nextvideo.type)
+	{
+		videname = recordmtdvideonames[nextvideo.id];
+		sscanf(videname.c_str(),"detect_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+			&nowdate.startyear,&nowdate.startmon,&nowdate.startday,&nowdate.starthour,&nowdate.startmin,&nowdate.startsec,
+			&nowdate.endyear,&nowdate.endmon,&nowdate.endday,&nowdate.endhour,&nowdate.endtmin,&nowdate.endsec);
+
+		sscanf(lastname.c_str(),"detect_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+			&lastdate.startyear,&lastdate.startmon,&lastdate.startday,&lastdate.starthour,&lastdate.startmin,&lastdate.startsec,
+			&lastdate.endyear,&lastdate.endmon,&lastdate.endday,&lastdate.endhour,&lastdate.endtmin,&lastdate.endsec);
+	}
+
 
 	time_t nowsec = VideoLoad::getinstance()->date2sec(nowdate.startyear,nowdate.startmon,nowdate.startday,nowdate.starthour,nowdate.startmin,nowdate.startsec);
 	time_t lastsec = VideoLoad::getinstance()->date2sec(lastdate.endyear,lastdate.endmon,lastdate.endday,lastdate.endhour,lastdate.endtmin,lastdate.endsec);
@@ -528,6 +599,7 @@ void RecordManager::getnexvideo()
 	vector<string> *pother_vec = NULL;
 	if(timer_video == nextvideo.type)
 	{
+		time_t sec_tmp_1 = 0;
 		pother_vec = &recordlivevideonames;
 		printf("%s,%d, pother_vec->size()=%d\n",__FILE__, __LINE__,  pother_vec->size());
 		for(int i = 0; i < pother_vec->size(); i++)
@@ -547,6 +619,7 @@ void RecordManager::getnexvideo()
 					videname = pother_vec->at(i);
 					nowdate = date_tmp;
 					nextvideo.type = live_video;
+					sec_tmp_1 = sec_tmp;
 					break;
 				}
 			}	
@@ -557,7 +630,46 @@ void RecordManager::getnexvideo()
 					videname = pother_vec->at(i);
 					nowdate = date_tmp;
 					nextvideo.type = live_video;
+					sec_tmp_1 = sec_tmp;
 					break;
+				}
+			}
+		}
+		pother_vec = &recordmtdvideonames;
+		for(int i = 0; i < pother_vec->size(); i++)
+		{
+			string name_tmp = pother_vec->at(i);
+			Recordmantime date_tmp;
+			sscanf(name_tmp.c_str(),"detect_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+				&date_tmp.startyear,&date_tmp.startmon,&date_tmp.startday,&date_tmp.starthour,&date_tmp.startmin,&date_tmp.startsec,
+				&date_tmp.endyear,&date_tmp.endmon,&date_tmp.endday,&date_tmp.endhour,&date_tmp.endtmin,&date_tmp.endsec);
+
+			time_t sec_tmp = VideoLoad::getinstance()->date2sec(date_tmp.startyear,date_tmp.startmon,date_tmp.startday,date_tmp.starthour,date_tmp.startmin,date_tmp.startsec);
+			printf("%s,%d,lastsec=%d, nowsec=%d, sec_tmp=%d,nextvideo.id=%d\n", __FILE__, __LINE__, lastsec, nowsec, sec_tmp, nextvideo.id);
+			if(nextvideo.id == 0)
+			{
+				if(sec_tmp > lastsec)
+				{
+					if((sec_tmp_1 ==0) || ((sec_tmp_1 > 0) &&(sec_tmp < sec_tmp_1)))
+					{
+						videname = pother_vec->at(i);
+						nowdate = date_tmp;
+						nextvideo.type = mtd_video;
+						break;
+					}
+				}
+			}	
+			else 
+			{
+				if((sec_tmp > lastsec) && (sec_tmp < nowsec))
+				{
+					if((sec_tmp_1 ==0) || ((sec_tmp_1 > 0) &&(sec_tmp < sec_tmp_1)))
+					{
+						videname = pother_vec->at(i);
+						nowdate = date_tmp;
+						nextvideo.type = mtd_video;
+						break;
+					}
 				}
 			}
 		}
@@ -565,6 +677,7 @@ void RecordManager::getnexvideo()
 	}
 	else if(live_video == nextvideo.type)
 	{
+		time_t sec_tmp_1 = 0;
 		pother_vec = &recordvideonames;
 		printf("%s,%d, pother_vec->size()=%d\n",__FILE__, __LINE__,  pother_vec->size());
 		for(int i = 0; i < pother_vec->size(); i++)
@@ -584,6 +697,7 @@ void RecordManager::getnexvideo()
 					videname = pother_vec->at(i);
 					nowdate = date_tmp;
 					nextvideo.type = timer_video;
+					sec_tmp_1 = sec_tmp;
 					break;
 				}
 			}
@@ -594,12 +708,133 @@ void RecordManager::getnexvideo()
 					videname = pother_vec->at(i);
 					nowdate = date_tmp;
 					nextvideo.type = timer_video;
+					sec_tmp_1 = sec_tmp;
 					break;
+				}
+			}
+		}
+
+		pother_vec = &recordmtdvideonames;
+		for(int i = 0; i < pother_vec->size(); i++)
+		{
+			string name_tmp = pother_vec->at(i);
+			Recordmantime date_tmp;
+			sscanf(name_tmp.c_str(),"detect_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+				&date_tmp.startyear,&date_tmp.startmon,&date_tmp.startday,&date_tmp.starthour,&date_tmp.startmin,&date_tmp.startsec,
+				&date_tmp.endyear,&date_tmp.endmon,&date_tmp.endday,&date_tmp.endhour,&date_tmp.endtmin,&date_tmp.endsec);
+
+			time_t sec_tmp = VideoLoad::getinstance()->date2sec(date_tmp.startyear,date_tmp.startmon,date_tmp.startday,date_tmp.starthour,date_tmp.startmin,date_tmp.startsec);
+			printf("%s,%d,lastsec=%d, nowsec=%d, sec_tmp=%d,nextvideo.id=%d\n", __FILE__, __LINE__, lastsec, nowsec, sec_tmp, nextvideo.id);
+			if(nextvideo.id == 0)
+			{
+				if(sec_tmp > lastsec)
+				{
+					if((sec_tmp_1 ==0) || ((sec_tmp_1 > 0) &&(sec_tmp < sec_tmp_1)))
+					{
+						videname = pother_vec->at(i);
+						nowdate = date_tmp;
+						nextvideo.type = mtd_video;
+						break;
+					}
+				}
+			}	
+			else 
+			{
+				if((sec_tmp > lastsec) && (sec_tmp < nowsec))
+				{
+					if((sec_tmp_1 ==0) || ((sec_tmp_1 > 0) &&(sec_tmp < sec_tmp_1)))
+					{
+						videname = pother_vec->at(i);
+						nowdate = date_tmp;
+						nextvideo.type = mtd_video;
+						break;
+					}
 				}
 			}
 		}
 	}
 	
+	else if(mtd_video == nextvideo.type)
+	{
+		time_t sec_tmp_1 = 0;
+		pother_vec = &recordvideonames;
+		printf("%s,%d, pother_vec->size()=%d\n",__FILE__, __LINE__,  pother_vec->size());
+		for(int i = 0; i < pother_vec->size(); i++)
+		{
+			string name_tmp = pother_vec->at(i);
+			Recordmantime date_tmp;
+			sscanf(name_tmp.c_str(),"record_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.avi",
+				&date_tmp.startyear,&date_tmp.startmon,&date_tmp.startday,&date_tmp.starthour,&date_tmp.startmin,&date_tmp.startsec,
+				&date_tmp.endyear,&date_tmp.endmon,&date_tmp.endday,&date_tmp.endhour,&date_tmp.endtmin,&date_tmp.endsec);
+
+			time_t sec_tmp = VideoLoad::getinstance()->date2sec(date_tmp.startyear,date_tmp.startmon,date_tmp.startday,date_tmp.starthour,date_tmp.startmin,date_tmp.startsec);
+			printf("%s,%d,lastsec=%d, nowsec=%d, sec_tmp=%d,nextvideo.id=%d\n", __FILE__, __LINE__, lastsec, nowsec, sec_tmp, nextvideo.id);
+			if(nextvideo.id == 0)
+			{
+				if(sec_tmp > lastsec)
+				{
+					videname = pother_vec->at(i);
+					nowdate = date_tmp;
+					nextvideo.type = timer_video;
+					sec_tmp_1 = sec_tmp;
+					break;
+				}
+			}
+			else
+			{
+				if((sec_tmp > lastsec) && (sec_tmp < nowsec))
+				{
+					videname = pother_vec->at(i);
+					nowdate = date_tmp;
+					nextvideo.type = timer_video;
+					sec_tmp_1 = sec_tmp;
+					break;
+				}
+			}
+		}
+		pother_vec = &recordlivevideonames;
+		printf("%s,%d, pother_vec->size()=%d\n",__FILE__, __LINE__,  pother_vec->size());
+		for(int i = 0; i < pother_vec->size(); i++)
+		{
+			string name_tmp = pother_vec->at(i);
+			Recordmantime date_tmp;
+			sscanf(name_tmp.c_str(),"screen_%04d%02d%02d-%02d%02d%02d_%04d%02d%02d-%02d%02d%02d.h264",
+				&date_tmp.startyear,&date_tmp.startmon,&date_tmp.startday,&date_tmp.starthour,&date_tmp.startmin,&date_tmp.startsec,
+				&date_tmp.endyear,&date_tmp.endmon,&date_tmp.endday,&date_tmp.endhour,&date_tmp.endtmin,&date_tmp.endsec);
+
+			time_t sec_tmp = VideoLoad::getinstance()->date2sec(date_tmp.startyear,date_tmp.startmon,date_tmp.startday,date_tmp.starthour,date_tmp.startmin,date_tmp.startsec);
+			printf("%s,%d,lastsec=%d, nowsec=%d, sec_tmp=%d,nextvideo.id=%d\n", __FILE__, __LINE__, lastsec, nowsec, sec_tmp, nextvideo.id);
+			if(nextvideo.id == 0)
+			{
+				if(sec_tmp > lastsec)
+				{
+					if((sec_tmp_1 ==0) || ((sec_tmp_1 > 0) &&(sec_tmp < sec_tmp_1)))
+					{
+						videname = pother_vec->at(i);
+						nowdate = date_tmp;
+						nextvideo.type = live_video;
+						sec_tmp_1 = sec_tmp;
+						break;
+					}
+				}
+			}	
+			else 
+			{
+				if((sec_tmp > lastsec) && (sec_tmp < nowsec))
+				{
+					if((sec_tmp_1 ==0) || ((sec_tmp_1 > 0) &&(sec_tmp < sec_tmp_1)))
+					{
+						videname = pother_vec->at(i);
+						nowdate = date_tmp;
+						nextvideo.type = live_video;
+						sec_tmp_1 = sec_tmp;
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	if((nowdate.startyear != lastdate.startyear) ||(nowdate.startmon != lastdate.startmon) ||(nowdate.startday != lastdate.startday))
 	{
 		Status::getinstance()->playerqueryyear = nowdate.startyear;
@@ -607,6 +842,7 @@ void RecordManager::getnexvideo()
 		Status::getinstance()->playerqueryday = nowdate.startday;
 		playerquerry();
 	}
+
 	playerdate_t starttime2;
 	playerdate_t selecttime;
 	selecttime.year = starttime2.year =  nowdate.startyear;
@@ -639,6 +875,14 @@ void RecordManager::getnexvideo()
 		cout<<"2[getnexvideo]:"<<videname<<endl;
 		VideoLoad::getinstance()->setreadnewfile(1);
 	}
+	else 	if(mtd_video == nextvideo.type)
+	{
+		string directory = videname.substr(strlen(MTDHEAD)+strlen("_"), 8);
+		videname = directory + "/" + videname;
+		VideoLoad::getinstance()->setreadavi(videname, nextvideo.type);
+		cout<<"3[getnexvideo]:"<<videname<<endl;
+		VideoLoad::getinstance()->setreadnewfile(1);
+	}
 }
 
 void RecordManager::setdataheldrecord(int a[2][7][24])
@@ -660,6 +904,7 @@ void RecordManager::playerquerry()
 	Recordmantime recorddate;
 	CGlobalDate::Instance()->querrytime.clear();
 	CGlobalDate::Instance()->querrylivetime.clear();
+	CGlobalDate::Instance()->querrymtdtime.clear();
 	for(int i=0;i<recordtime.size();i++)
 	{
 		recorddate=recordtime[i];
@@ -706,6 +951,30 @@ void RecordManager::playerquerry()
 			data.endtmin=recorddate.endtmin;
 			data.endsec=recorddate.endsec;
 			CGlobalDate::Instance()->querrylivetime.push_back(data);
+		}
+	}
+
+	for(int i=0;i<mtdrecordtime.size();i++)
+	{
+		recorddate=mtdrecordtime[i];
+			
+		if(((recorddate.startyear==year)&&(recorddate.startmon==mon)&&(recorddate.startday==day))||\
+			((recorddate.endyear==year)&&(recorddate.endmon==mon)&&(recorddate.endday==day)))
+		{
+			data.startyear=recorddate.startyear;
+			data.startmon=recorddate.startmon;
+			data.startday=recorddate.startday;
+			data.starthour=recorddate.starthour;
+			data.startmin=recorddate.startmin;
+			data.startsec=recorddate.startsec;
+
+			data.endyear=recorddate.endyear;
+			data.endmon=recorddate.endmon;
+			data.endday=recorddate.endday;
+			data.endhour=recorddate.endhour;
+			data.endtmin=recorddate.endtmin;
+			data.endsec=recorddate.endsec;
+			CGlobalDate::Instance()->querrymtdtime.push_back(data);
 		}
 	}
 

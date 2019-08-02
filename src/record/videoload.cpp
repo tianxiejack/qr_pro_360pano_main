@@ -3,7 +3,6 @@
 #include"Queuebuffer.hpp"
 #include "CMessage.hpp"
 #include "globalDate.h"
-#include"RecordManager.hpp"
 
 VideoLoad* VideoLoad::instance=NULL;
 #define DIRRECTDIR  "/home/nvidia/calib/video/"
@@ -495,11 +494,12 @@ void VideoLoad::main_Recv_func()
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{	
 		int capangle=0;
-
 		OSA_semWait(&loadsem,OSA_TIMEOUT_FOREVER);
 
 		if(RTSPURL)
 			return;
+
+		//printf("%s,%d,getreadnewfile()=%d\n",__FILE__, __LINE__, getreadnewfile());
 		if(getreadnewfile())
 		{
 				setreadnewfile(0);
@@ -517,17 +517,22 @@ void VideoLoad::main_Recv_func()
 
 				if(OPENCVAVI)
 				videocapture.release();
-
-				mydata.close();
+				
+				if(getreadavi_type() == timer_video)
+					mydata.close();
+				
 				if(OPENCVAVI)
 				{
+					cout<<"open:"<<aviname<<endl;
 					videocapture.open(aviname);
 					videocapture.set(CV_CAP_PROP_POS_MSEC, msec);
 				}
 
-				mydata.open(xmlname.c_str());
+				if(getreadavi_type() == timer_video)
+					mydata.open(xmlname.c_str());
 
 		}
+
 		
 		if(OPENCVAVI)
 		status=videocapture.read(fileframe);
@@ -541,6 +546,7 @@ void VideoLoad::main_Recv_func()
 		{
 			printf("%s, %d, get next video!!!\n", __FILE__,__LINE__);
 			RecordManager::getinstance()->getnexvideo();
+			continue;
 		}
 		
 		if(callfun!=NULL)
@@ -559,7 +565,6 @@ void VideoLoad::main_Recv_func()
 					playertime_tmp.min = info->tm_min;
 					playertime_tmp.sec = info->tm_sec;
 					ACK_response_playertime(playertime_tmp);
-					
 					callfun(fileframe.data,&loaddata);
 				}
 		}
@@ -569,6 +574,8 @@ void VideoLoad::main_Recv_func()
 		else
 		getgstframeend();
 	}
+
+
 }
 
 void VideoLoad::main_Recv_funcdata()

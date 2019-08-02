@@ -520,10 +520,15 @@ public:
 	void StopRecordAllVideo();
 	bool IstoSavePic(SaveIDX idx){return CapOnce[idx];};
 	void ResetSaveState(SaveIDX idx){CapOnce[idx]=false;};
+	void StartRecordMtdVideo();
+	void StopRecordMtdVideo();
 
 	bool IstoRecordVideo(SaveIDX idx){return mRecord[idx];};
 	void ResetRecordState(SaveIDX idx){mRecord[idx]=false;};
 	IFrealRecord *GetifRealRecord(int idx){return mpifRecord[idx];};
+
+	void set_mtd_record(int stat){mtd_record = stat;};
+	int get_mtd_record(){return mtd_record;};
 
 public:
 	unsigned int Fullscreen;
@@ -534,7 +539,7 @@ private:
 	bool CapOnce[PIC_COUNT];
 	bool mRecord[PIC_COUNT];
 	float mul;
-	int mtd_stat = 0;
+	int mtd_record = 0;
 
 
 	pPBO_FBO_Facade pFPfacade[PIC_COUNT];

@@ -473,7 +473,10 @@ int HDv4l_cam::read_frame(int cap_chid)
 				assert(buf.index < n_buffers);
 			 if (buffers[buf.index].start!=NULL)
 			{
+				//double exec_time = (double)getTickCount();
 				 PROCESS_FRAME(cap_chid,(unsigned char *)buffers[buf.index].start, buf, imgformat);
+				//exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
+     				//printf("%s:line=%d, %f\n",__func__, __LINE__, exec_time);
 #if USE_QUE
 				 v4l2_buffer* ptemp=NULL;
 				 int 	 chid =-1;

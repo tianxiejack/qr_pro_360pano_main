@@ -274,8 +274,12 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 
 
 		}
-	else
+	else{
+		//double exec_time = (double)getTickCount();
 		cvtColor(cap,img,CV_YUV2BGR_YUYV);
+		//exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
+     		//printf("%s:line=%d, %f\n",__func__, __LINE__, exec_time);
+		}
 		
 
 	

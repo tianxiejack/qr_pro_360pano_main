@@ -304,7 +304,10 @@ int CabinPushData(RecordHandle *recordHandle, char *pbuffer , int datasize)
 
 	gst_buffer_ref(buffer);
 	//printf("push data %d************\n", datasize);
+	//double exec_time = (double)getTickCount();
 	ret = gst_app_src_push_buffer(GST_APP_SRC(pData->source), buffer);
+	//exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
+     	//printf("%f\n", exec_time);
 	if(ret != GST_FLOW_OK)
 	{
 		//pData->stopInput = 1;

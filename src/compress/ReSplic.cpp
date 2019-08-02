@@ -11,7 +11,8 @@
  void SaveVideoByGST::init()
  {
 
-	 char rgba[8]="RGBA";
+	// char rgba[8]="RGBA";
+	char rgba[8]="I420";
 #if 1
 	 FLIP_METHOD flip=FLIP_METHOD_ROTATE_180;
 	 record_handle = CabinInit(1920,1080,30,rgba,1,flip);
@@ -62,12 +63,18 @@
 	 }
 #endif
  	Mat Tmp(1080,1920,CV_8UC4);
- 	cvtColor(*pmatSrc, Tmp,CV_BGR2RGBA);
+	//double exec_time = (double)getTickCount();
+	
+ 	//cvtColor(*pmatSrc, Tmp,CV_BGR2RGBA);
+	cvtColor(*pmatSrc, Tmp,CV_BGR2YUV_I420);
+
 	 //Mat Dst(1080,1920,CV_8UC4);
 	 //flip(Tmp,Dst,0);
 #if 1
 	 CabinPushData(record_handle, (char *)Tmp.data , 1920*1080*4);
 #endif
+	//exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
+     	//printf("%s:%f\n",__func__, exec_time);
  }
 
 

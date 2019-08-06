@@ -949,7 +949,6 @@ void Render::RenderScene(void)
 		
 		// Clear the window with current clearing color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 		switch(displayMode)
 		{
 			case SINGLE_VIDEO_VIEW_MODE:
@@ -2731,6 +2730,7 @@ void Render::mousemovrectv2()
 void Render::movMultidetectrectV2()
 {
 	detectbox_angle_t detect_tempV2;
+	std::vector<cv::Rect>	detect_temp;
 	std::vector<cv::Rect>	detect_temp180;
 	std::vector<cv::Rect>	detect_temp360;
 

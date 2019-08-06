@@ -40,7 +40,7 @@
 #include "eventParsing.hpp"
 #include "CMessage.hpp"
 #include "globalDate.h"
-
+#include"cucolor.hpp"
 extern ptzProxyMsg ptzmsg;
 static GLMain render;
 
@@ -183,6 +183,7 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 	int calibration=0;
 	setgyrostart(Plantformpzt::getinstance()->getplantinitflag());
 	Mat cap;// = Mat(TV_HEIGHT,TV_WIDTH,CV_8UC2,src);
+	Mat yuv;
 
 	if(cap_chid==TV_DEV_ID)
 		{
@@ -276,7 +277,21 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 		}
 	else{
 		//double exec_time = (double)getTickCount();
+		
 		cvtColor(cap,img,CV_YUV2BGR_YUYV);
+
+//		yuyv2BGR(cap,img);
+
+/*
+		yuv.create(cap.rows*3/2,cap.cols,CV_8UC1);
+		unsigned char *pY, *pU, *pV, *pYUYV;
+		pYUYV = cap.data;
+		pY = yuv.data;
+		pU = yuv.data+cap.cols*cap.rows;
+		pV = yuv.data+(cap.cols*cap.rows*5>>2);
+
+		cvtColor(img, yuv,CV_BGR2YUV_I420);
+*/
 		//exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
      		//printf("%s:line=%d, %f\n",__func__, __LINE__, exec_time);
 		}
@@ -324,6 +339,7 @@ void processFrame_pano(int cap_chid,unsigned char *src, struct v4l2_buffer capIn
 extern opencvCapIP cvCapIp;
 int main_pano(int argc, char **argv)
 {
+	//cuinit();
 	/* Initialize GStreamer */
 	gst_init (NULL, NULL);
 	#if CONFIGINIT

@@ -72,6 +72,7 @@
 	 //flip(Tmp,Dst,0);
 #if 1
 	 CabinPushData(record_handle, (char *)Tmp.data , 1920*1080*4);
+	 //CabinPushData(record_handle, (char *)pmatSrc->data , 1920*1080*3/2);
 #endif
 	//exec_time = ((double)getTickCount() - exec_time)*1000./getTickFrequency();
      	//printf("%s:%f\n",__func__, exec_time);

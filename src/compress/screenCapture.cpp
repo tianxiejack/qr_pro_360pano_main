@@ -413,6 +413,7 @@ static void * thrdhndl_push_buffer(void* arg)
 	{
 		return NULL;
 	}
+	
 	while(pData->bPush){
 		//OSA_semWait(&pData->pushSem, OSA_TIMEOUT_FOREVER);
 		if(!pData->bPush)
@@ -432,6 +433,7 @@ static void * thrdhndl_push_buffer(void* arg)
 			}
 #endif
 			src=Mat(pData->height,pData->width,CV_8UC3,bufInfo->virtAddr);
+#if 0
 			if(inputfmt == 1)
 			{
 				remap(src, dst, pData->Screenmapx, pData->Screenmapy, CV_INTER_LINEAR, BORDER_CONSTANT, Scalar(0,0,0) );
@@ -448,6 +450,12 @@ static void * thrdhndl_push_buffer(void* arg)
 			else
 			{
 			}
+#else
+			//src.copyTo(dst);
+			for(int j=0; j<src.rows;j++){
+				memcpy((unsigned char*)dst.data + j * dst.step , (unsigned char*)src.data + (src.rows-j) * src.step, src.cols*src.channels());
+			}
+#endif
 			#if 1
 			//GstBuffer *buffer = (GstBuffer *)bufInfo->physAddr;
 			if(pDataShot != NULL && pDataShot->bRec)

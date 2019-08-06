@@ -50,6 +50,7 @@ src/live555/BasicUsageEnvironment \
 src/gpio \
 src/glcom \
 src/detect \
+src/cuda \
 src/configfile \
 src/config \
 src/compress \

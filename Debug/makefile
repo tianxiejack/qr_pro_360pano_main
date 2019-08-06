@@ -34,6 +34,7 @@ RM := rm -rf
 -include src/gpio/subdir.mk
 -include src/glcom/subdir.mk
 -include src/detect/subdir.mk
+-include src/cuda/subdir.mk
 -include src/configfile/subdir.mk
 -include src/config/subdir.mk
 -include src/compress/subdir.mk

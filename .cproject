@@ -82,6 +82,7 @@
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/gstreamer-1.0/include"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/glib-2.0/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/X11"/>
+									<listOptionValue builtIn="false" value="../src/cuda"/>
 								</option>
 								<option id="nvcc.compiler.compileroptions.624954633" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions"/>
 								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
@@ -232,6 +233,7 @@
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/gstreamer-1.0/include"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/glib-2.0/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/X11"/>
+									<listOptionValue builtIn="false" value="../src/cuda"/>
 								</option>
 								<option id="nvcc.compiler.compileroptions.2028599137" name="Preprocessor options (-Xcompiler)" superClass="nvcc.compiler.compileroptions"/>
 								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">

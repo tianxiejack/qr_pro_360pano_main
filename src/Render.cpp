@@ -5238,7 +5238,7 @@ void Render::MouseSelectpos()
 					//panposx=x*pano360texturew/(2*renderwidth)-(Config::getinstance()->getpanoprocesswidth()-PANOSRCSHIFT)/2;
 					panposx=x*pano360texturew/(2*renderwidth)+Config::getinstance()->getpanoprocessshift()-(Config::getinstance()->getpanoprocesswidth()+Config::getinstance()->getpanoprocesstailcut())/2;
 					mouseangle=offet2anglepano(panposx);
-					mousetitleangle=1.0*(cent180y-y)*Config::getinstance()->getcam_fixcamereafov()/(cent180h)+getptzzerotitleangle();
+					mousetitleangle=1.0*(cent180y - y)*Config::getinstance()->getcam_fixcamereafov()/(cent180h);//+getptzzerotitleangle();
 					//pano360texturew;
 					//mouseangle
 				}
@@ -5247,23 +5247,29 @@ void Render::MouseSelectpos()
 					panposx=(x+renderwidth)*pano360texturew/(renderwidth*2)+Config::getinstance()->getpanoprocessshift()-(Config::getinstance()->getpanoprocesswidth())/2;
 					mouseangle=offet2anglepano(panposx);
 
-					mousetitleangle=1.0*(cent360y-y)*Config::getinstance()->getcam_fixcamereafov()/(cent360h)+getptzzerotitleangle();
+					mousetitleangle=1.0*(cent360y - y)*Config::getinstance()->getcam_fixcamereafov()/(cent360h);//+getptzzerotitleangle();
 
 				}
 			
 			mouseangle+=getptzzeroangle();
+
 			if(mouseangle>360)
 				mouseangle=mouseangle-360;
 			else if(mouseangle<0)
 				mouseangle=mouseangle+360;
 
 
+
 			
 	//		mousetitleangle=mousetitleangle;
+
+			mousetitleangle = -mousetitleangle;
+			
 				if(mousetitleangle>360)
 				mousetitleangle=mousetitleangle-360;
 			else if(mousetitleangle<0)
 				mousetitleangle=mousetitleangle+360;
+
 			printf("the angle =%f   zero tile=%f \n",mousetitleangle,getptzzerotitleangle());
 			setscanpanflag(0);
 			if(displayMode==PANO_360_MODE)

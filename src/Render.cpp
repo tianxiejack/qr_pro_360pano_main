@@ -1599,6 +1599,10 @@ void Render::Panotexture(void)
 	{
 		mtdareapoints[i].resize(mtdpositonnum);
 	}
+	for(int i = 0; i < mtdpositonnum; i++)
+	{
+		mtdareapoints[0][i] = 1;
+	}
 #endif
 
 }
@@ -2618,7 +2622,7 @@ void Render::movMultidetectrect()
 	Rect camrect;
 	Point point;
 	for(int i=0;i<MULTICPUPANONUM;i++)
-		{
+		{			
 			getmvdetect(detect_temp,i);
 			mvdetectup(detect_temp);
 			Multipotionto360(detect_temp,i);
@@ -2744,6 +2748,9 @@ void Render::movMultidetectrectV2()
 	Point point;
 	for(int i=0;i<MULTICPUPANONUM;i++)
 		{
+			if(mtdareapoints[0][i] ==0)
+				continue;
+					
 			std::vector<cv::Rect> detect_temp;
 			getmvdetectV2(detect_tempV2,i);
 			mvdetectupV2(detect_tempV2);
@@ -3198,11 +3205,14 @@ void Render::Drawosd()
 		{
 			if(MULTICPUPANO)
 			{
+				if(DetectAlg::getinstance()->getmtdstat())
+				{
 #if USE_DETECTV2
-				DrawmovMultidetectV2();
+					DrawmovMultidetectV2();
 #else
-				DrawmovMultidetect();
+					DrawmovMultidetect();
 #endif
+				}
 			}
 			else
 				Drawmovdetect();

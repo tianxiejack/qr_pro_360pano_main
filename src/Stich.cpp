@@ -469,7 +469,9 @@ void  getmvdetect(std::vector<cv::Rect> &mv,int chid)
 	OSA_mutexLock(&disLock[chid]);
 	mv.clear();
 	for(int i=0;i<mvtect[chid].size();i++)
+	{
 		mv.push_back(mvtect[chid][i]);
+	}
 	OSA_mutexUnlock(&disLock[chid]);
 	
 }

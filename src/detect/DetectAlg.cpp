@@ -8,9 +8,9 @@
 #include<sys/stat.h>
 #include "CMessage.hpp"
 #include"Status.hpp"
+#include "Render.hpp"
 
 DetectAlg*DetectAlg::instance=NULL;
-
 
 #if USE_DETECTV2
 void DetectAlg::initmtdparam(int texturewidth)
@@ -195,7 +195,7 @@ void DetectAlg::panomoveprocessV2()
 					Rect roi=Rect(0,0,LKRramegrayblackboard.cols,LKRramegrayblackboard.rows);
 					bool roienable=false;
 					mtd_curangle[blocknum] = getcurrentcapangle();
-					//if(render.mtdareapoints[0][blocknum])
+					if(Render::pthis->mtdareapoints[0][blocknum])
 						detectornew->detectasync(LKRramegrayblackboard, blocknum, roi, roienable);
 				}
 			}

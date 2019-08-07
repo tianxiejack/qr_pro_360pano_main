@@ -621,7 +621,7 @@ void DetectAlg::create()
 	//mk_dir("/home/nvidia/calib/");
 	for(int i=0;i<MULTICPUPANONUM;i++)
 		{
-			sprintf(bufname,"/home/nvidia/calib/mov%d.avi",i);
+			//sprintf(bufname,"/home/nvidia/calib/mov%d.avi",i);
 			//videowriter[i].open(bufname, CV_FOURCC('M', 'J', 'P', 'G'),rate, videoSize, false);
 		}
 	

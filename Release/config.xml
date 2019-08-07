@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<camera>
+  <cam_width>1920</cam_width>
+  <cam_height>1080</cam_height>
+  <cam_channel>3</cam_channel>
+  <cam_fx>4800.</cam_fx>
+  <cam_fy>1800.</cam_fy>
+  <cam_ox>960.</cam_ox>
+  <cam_oy>540.</cam_oy>
+  <cam_k1>0.</cam_k1>
+  <cam_k2>0.</cam_k2>
+  <cam_k3>0.</cam_k3>
+  <cam_k4>0.</cam_k4>
+  <cam_readfromfile>0</cam_readfromfile>
+  <cam_fixcamereafov>18</cam_fixcamereafov></camera>
+<display>
+  <displayresolution>0</displayresolution>
+  <display_width>1920</display_width>
+  <display_height>1080</display_height>
+  <display_channel>3</display_channel></display>
+<panoalg>
+  <panoprocesswidth>1920</panoprocesswidth>
+  <panoprocessheight>1080</panoprocessheight>
+  <panozeroptz>0.</panozeroptz>
+  <panozeroptztitle>0.</panozeroptztitle>
+  <panoprocessshift>0</panoprocessshift>
+  <panoprocesstailcut>128</panoprocesstailcut>
+  <panocylinder>0</panocylinder>
+  <panofusion>1</panofusion>
+  <angleinterval>1.</angleinterval>
+  <panocalibration>1</panocalibration></panoalg>
+<mvdetect>
+  <mvenable>0</mvenable>
+  <mvprocesswidth>1920</mvprocesswidth>
+  <mvprocessheight>1080</mvprocessheight>
+  <mvdownup>2</mvdownup>
+  <minwidth>10</minwidth>
+  <minheight>10</minheight>
+  <maxwidth>1920</maxwidth>
+  <maxheight>1080</maxheight>
+  <detectthread>60</detectthread></mvdetect>
+<ptz>
+  <ptzpaninverse>0</ptzpaninverse>
+  <ptztitleinverse>1</ptztitleinverse></ptz>
+<sensor_0>
+  <outputresol>0</outputresol>
+  <brightness>0</brightness>
+  <contract>0</contract>
+  <autobright>0</autobright>
+  <backlight>0</backlight>
+  <whitebalance>0</whitebalance>
+  <gain>0</gain>
+  <daynight>0</daynight>
+  <stronglightsup>0</stronglightsup>
+  <exposuremode>0</exposuremode>
+  <elecshutter_time>0</elecshutter_time></sensor_0>
+<sensor_1>
+  <outputresol>0</outputresol>
+  <brightness>0</brightness>
+  <contract>0</contract>
+  <autobright>0</autobright>
+  <backandwrite>0</backandwrite>
+  <correct>0</correct>
+  <digitfilter>0</digitfilter>
+  <digitenhance>0</digitenhance>
+  <mirror>0</mirror></sensor_1>
+<sensor_2>
+  <outputresol>0</outputresol>
+  <brightness>0</brightness>
+  <contract>0</contract>
+  <autobright>0</autobright>
+  <backlight>0</backlight>
+  <whitebalance>0</whitebalance>
+  <gain>0</gain>
+  <daynight>0</daynight>
+  <stronglightsup>0</stronglightsup>
+  <exposuremode>0</exposuremode>
+  <elecshutter_time>0</elecshutter_time></sensor_2>
+<scanplt>
+  <address>1</address>
+  <protocol>0</protocol>
+  <baudrate>2</baudrate>
+  <ptzspeed>10</ptzspeed>
+  <start_signal>0</start_signal>
+  <pt_check>0</pt_check></scanplt>
+<trkplt>
+  <address>1</address>
+  <protocol>0</protocol>
+  <baudrate>2</baudrate>
+  <ptzspeed>10</ptzspeed></trkplt>
+<radar>
+  <hideline>0</hideline>
+  <offset50m_0>50</offset50m_0>
+  <offset100m_0>0</offset100m_0>
+  <offset300m_0>300</offset300m_0>
+  <offset50m_1>80</offset50m_1>
+  <offset100m_1>160</offset100m_1>
+  <offset300m_1>240</offset300m_1></radar>
+<track>
+  <priodis>1</priodis>
+  <priobright>1</priobright>
+  <priosize>1</priosize>
+  <trktime>15</trktime></track>
+<pano>
+  <ptzspeed_0>10</ptzspeed_0>
+  <piexfocus_0>7756</piexfocus_0>
+  <circlefps_0>80</circlefps_0>
+  <ptzspeed_1>10</ptzspeed_1>
+  <piexfocus_1>5576</piexfocus_1>
+  <circlefps_1>60</circlefps_1></pano>
+</opencv_storage>

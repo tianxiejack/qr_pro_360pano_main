@@ -11,7 +11,7 @@
 #include <iostream>
 #include <list>
 using namespace std;
-char IPDIRRECTDIR[128]="/home/nvidia/config/IPCamerastore.xml";
+char IPDIRRECTDIR[128]="IPCamerastore.xml";
 #define MAXIPSTORE_LINE (100)
 typedef struct
 {

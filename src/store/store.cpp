@@ -6,7 +6,7 @@
 #include "plantformcontrl.hpp"
 Store*Store::instance=NULL;
 //#define DIRRECTDIR  "/home/nvidia/calib/store.xml"
-#define DIRRECTDIR "/home/nvidia/config/store.xml"
+#define DIRRECTDIR "store.xml"
 Store::Store()
 {
 	OSA_mutexCreate(&filelock);

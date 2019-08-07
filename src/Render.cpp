@@ -385,7 +385,7 @@ void Render::SetupRC(int windowWidth, int windowHeight)
 	/********osd**********/
 	Glosdhandle.create();
 	Glosdhandle.setwindow(windowWidth, windowHeight);
-	Glosdhandle.createunicode("/home/nvidia/default.ttf", 40, 512, 512);
+	Glosdhandle.createunicode("default.ttf", 40, 512, 512);
 
 	//#include "FileRW.hpp"
 	Plantformpzt::getinstance()->registcall(callbackpanomod,Plantformpzt::RENDERPANO);

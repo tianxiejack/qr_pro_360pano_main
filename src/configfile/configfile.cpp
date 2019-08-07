@@ -5,10 +5,10 @@
 #include"osa.h"
 ConfigFile* ConfigFile::instance=NULL;
 #define MODE (S_IRWXU | S_IRWXG | S_IRWXO)
-#define configdir "/home/nvidia/config/"
+//#define configdir "/home/nvidia/config/"
 
-#define detectconfigfile "/home/nvidia/config/detect.txt"
-#define RecordConfigfile "/home/nvidia/config/record.txt"
+#define detectconfigfile "detect.txt"
+#define RecordConfigfile "record.txt"
 
 ConfigFile::ConfigFile():mvconfigfile(NULL),recordconfigfile(NULL)
 {
@@ -246,7 +246,7 @@ void ConfigFile::filecreate()
 }
 void ConfigFile::create()
 {
-	mk_dir(configdir);
+	//mk_dir(configdir);
 	filecreate();
 	
 

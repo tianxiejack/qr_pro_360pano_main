@@ -14,7 +14,7 @@ using std::cerr;
 using std::ostream;
 using namespace cv;
 FileStorage configfilestore;
-#define CONFIGFILENAME "/home/nvidia/config/config.xml"
+#define CONFIGFILENAME "config.xml"
 
 Config *Config::instance=new Config();
 

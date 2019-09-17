@@ -530,7 +530,7 @@ void RecordManager::setpalyervide(int num, int type)
 void RecordManager::getnexvideo()
 {	
 	int num;
-
+	
 	if(timer_video == nextvideo.type)
 	{
 		num = recordvideonames.size();
@@ -549,6 +549,8 @@ void RecordManager::getnexvideo()
 		if(num == 0)
 			return ;
 	}
+	else
+		return;
 
 	
 	nextvideo.id++;

@@ -41,8 +41,11 @@
 #include "CMessage.hpp"
 #include "globalDate.h"
 #include"cucolor.hpp"
+#include "Render.hpp"
+
 extern ptzProxyMsg ptzmsg;
-static GLMain render;
+static GLMain GLMain_render;
+extern Render render;
 
 ImageProcess *Imageprocesspt;
 using namespace cv;
@@ -393,7 +396,7 @@ int main_pano(int argc, char **argv)
 	Imageprocesspt->Init();
 	Imageprocesspt->Create();
 	//procossQ[0]=&Imageprocesspt->mcap_bufQue;
-	render.IPocess_bufQue[0]=&Imageprocesspt->m_bufQue[0];
+	GLMain_render.IPocess_bufQue[0]=&Imageprocesspt->m_bufQue[0];
 	//memcpy(render.IPocess_bufQue,Imageprocesspt->m_bufQue,sizeof(Imageprocesspt->m_bufQue));
 	dsInit.bFullScreen = false;
 	//dsInit.keyboardfunc = keyboard_event;
@@ -409,10 +412,10 @@ int main_pano(int argc, char **argv)
 	}
 	
 	/*render create*/
-	render.start(argc,  argv,(void *)&dsInit);
-	imgQ[TV_QUE_ID] = &render.m_bufQue[TV_QUE_ID];
-	imgQ[HOT_QUE_ID] = &render.m_bufQue[HOT_QUE_ID];
-	imgQ[RTSP_QUE_ID] = &render.m_bufQue[RTSP_QUE_ID];
+	GLMain_render.start(argc,  argv,(void *)&dsInit);
+	imgQ[TV_QUE_ID] = &GLMain_render.m_bufQue[TV_QUE_ID];
+	imgQ[HOT_QUE_ID] = &GLMain_render.m_bufQue[HOT_QUE_ID];
+	imgQ[RTSP_QUE_ID] = &GLMain_render.m_bufQue[RTSP_QUE_ID];
 	ChosenCaptureGroup *grop[2];
 	grop[0] = ChosenCaptureGroup :: GetTVInstance();
 	grop[1] = ChosenCaptureGroup :: GetHOTInstance();
@@ -426,6 +429,9 @@ int main_pano(int argc, char **argv)
 		}
 	//setgyrostart(1);
 	OSA_printf("run app success!\n");
+
+	Status::getinstance()->setworkmod(Status::PANOAUTO);
+	CMessage::getInstance()->MSGDRIV_send(MSGID_EXT_INPUT_WorkModeCTRL, (void *)(Status::PANOAUTO));
 
 	/*cs communication*/
 	CEventParsing parsing;
@@ -443,7 +449,7 @@ int main_pano(int argc, char **argv)
 	 */
 	  
 	/*main loop*/
-	render.mainloop();
+	GLMain_render.mainloop();
 
 	OSA_thrDelete(&parsing.comrecvEvent_thid);
 	OSA_thrDelete(&parsing.comsendEvent_thid);

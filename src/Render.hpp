@@ -670,7 +670,8 @@ public:
 	static void mouseevent(long lParam);
 	static void zeroconfig(long lParam);
 	static void playerctl(long lParam);
-	static void playerquerry(long lParam);
+	static void playerquerry_day(long lParam);
+	static void playerquerry_mon(long lParam);
 	static void playerselect(long lParam);
 	static void getsoftvetsion(long lParam);
 	static void mvdetectgo(long lParam);

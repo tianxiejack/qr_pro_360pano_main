@@ -177,10 +177,14 @@ public:
 	/************************/
 	int mvconfigenable;
 
-	/******player query*******/
+	/******player query accurate to day*******/
 	int playerqueryyear;
 	int playerquerymon;
 	int playerqueryday;
+
+	/******player query accurate to month*******/
+	int playerqueryyear_m;
+	int playerquerymon_m;
 
 	/******zero config*******/
 	unsigned char zeromod;

@@ -51,7 +51,8 @@ typedef enum _sys_msg_id_ {
 
     MSGID_EXT_INPUT_PlayerCtl,
     MSGID_EXT_INPUT_PlayerSelect,
-    MSGID_EXT_INPUT_PlayerQuerry,
+    MSGID_EXT_INPUT_PlayerQuerryDay,
+    MSGID_EXT_INPUT_PlayerQuerryMon,
     MSGID_EXT_INPUT_MVCONFIGENABLE,
     MSGID_EXT_INPUT_LIVEVIDEO,
     MSGID_EXT_INPUT_LIVEPHOTO,
@@ -327,6 +328,7 @@ typedef enum{
 	ACK_param_todef,
 	ACK_playerquerry=0x62,
 	ACK_playertime=0x63,
+	ACK_playerquerry_mon=0x67,
 	ACK_sensortvconfig=0x77,
 	ACK_sensortrkconfig=0x78,
 	ACK_scanplantformconfig=0x79,

@@ -103,7 +103,7 @@ private:
 	static RecordManager*instance;
 public:
 	static RecordManager*getinstance();
-	void playerquerry();
+	void playerquerry_day();
 };
 
 

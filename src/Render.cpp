@@ -5841,7 +5841,8 @@ void Render::registorfun()
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_Updatapano,updatepano,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MouseEvent,mouseevent,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlayerCtl,playerctl,0);
-	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlayerQuerry,playerquerry,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlayerQuerryDay,playerquerry_day,0);
+	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlayerQuerryMon,playerquerry_mon,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_PlayerSelect,playerselect,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_ZeroConfig,zeroconfig,0);
 	CMessage::getInstance()->MSGDRIV_register(MSGID_EXT_INPUT_MVDETECTGO,mvdetectgo,0);
@@ -6041,7 +6042,7 @@ void Render::playerctl(long lParam)
 
 }
 
-void Render::playerquerry(long lParam)
+void Render::playerquerry_day(long lParam)
 {
 	int year=Status::getinstance()->playerqueryyear;
 	int mon=Status::getinstance()->playerquerymon;
@@ -6132,6 +6133,135 @@ void Render::playerquerry(long lParam)
 	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);	
 }
 
+void Render::playerquerry_mon(long lParam)
+{
+	int year=Status::getinstance()->playerqueryyear_m;
+	int mon=Status::getinstance()->playerquerymon_m;
+	RecordManager::getinstance()->findrecordnames();
+	VideoQuerry_Mon data;
+	Recordmantime recorddate;
+	CGlobalDate::Instance()->querrytime_mon.clear();
+
+	for(int i=0;i<RecordManager::getinstance()->recordtime.size();i++)
+	{
+		int exist = 0;
+		recorddate=RecordManager::getinstance()->recordtime[i];
+		for(int j = 0; j < CGlobalDate::Instance()->querrytime_mon.size(); j++)
+		{
+			int existyear = CGlobalDate::Instance()->querrytime_mon[j].year;
+			int existmon = CGlobalDate::Instance()->querrytime_mon[j].mon;
+			int existday = CGlobalDate::Instance()->querrytime_mon[j].day;
+			if(((recorddate.startyear==existyear)&&(recorddate.startmon==existmon)&&(recorddate.startday==existday))||\
+				((recorddate.endyear==existyear)&&(recorddate.endmon==existmon)&&(recorddate.endday==existday)))
+			{
+				CGlobalDate::Instance()->querrytime_mon[j].type |= 1;
+				exist = 1;
+				break;
+			}
+		}
+		if(!exist)
+		{
+			if((recorddate.startyear==year)&&(recorddate.startmon==mon))
+			{
+				data.type = 1;
+				data.year=recorddate.startyear;
+				data.mon=recorddate.startmon;
+				data.day=recorddate.startday;
+				CGlobalDate::Instance()->querrytime_mon.push_back(data);
+			}
+			else if((recorddate.endyear==year)&&(recorddate.endmon==mon))
+			{
+				data.type = 1;
+				data.year=recorddate.endyear;
+				data.mon=recorddate.endmon;
+				data.day=recorddate.endday;
+				CGlobalDate::Instance()->querrytime_mon.push_back(data);
+			}
+		}
+
+	}
+
+	for(int i=0;i<RecordManager::getinstance()->liverecordtime.size();i++)
+	{
+		int exist = 0;
+		recorddate=RecordManager::getinstance()->liverecordtime[i];
+			
+		for(int j = 0; j < CGlobalDate::Instance()->querrytime_mon.size(); j++)
+		{
+			int existyear = CGlobalDate::Instance()->querrytime_mon[j].year;
+			int existmon = CGlobalDate::Instance()->querrytime_mon[j].mon;
+			int existday = CGlobalDate::Instance()->querrytime_mon[j].day;
+			if(((recorddate.startyear==existyear)&&(recorddate.startmon==existmon)&&(recorddate.startday==existday))||\
+				((recorddate.endyear==existyear)&&(recorddate.endmon==existmon)&&(recorddate.endday==existday)))
+			{
+				CGlobalDate::Instance()->querrytime_mon[j].type |= (1<<1);
+				exist = 1;
+				break;
+			}
+		}
+		if(!exist)
+		{
+			if((recorddate.startyear==year)&&(recorddate.startmon==mon))
+			{
+				data.type = (1<<1);
+				data.year=recorddate.startyear;
+				data.mon=recorddate.startmon;
+				data.day=recorddate.startday;
+				CGlobalDate::Instance()->querrytime_mon.push_back(data);
+			}
+			else if((recorddate.endyear==year)&&(recorddate.endmon==mon))
+			{
+				data.type = (1<<1);
+				data.year=recorddate.endyear;
+				data.mon=recorddate.endmon;
+				data.day=recorddate.endday;
+				CGlobalDate::Instance()->querrytime_mon.push_back(data);
+			}
+		}
+	}
+
+	for(int i=0;i<RecordManager::getinstance()->mtdrecordtime.size();i++)
+	{
+		int exist = 0;
+		recorddate=RecordManager::getinstance()->mtdrecordtime[i];
+			
+		for(int j = 0; j < CGlobalDate::Instance()->querrytime_mon.size(); j++)
+		{
+			int existyear = CGlobalDate::Instance()->querrytime_mon[j].year;
+			int existmon = CGlobalDate::Instance()->querrytime_mon[j].mon;
+			int existday = CGlobalDate::Instance()->querrytime_mon[j].day;
+			if(((recorddate.startyear==existyear)&&(recorddate.startmon==existmon)&&(recorddate.startday==existday))||\
+				((recorddate.endyear==existyear)&&(recorddate.endmon==existmon)&&(recorddate.endday==existday)))
+			{
+				CGlobalDate::Instance()->querrytime_mon[j].type |= (1<<2);
+				exist = 1;
+				break;
+			}
+		}
+		if(!exist)
+		{
+			if((recorddate.startyear==year)&&(recorddate.startmon==mon))
+			{
+				data.type = (1<<2);
+				data.year=recorddate.startyear;
+				data.mon=recorddate.startmon;
+				data.day=recorddate.startday;
+				CGlobalDate::Instance()->querrytime_mon.push_back(data);
+			}
+			else if((recorddate.endyear==year)&&(recorddate.endmon==mon))
+			{
+				data.type = (1<<2);
+				data.year=recorddate.endyear;
+				data.mon=recorddate.endmon;
+				data.day=recorddate.endday;
+				CGlobalDate::Instance()->querrytime_mon.push_back(data);
+			}
+		}
+	}
+
+	CGlobalDate::Instance()->feedback=ACK_playerquerry_mon;
+	OSA_semSignal(&CGlobalDate::Instance()->m_semHndl);	
+}
 
 void Render::playerselect(long lParam)
 {

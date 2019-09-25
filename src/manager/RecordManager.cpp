@@ -842,7 +842,7 @@ void RecordManager::getnexvideo()
 		Status::getinstance()->playerqueryyear = nowdate.startyear;
 		Status::getinstance()->playerquerymon = nowdate.startmon;
 		Status::getinstance()->playerqueryday = nowdate.startday;
-		playerquerry();
+		playerquerry_day();
 	}
 
 	playerdate_t starttime2;
@@ -895,7 +895,7 @@ void RecordManager::setdataheldrecord(int a[2][7][24])
 	VideoRecord::getinstance()->setdataheldrecord(a);
 
 }
-void RecordManager::playerquerry()
+void RecordManager::playerquerry_day()
 {
 	int year=Status::getinstance()->playerqueryyear;
 	int mon=Status::getinstance()->playerquerymon;

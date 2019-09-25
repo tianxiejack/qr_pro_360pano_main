@@ -77,7 +77,8 @@ private:
 	void chooseptz();
 	void playercontrl();
 	void playerselect();
-	void playerquery();
+	void playerquery_day();
+	void playerquery_mon();
 	void livevideo();
 	void livephoto();
 	void panoenable();
@@ -118,7 +119,8 @@ private:
 	void extExtraInputResponse(sendInfo * spBuf);
 	void  upgradefwStat(sendInfo * spBuf);
 	void  paramtodef(sendInfo * spBuf);
-	void  recordquerry(sendInfo * spBuf);
+	void  recordquerry_day(sendInfo * spBuf);
+	void  recordquerry_mon(sendInfo * spBuf);
 	void  ackplayertime(sendInfo * spBuf);
 	void  ackplantformconfig(sendInfo * spBuf);
 	void  acksensortvconfig(sendInfo * spBuf);

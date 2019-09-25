@@ -142,6 +142,12 @@ typedef struct {
 
 }Recordtime;
 
+typedef struct{
+	char type;
+	int year;
+	int mon;
+	int day;
+}VideoQuerry_Mon;
 
 typedef struct{
 	int major;
@@ -177,6 +183,9 @@ static vector<int>  defConfigBuffer;
 vector<Recordtime> querrytime;
 vector<Recordtime> querrylivetime;
 vector<Recordtime> querrymtdtime;
+
+vector<VideoQuerry_Mon> querrytime_mon;
+
 MtdConfig mtdconfig;
 
 SoftVersion softversion;

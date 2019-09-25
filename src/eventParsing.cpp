@@ -410,7 +410,7 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				playerselect();
 				break;
 			case 0x62:
-				playerquery();
+				playerquery_day();
 				break;
 			case 0x63:
 				livevideo();
@@ -425,7 +425,9 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 			case 0x66:
 				videoclip();
 				break;
-
+			case 0x67:
+				playerquery_mon();
+				break;
 			case 0x77:
 				sensortvconfig();
 				break;
@@ -570,17 +572,19 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 			extExtraInputResponse(psendBuf);
 			break;
 		case ACK_upgradefw:
-			//printf("%s,%d, upgradefw response!!!\n",__FILE__,__LINE__);
 			upgradefwStat(psendBuf);
 			break;
 		case ACK_param_todef:
 			paramtodef(psendBuf);
 			break;
 		case ACK_playerquerry:
-			recordquerry(psendBuf);
+			recordquerry_day(psendBuf);
 			break;
 		case ACK_playertime:
 			ackplayertime(psendBuf);
+			break;
+		case ACK_playerquerry_mon:
+			recordquerry_mon(psendBuf);
 			break;
 		case ACK_plantformconfig:
 			ackplantformconfig(psendBuf);
@@ -595,7 +599,6 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 			acksensorfrconfig(psendBuf);
 			break;
 		case ACK_zeroconfig:
-			//recordquerry(psendBuf);
 			break;
 		case ACK_recordconfig:
 			ackrecordconfig(psendBuf,0);
@@ -604,20 +607,17 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 			ackmvconfig(psendBuf);
 			break;
 		case ACK_mvareaconfig:
-			//recordquerry(psendBuf);
 			break;
 		case ACK_displayconfig:
 			ackdisplayconfig(psendBuf);
 			break;
 		case ACK_correcttimeconfig:
-			//recordquerry(psendBuf);
 			break;
 		case ACK_recordconfigmv:
 			ackrecordconfig(psendBuf,1);
 			break;
 		case ACK_panoconfig:
 			ackpanoconfig(psendBuf);
-			//recordquerry(psendBuf);
 			break;
 		case ACK_scanplantformconfig:
 			ackscanplantformconfig(psendBuf);
@@ -988,7 +988,7 @@ void CEventParsing::playerselect()
 	pM->MSGDRIV_send(MSGID_EXT_INPUT_PlayerSelect, 0);		
 }
 
-void CEventParsing::playerquery()
+void CEventParsing::playerquery_day()
 {
 	if((_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6))!=Status::getinstance()->playerqueryyear)
 	{
@@ -1005,7 +1005,23 @@ void CEventParsing::playerquery()
 
 	OSA_printf("%s the year=%d mon=%d day=%d\n",__func__,Status::getinstance()->playerqueryyear,Status::getinstance()->playerquerymon,Status::getinstance()->playerqueryday);
 
-	pM->MSGDRIV_send(MSGID_EXT_INPUT_PlayerQuerry, 0);
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_PlayerQuerryDay, 0);
+}
+
+void CEventParsing::playerquery_mon()
+{
+	if((_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6))!=Status::getinstance()->playerqueryyear_m)
+	{
+		Status::getinstance()->playerqueryyear_m=_globalDate->rcvBufQue.at(5)<<8|_globalDate->rcvBufQue.at(6);
+	}
+	if(_globalDate->rcvBufQue.at(7)!=Status::getinstance()->playerquerymon_m)
+	{
+		Status::getinstance()->playerquerymon_m=_globalDate->rcvBufQue.at(7);
+	}
+
+	OSA_printf("%s the year=%d mon=%d\n",__func__,Status::getinstance()->playerqueryyear_m,Status::getinstance()->playerquerymon_m);
+
+	pM->MSGDRIV_send(MSGID_EXT_INPUT_PlayerQuerryMon, 0);
 }
 
 void CEventParsing::livevideo()
@@ -2076,7 +2092,7 @@ void  CEventParsing:: paramtodef(sendInfo * spBuf)
 	spBuf->byteSizeSend=0x07;
 }
 
-void  CEventParsing:: recordquerry(sendInfo * spBuf)
+void  CEventParsing::recordquerry_day(sendInfo * spBuf)
 {
 	u_int8_t sumCheck;
 	int infosize=15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size()+1;
@@ -2154,6 +2170,31 @@ void  CEventParsing:: recordquerry(sendInfo * spBuf)
 	sumCheck=sendCheck_sum(4+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size(),spBuf->sendBuff+1);
 	spBuf->sendBuff[4+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size()+1]=(sumCheck&0xff);
 	spBuf->byteSizeSend=4+15*_globalDate->querrytime.size()+15*_globalDate->querrylivetime.size()+15*_globalDate->querrymtdtime.size()+2;
+}
+
+void  CEventParsing:: recordquerry_mon(sendInfo * spBuf)
+{
+	u_int8_t sumCheck;
+	int infosize=5*_globalDate->querrytime_mon.size()+1;
+	spBuf->sendBuff[0]=0xEB;
+	spBuf->sendBuff[1]=0x51;
+	spBuf->sendBuff[2]=infosize&0xff;
+	spBuf->sendBuff[3]=(infosize>>8)&0xff;
+	spBuf->sendBuff[4]=ACK_playerquerry_mon;
+	int i = 0;
+	int j = _globalDate->querrytime_mon.size();
+	for(i = 0; i < j; i++)
+	{
+		spBuf->sendBuff[5+i*5]=_globalDate->querrytime_mon[i].type;
+		spBuf->sendBuff[6+i*5]=(_globalDate->querrytime_mon[i].year>>8)&0xff;
+		spBuf->sendBuff[7+i*5]=_globalDate->querrytime_mon[i].year&0xff;
+		spBuf->sendBuff[8+i*5]=_globalDate->querrytime_mon[i].mon;
+		spBuf->sendBuff[9+i*5]=_globalDate->querrytime_mon[i].day;
+	}
+
+	sumCheck=sendCheck_sum(4+5*_globalDate->querrytime_mon.size(),spBuf->sendBuff+1);
+	spBuf->sendBuff[5+5*_globalDate->querrytime_mon.size()]=(sumCheck&0xff);
+	spBuf->byteSizeSend=5+15*_globalDate->querrytime_mon.size()+1;
 	printf("%s, %d, %s\n",__FILE__, __LINE__, __func__);
 }
 

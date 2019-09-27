@@ -7,6 +7,7 @@
 #include <iostream> 
 #include <cmath>
 #include "CMessage.hpp"
+#include "debug.h"
 
 StichAlg*StichAlg::instance=NULL;
 
@@ -329,7 +330,6 @@ void StichAlg::Panoprocess()
 			else
 				getPanoOffset(dst,pre,&xoffsetfeat,&yoffsetfeat);
 				
-			//printf();
 			setcurrentangle(offet2anglerelative2inter(-xoffsetfeat));
 			curoffset=getpanooffet(getcurrentangle());
 			setSeamPos(curoffset-preoffset);
@@ -595,8 +595,6 @@ void StichAlg::main_proc_func()
 		}
 		else	
 		angle=inputif->framegyroyaw*1.0/ANGLESCALE+getcamerazeroossfet();
-
-		//OSA_printf("the algle is %f\n",angle);
 		
 		if(angle<0)
 			angle+=360;
@@ -662,6 +660,7 @@ void StichAlg::main_proc_func()
 		outputif->framegyroroll=inputif->framegyroroll;
 		outputif->framegyropitch=inputif->framegyropitch;
 		outputif->framegyroyaw=getcurrentangle()*ANGLESCALE;
+		//printf("%s,%d,outputif->framegyroyaw=%f\n", __FILE__, __LINE__, outputif->framegyroyaw);
 
 
 		//OSA_printf("StichAlg %s:***********2******end**********************\n",__func__);

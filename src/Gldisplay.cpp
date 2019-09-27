@@ -76,7 +76,6 @@ if(gThis->queueinfo[RTSP_QUE_ID]!=NULL)
 		{
 			if(gThis->processqueueinfo[chId]!=NULL)
 				{
-				//OSA_printf("OK  PROCESS INFO");
 				render.setPanoAngle( gThis->processqueueinfo[chId]->framegyroyaw);
 				render.settailcut(gThis->processqueueinfo[chId]->tailcut);
 				render.CaptureProcessFrame(chId, gThis->processqueueinfo[chId]->width, gThis->processqueueinfo[chId]->height, gThis->processqueueinfo[chId]->channels, (unsigned char *)gThis->processqueueinfo[chId]->virtAddr);

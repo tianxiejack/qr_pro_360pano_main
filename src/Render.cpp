@@ -1704,13 +1704,10 @@ void Render::Angle2pos()
 		}
 
 	xoffset=PANOSCALE*angle*panowidth/360;
-//	printf("!!!!!!!angle = %f,xoffset = %f\n",angle,xoffset);
 	if(xoffset>=PANOSHIFT)
-	xoffset=xoffset-PANOSHIFT;
-	//printf("the Angle2pos angle=%f\n",angle);
+		xoffset=xoffset-PANOSHIFT;
 	yoffset=PANOEXTRAH/2;
 	width=dst.cols;
-	//printf("the Angle2pos angle=%f  width=%d\n",angle,width);
 	height=panosrcheight;
 	setPanoSubPos(xoffset,yoffset,width,height);
 	

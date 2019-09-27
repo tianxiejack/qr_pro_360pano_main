@@ -1,6 +1,7 @@
 #include "Gststreamercontrl.hpp"
 #include "videorecord.hpp"
 #include "Queuebuffer.hpp"
+#include "debug.h"
 
 extern int gst_videnc_create(void);
 extern int gst_videnc_enable(int bEnable);

@@ -10,9 +10,9 @@
 #include "osa_sem.h"
 #include <errno.h>
 #include "Status.hpp"
+#include "debug.h"
 
 CEventParsing* CEventParsing::pThis = NULL;
-int evtDbgOn = 0;
 
 CEventParsing::CEventParsing()
 {
@@ -89,13 +89,11 @@ void *CEventParsing::thread_comsendEvent(void *p)
 			if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
 			{
 				pThis->pCom2->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
-				if(evtDbgOn)
-				{
-					printf("net send %d bytes:\n", repSendBuffer.byteSizeSend);
-					for(int i = 0; i < repSendBuffer.byteSizeSend; i++)
-						printf("%02x ", repSendBuffer.sendBuff[i]);
-					printf("\n");
-				}
+
+				CR_DEBUG_S("net send %d bytes:\n", repSendBuffer.byteSizeSend);
+				for(int i = 0; i < repSendBuffer.byteSizeSend; i++)
+					CR_DEBUG("%02x ", repSendBuffer.sendBuff[i]);
+				CR_DEBUG("\n");
 			}
 			OSA_mutexUnlock(&pThis->mutexConn);
 		}
@@ -261,15 +259,12 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype
 	uartdata_pos = 0;
 	if(sizeRcv>0)
 	{
-		if(evtDbgOn)
+		CR_DEBUG_S("(fd:%d)start recv data\n", comtype.fd);
+		for(int j=0;j<sizeRcv;j++)
 		{
-			printf("------------------(fd:%d)start recv data---------------------\n", comtype.fd);
-			for(int j=0;j<sizeRcv;j++)
-			{
-				printf("%02x ",tmpRcvBuff[j]);
-			}
-			printf("\n");
+			CR_DEBUG("%02x ",tmpRcvBuff[j]);
 		}
+		CR_DEBUG("\n");
 
 		while (uartdata_pos< sizeRcv)
 		{

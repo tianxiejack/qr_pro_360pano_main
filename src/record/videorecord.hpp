@@ -122,7 +122,7 @@ class VideoRecord{
 		void setmtdecordenable(int enable){mtdenable=enable;};
 		int getmtdecordenable(){return mtdenable;};
 
-		int getrecordflag(){return timeenable||eventenable;};
+		int getrecordflag(){return timeenable;};
 
 		int getforceclose(){return forceclose_;};
 		void setforceclose(int flag){forceclose_=flag;};

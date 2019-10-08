@@ -1338,10 +1338,13 @@ void Render::SelectFullScreenView(int x,int y,int width,int height,int idx,bool 
 		ly=0;
 		w=width;
 		h=height;
-		viewcamera[idx].leftdownrect.x=lx;
-		viewcamera[idx].leftdownrect.y=ly;
-		viewcamera[idx].leftdownrect.width=w;
-		viewcamera[idx].leftdownrect.height=h;
+		if(!isfboDraw)
+		{
+			viewcamera[idx].leftdownrect.x=lx;
+			viewcamera[idx].leftdownrect.y=ly;
+			viewcamera[idx].leftdownrect.width=w;
+			viewcamera[idx].leftdownrect.height=h;
+		}
 		glViewport(lx,ly,w,h);
 		//glBindTexture(GL_TEXTURE_2D, textureID[CAPTEXTURE]);
 		glBindTexture(GL_TEXTURE_2D,pFPfacade[PANO_PIC]->GetFboTextureID());

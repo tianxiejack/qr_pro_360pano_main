@@ -32,6 +32,7 @@
 #include "store.hpp"
 #include "StlGlDefines.h"
 #include "videoload.hpp"
+#include "debug.h"
 
 //#include"Gyroprocess.hpp"
 
@@ -247,6 +248,11 @@ Render::Render():selectx(0),selecty(0),selectw(0),selecth(0),pano360texturew(0),
 		strcpy( ChineseC_TextureFileName[T_180_T], T180_TGA);
 		strcpy( ChineseC_TextureFileName[T_360_T], T360_TGA);
 		strcpy( ChineseC_TextureFileName[RADAR_T], RADAR_TGA);
+
+		drawzerox = 0;
+		drawzeroy = 0;
+		zerox = 0;
+		zeroy = 0;
 	}
 Render::~Render()
 	{
@@ -498,6 +504,11 @@ void Render::mouseMotionPress(int x, int y)
 		viewcameraprocess(false);
 		mousemovrect();
 	}
+	else if(getmenumode()==SELECTZEROMODE)
+	{
+		drawzerox=x;
+		drawzeroy=y;
+	}
 }
 
 void Render::mouseButtonPress(int button, int state, int x, int y)
@@ -519,6 +530,8 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 	{
 		if(PoisitionReach()==0)
 			{
+				drawzerox = zerox;
+				drawzeroy = zeroy;
 				OSA_mutexUnlock(&renderlock);
 				return ;
 			}
@@ -2925,7 +2938,7 @@ void Render::Drawzero()
 			camrect.height=viewcamera[i].leftdownrect.height;
 			camrect.y=renderheight-(viewcamera[i].leftdownrect.y+viewcamera[i].leftdownrect.height);
 			//printf("the x=%d y=%d w=%d h=%d mousey=%d mousex=%d \n",camrect.x,camrect.y,camrect.width,camrect.height,mousey,mousex);
-			if(mousey>camrect.y&&mousey<camrect.y+camrect.height)
+			if(drawzeroy>camrect.y&&drawzeroy<camrect.y+camrect.height)
 				{
 					
 					status=1;
@@ -2935,22 +2948,19 @@ void Render::Drawzero()
 			else
 				status=0;
 		}
-	Glosdhandle.setcolorline(GLGREEN);
+	Glosdhandle.setcolorline(GLBLUE);
 	if(status==0)
 		return ;
 	Glosdhandle.drawbegin();
-
-	Glosdhandle.drawline(mousex,camrect.y,mousex,camrect.y+camrect.height);
+	Glosdhandle.drawline(drawzerox,camrect.y,drawzerox,camrect.y+camrect.height);
 	//Glosdhandle.drawline(mousex,camrect.y,mousex,camrect.y+camrect.height);
-	startx=max(0,mousex-len);
-	endx=min(camrect.width,mousex+len);
+	startx=max(0,drawzerox-len);
+	endx=min(camrect.width,drawzerox+len);
 	starty=camrect.y+camrect.height/2;
 	endy=camrect.y+camrect.height/2;
 	Glosdhandle.drawline(startx,starty,endx,endy);
 
 	Glosdhandle.drawend();
-	mousex;mousey;
-
 }
 void Render::Drawmovdetect()
 {
@@ -5370,9 +5380,6 @@ int Render::selectareaok(Rect &rect)
 
 void Render::Mousezeropos()
 {
-
-	int x=0;
-	int y=0;
 	double mouseangle=0;
 	double mousetitleangle=0;
 	int panposx=0;
@@ -5395,6 +5402,8 @@ void Render::Mousezeropos()
 			mouseypre=MOUSEy;
 			mousex=MOUSEx;
 			mousey=MOUSEy;
+			drawzerox = MOUSEx;
+			drawzeroy = MOUSEy;
 		}
 	if(MOUSEST==MOUSEUP&&BUTTON==MOUSELEFT)
 		{
@@ -5407,11 +5416,16 @@ void Render::Mousezeropos()
 			selectx=min(MOUSEx,mousexpre);
 			selecty=min(MOUSEy,mouseypre);
 			if(!selectareaok(rect))
-				return ;
+			{
+				//return ;
+			}
 			selectx=rect.x;
 			selecty=rect.y;
 			selectw=rect.width;
 			selecth=rect.height;
+
+			drawzerox = MOUSEx;
+			drawzeroy = MOUSEy;
 	}
 
 
@@ -5419,26 +5433,25 @@ void Render::Mousezeropos()
 	
 	if(MOUSEST==MOUSEUP&&BUTTON==MOUSELEFT)
 		{
-			x=mousexpre;
-			y=mouseypre;
-
+			zerox = drawzerox;
+			zeroy = drawzeroy;
 			//if(renderheight-mov360viewy<MOUSEy)
 			//	return ;
-			if(renderheight-mov180viewy>=selecty)
+			if(renderheight-mov180viewy>=zeroy)
 				{
-					panposx=x*pano360texturew/(2*renderwidth)+Config::getinstance()->getpanoprocessshift();//-(Config::getinstance()->getpanoprocesswidth())/2;
+					panposx=zerox*pano360texturew/(2*renderwidth)+Config::getinstance()->getpanoprocessshift();//-(Config::getinstance()->getpanoprocesswidth())/2;
 					mouseangle=offet2anglepano(panposx);
 
-					mousetitleangle=1.0*(cent180y-y)*CameraFov/(cent180h)+getptzzerotitleangle();
+					mousetitleangle=1.0*(cent180y-zeroy)*CameraFov/(cent180h)+getptzzerotitleangle();
 					//pano360texturew;
 					//mouseangle
 				}
 			else
 				{
-					panposx=(x+renderwidth)*pano360texturew/(renderwidth*2)+Config::getinstance()->getpanoprocessshift();
+					panposx=(zerox+renderwidth)*pano360texturew/(renderwidth*2)+Config::getinstance()->getpanoprocessshift();
 					mouseangle=offet2anglepano(panposx);
 
-					mousetitleangle=1.0*(cent360y-y)*CameraFov/(cent360h)+getptzzerotitleangle()-(Config::getinstance()->getpanoprocesswidth())/2;
+					mousetitleangle=1.0*(cent360y-zeroy)*CameraFov/(cent360h)+getptzzerotitleangle()-(Config::getinstance()->getpanoprocesswidth())/2;
 
 				}
 			mouseangle+=getptzzeroangle();
@@ -5446,7 +5459,6 @@ void Render::Mousezeropos()
 				mouseangle=mouseangle-360;
 			else if(mouseangle<0)
 				mouseangle=mouseangle+360;
-
 
 			mousetitleangle=mousetitleangle;
 				if(mousetitleangle>360)

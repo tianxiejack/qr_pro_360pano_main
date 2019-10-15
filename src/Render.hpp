@@ -185,6 +185,7 @@ public:
 
 	int MOUSEx , MOUSEy , BUTTON ,MOUSEST;
 	int mousex,mousey,mouseflag;
+	int drawzerox, drawzeroy, zerox, zeroy;
 	void PostCaptureFrame();
 
 	void keyPressed(unsigned char key, int x, int y);

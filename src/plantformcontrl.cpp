@@ -459,12 +459,13 @@ bool Plantformpzt::callbackFuncPlantforminitpan()
 	angleoffet=angleoffet-360;
 	if(angleoffet<-300)
 	angleoffet=angleoffet+360;
+	
 	if(fabs(angleoffet)<0.2)
 	{
 		timeoutflag[PLANTFORMINITPAN]=0;
 		return true;
 	}
-	printf(" %s angle=%f anglepan=%f\n",__func__, angle,anglepan);
+	
 
 	OSA_waitMsecs(1000);
 	//initptzpos(anglepan,angletitle);

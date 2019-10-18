@@ -4,6 +4,7 @@
 #include "FileRW.hpp"
 #include"Stich.hpp"
 #include"config.h"
+
 //GYRO_NINEAXIS Nineaxis[50];
 GYRO_FRAME gyrofram;
 double Roll=0.0;
@@ -292,11 +293,15 @@ void GyrogetRPY()
 		Roll=mpu.roll*180/pi;
 		Pitch=mpu.pitch*180/pi;
 		Yaw=mpu.yaw*180/pi+Yawbase-zeroangle;
+
+		int angle_int = (int)Yaw;
+		Yaw = Yaw - angle_int/360 * 360;
+		
+		
 		if(Yaw>360)
 			Yaw=Yaw-360;
 		else if(Yaw<-360)
 			Yaw=Yaw+360;
-
 		
 		//OSA_printf("frame roll=%f pitch=%f yaw=%f\n",Roll,Pitch,Yaw);
 

@@ -596,10 +596,15 @@ void StichAlg::main_proc_func()
 		else	
 		angle=inputif->framegyroyaw*1.0/ANGLESCALE+getcamerazeroossfet();
 		
+		int angle_int = (int)angle;
+		angle = angle - angle_int/360 * 360;
+
+		
 		if(angle<0)
 			angle+=360;
 		else if(angle>=360)
 			angle-=360;
+		
 		setcurrentangle(angle);
 		setgyroangle(angle);
 

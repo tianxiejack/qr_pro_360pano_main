@@ -489,17 +489,23 @@ void VideoLoad::main_Recv_func()
 	string  xmlname=readdir+readname;
 	memset(&loaddata,0,sizeof(VideoLoadData));
 	static double gyrodata=0;
-	time_t startsec, endsec;;
+	time_t startsec, endsec;
+	int frame_num = 0;
 	
 	while(mainRecvThrObj.exitProcThread ==  false)
 	{	
 		int capangle=0;
-		OSA_semWait(&loadsem,OSA_TIMEOUT_FOREVER);
+		int playclass = RecordManager::getinstance()->getpalyerclass();
+
+		if(playclass <= 0)
+			OSA_semWait(&loadsem,OSA_TIMEOUT_FOREVER);
 
 		if(RTSPURL)
 			return;
 
 		//printf("%s,%d,getreadnewfile()=%d\n",__FILE__, __LINE__, getreadnewfile());
+		
+		
 		if(getreadnewfile())
 		{
 				setreadnewfile(0);
@@ -529,18 +535,27 @@ void VideoLoad::main_Recv_func()
 				}
 
 				if(getreadavi_type() == timer_video)
+				{
 					mydata.open(xmlname.c_str());
+				}
 
 		}
 
 		
 		if(OPENCVAVI)
-		status=videocapture.read(fileframe);
+		{
+			status=videocapture.read(fileframe);
+			frame_num = videocapture.get(CV_CAP_PROP_POS_FRAMES);
+			if(playclass>0)
+				videocapture.set(CV_CAP_PROP_POS_FRAMES, frame_num + playclass - 1);
+		}
 
 		if(!fileframe.empty())
 		{
 			if(getreadavi_type() == timer_video)
-				loaddata=mydata.read();
+			{
+				loaddata=mydata.read(frame_num);
+			}
 		}
 		else
 		{

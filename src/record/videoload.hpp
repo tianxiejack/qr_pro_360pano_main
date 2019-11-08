@@ -96,9 +96,13 @@ public :
  FILE *filefp=NULL;
   char buf[MAX_LINE];
    cv::FileStorage filestore;
+
+  int line_num = 0;
+   
   void open(const char *name)
   	{
   		//printf("%s l=%d\n",__func__,__LINE__);
+  		line_num = 0;
   	if(FILEXML)
   		{
   				if ((filefp=fopen(name,"r"))==NULL)			//\u6253\u5f00\u6307\u5b9a\u6587\u4ef6\uff0c\u5982\u679c\u6587\u4ef6\u4e0d\u5b58\u5728\u5219\u65b0\u5efa\u8be5\u6587\u4ef6
@@ -138,6 +142,8 @@ public :
 		}
 		else
 		filestore.release();
+
+		line_num = 0;
   	}
 
  
@@ -157,7 +163,9 @@ public :
 							sscanf(buf,"event:%d_gyrox:%lf_gyroy:%lf_gyroz:%lf",&data.event,&data.gyrox,&data.gyroy,&data.gyroz);
   						}
 					else
+					{
 						fseek(filefp, 0, SEEK_SET);
+					}
   				}
   		}
 	else
@@ -176,6 +184,56 @@ public :
   	
    
   }
+
+  VideoLoadData read(int line)
+  {
+  	int loop_read = 1;
+	
+  	VideoLoadData data;
+  	if(FILEXML)
+  	{	
+  			if(filefp!=NULL)
+  				{
+  				  	while(loop_read)
+  				  	{
+	  					if(!feof(filefp))
+	  						{
+
+			  					fgets(buf,MAX_LINE,filefp);
+								line_num++;
+								if(line == line_num)
+								{
+									sscanf(buf,"event:%d_gyrox:%lf_gyroy:%lf_gyroz:%lf",&data.event,&data.gyrox,&data.gyroy,&data.gyroz);
+									break;
+								}
+								if(line_num > line)
+								{
+									fseek(filefp, 0, SEEK_SET);
+									line_num = 0;
+								}
+	  						}
+						else
+						{
+							fseek(filefp, 0, SEEK_SET);
+							line_num = 0;
+							break;
+						}
+					}
+  				}
+  	}
+	else
+	{
+		data.event=(int)(*current)["event"];
+		data.gyrox=(double)(*current)["gyrox"];
+		data.gyroy=(double)(*current)["gyroy"];
+		data.gyroz=(double)(*current)["gyroz"];
+		if(current==fniEnd)
+			current=fni;
+		current++;
+	}
+	return data;
+  }
+  
 };
 
 

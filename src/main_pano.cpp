@@ -126,7 +126,7 @@ void  processFrameRecord_pano(void *data,void *infodata)
 	//	return ;
 	if(data==NULL||infodata==NULL)
 		return ;
-	info = image_queue_getEmptytime(imgQ[queueid],OSA_TIMEOUT_FOREVER);
+	info = image_queue_getEmptytime(imgQ[queueid],OSA_TIMEOUT_NONE);
 	if(info==NULL)
 		{
 			

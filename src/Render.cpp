@@ -663,7 +663,7 @@ void Render::mouseButtonPress(int button, int state, int x, int y)
 						//setpanoflagenable(1);
 						{
 							int playclass = RecordManager::getinstance()->getpalyerclass();
-							if(playclass < 2)
+							if(playclass < 16)
 							{
 								RecordManager::getinstance()->setpalyerclass(playclass + 2);
 								RecordManager::getinstance()->setplayertimer(RecordManager::getinstance()->getpalyerclass());
@@ -6045,7 +6045,7 @@ void Render::playerctl(long lParam)
 	else if(lParam==Status::PLAYERDEC)
 		{
 			int playclass = RecordManager::getinstance()->getpalyerclass();
-			if(playclass < 2)
+			if(playclass < 16)
 			{
 				RecordManager::getinstance()->setpalyerclass(playclass + 2);
 				RecordManager::getinstance()->setplayertimer(RecordManager::getinstance()->getpalyerclass());

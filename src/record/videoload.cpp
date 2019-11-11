@@ -547,7 +547,7 @@ void VideoLoad::main_Recv_func()
 			status=videocapture.read(fileframe);
 			frame_num = videocapture.get(CV_CAP_PROP_POS_FRAMES);
 			if(playclass>0)
-				videocapture.set(CV_CAP_PROP_POS_FRAMES, frame_num + playclass - 1);
+				videocapture.set(CV_CAP_PROP_POS_FRAMES, frame_num + playclass*2 - 1);
 		}
 
 		if(!fileframe.empty())
